@@ -1,23 +1,11 @@
 import './Header.css'
-import bgImage from '../assets/bg.png'
 
-function Layout({ children }) {
+function Header() {
   return (
-    <div
-      className="bg"
-      style={{
-        backgroundImage: `url(${bgImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        minHeight: '100vh',
-      }}
-    >
-      <Header />
-      <main style={{ padding: '2rem' }}>
-        {children}
-      </main>
-    </div>
+    <header className='header'>
+      <h2>Test</h2>
+    </header>
   );
 }
 
-export default Layout;
+export default Header;
