@@ -1,0 +1,11 @@
+# node (frontend)
+frontend/node_modules/
+frontend/dist/
+
+# dotnet (backend)
+backend/bin/
+backend/obj/
+
+# docker volumes (local)
+**/.vscode/
+**/.DS_Store

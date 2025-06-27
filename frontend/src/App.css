@@ -1,0 +1,58 @@
+@font-face {
+  font-family: "PFD";
+  src: url("/font/PlayfairDisplay-VariableFont_wght.ttf") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+.PFD {
+  font-family: "PFD";
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.app {
+  width: 100vw;
+  min-height: 100vh;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.app-header {
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 1px;
+  height: 50px;
+  text-align: left;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7);
+}
+
+.app-content {
+  color: white;
+  padding: 20px;
+}
+
+.fancy-button {
+  padding: 12px 24px;
+  font-size: 16px;
+  color: white;
+  background: linear-gradient(0deg, #6b73ff, #000dff);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.fancy-button:hover {
+  background: linear-gradient(0deg, #000dff, #6b73ff);
+  transform: scale(1.05);
+}
