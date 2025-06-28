@@ -12,7 +12,7 @@ function Layout({ children }) {
         theme="custom"
         enableFlicker={true}
         scanlineOrientation={"horizontal"}
-        sweepDuration={8}
+        sweepDuration={5}
         sweepThickness={40}
         sweepStyle="soft"
         glowColor="rgba(0,255,128,0.4)"

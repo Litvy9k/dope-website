@@ -1,18 +1,66 @@
 @font-face {
-  font-family: "test_font";
-  src: url("/font/8-bit Arcade In.ttf") format("truetype");
+  font-family: "header_font";
+  src: url("../src/font/Demosdcyberglitch-yw6GM.ttf") format("truetype");
+  /* src: url("../src/font/UncrackedFreeTrial-X3WjK.otf") format("opentype"); */
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
-.test_font {
-  font-family: "test_font";
+html, body {
+  margin: 0;
+  padding: 0;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.bg {
+  width: 100vw;
+  min-height: 100vh;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  height: 50px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  /* justify-content: space-between; */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7);
+}
+
+.header_font {
+  font-family: "header_font", monospace;
+  font-size: 40px;
+  color: cyan;
+  text-shadow:
+     /* 3px     3px    0   #000, */
+    -3px    -3px    0   #000,
+    0    0   4px  magenta,
+    0    0  10px  magenta,
+    0    0  20px  magenta;
+  filter: drop-shadow(0 0 100px magenta);
+  margin: 0;
+  line-height: 1;
+  transform: translateY(2px);
 }
 
 
 .main-content {
   padding: 2rem;
+  padding-top: 50px;
   background-color: transparent;
   color: white;
 }
