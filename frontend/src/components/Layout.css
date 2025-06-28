@@ -7,6 +7,14 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "pixel_slim";
+  src: url("../src/font/BitPap.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -31,18 +39,19 @@ html, body {
   left: 0;
   width: 100%;
   z-index: 1000;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(10, 10, 10, 0.95);
+  border-radius: 0 0 10px 10px;
   color: white;
-  height: 50px;
+  height: 55px;
   padding: 0 16px;
   display: flex;
   align-items: center;
   /* justify-content: space-between; */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
 }
 
 .header_font {
-  font-family: "header_font", monospace;
+  font-family: "header_font";
   font-size: 40px;
   color: cyan;
   text-shadow:
@@ -54,13 +63,125 @@ html, body {
   filter: drop-shadow(0 0 100px magenta);
   margin: 0;
   line-height: 1;
-  transform: translateY(2px);
+  transform: translateY(1px);
+  padding-left: 10px;
 }
-
 
 .main-content {
   padding: 2rem;
-  padding-top: 50px;
+  padding-left: 35px;
+  padding-top: 55px;
   background-color: transparent;
   color: white;
+}
+
+.settings-tray {
+  position: fixed;
+  bottom: 20px;
+  left: -255px;
+  width: 223px;
+  height: 300px;
+  padding: 16px;
+  background-color: rgba(10, 10, 10, 0.95);
+  color: #00ffcc;
+  border-radius: 0 10px 10px 0;
+  /* border: 1px solid #00ffcc;
+  border-radius: 8px; */
+  /* font-family: 'Press Start 2P', monospace; */
+  /* font-size: 10px; */
+  /* box-shadow: 0 0 20px rgba(0, 255, 255, 0.3); */
+  z-index: 1000;
+  transition: left 0.3s ease;
+}
+
+.settings-tray.open {
+  left: 0;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+}
+
+.tray-tab {
+  font-family: "pixel_slim";
+  font-size: 20px;
+  padding-right: 10px;
+  padding-top: 15px;
+  color: white;
+  letter-spacing: 0.5px;
+  text-align: center;
+  writing-mode: vertical-rl; 
+
+  position: fixed;
+  bottom: 60px;
+  left: 0;
+  width: 20px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  line-height: 1;
+  height: 95px;
+  background-color: rgba(0, 255, 255, 0.7);
+  border-radius: 0 10px 10px 0;
+  text-align: center;
+  cursor: pointer;
+  z-index: 1001;
+  transition: left 0.3s ease;
+}
+
+.tray-tab.open {
+  left: 255px;
+}
+
+.tray-tab:hover {
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.7);
+}
+
+.tray-tab:active {
+  background-color: rgba(0, 255, 255, 0.4);
+}
+
+.tray-tab:focus {
+  outline: none;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.7);
+}
+
+.pixel-switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 30px;
+  image-rendering: pixelated; /* 像素感 */
+}
+
+.pixel-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.pixel-switch .slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-color: #333;
+  border: 2px solid #00ffcc;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+.pixel-switch .slider::before {
+  content: "";
+  position: absolute;
+  width: 26px; height: 26px;
+  left: 2px; top: 2px;
+  background-color: #00ffcc;
+  transition: transform 0.2s;
+  border-radius: 2px;
+}
+
+.pixel-switch input:checked + .slider {
+  background-color: #00ccaa;
+}
+
+.pixel-switch input:checked + .slider::before {
+  transform: translateX(30px);
 }
