@@ -1,6 +1,7 @@
 import './Layout.css';
 import Header from './Header';
-import bgImage from '../assets/bg.png';
+import bgImage from '../assets/bg.jpg';
+import CRT from 'vault66-crt-effect';
 
 function Layout({ children }) {
   return (
@@ -14,10 +15,12 @@ function Layout({ children }) {
         minHeight: '100vh',
       }}
     >
+    <CRT>
       <Header />
       <main className="main-content">
         {children}
       </main>
+    </CRT>
     </div>
   );
 }

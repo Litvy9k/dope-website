@@ -1,0 +1,26 @@
+.crt-overlay {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: 
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.02),
+      rgba(255, 255, 255, 0.02) 1px,
+      transparent 1px,
+      transparent 2px
+    );
+  animation: crt-flicker 1.5s infinite;
+  mix-blend-mode: overlay;
+}
+
+@keyframes crt-flicker {
+  0%, 100% { opacity: 0.1; }
+  50% { opacity: 0.2; }
+}
+
+.site-wrapper {
+  filter: contrast(1.1) brightness(0.9);
+  transform: perspective(800px) rotateX(0.3deg);
+}
