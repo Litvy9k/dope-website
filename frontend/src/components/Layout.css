@@ -1,3 +1,16 @@
+@font-face {
+  font-family: "test_font";
+  src: url("/font/8-bit Arcade In.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+.test_font {
+  font-family: "test_font";
+}
+
+
 .main-content {
   padding: 2rem;
   background-color: transparent;
