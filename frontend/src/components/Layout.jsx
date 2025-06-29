@@ -1,21 +1,25 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import './Layout.css';
 import Header from './Header';
 import bgImage from '../assets/bg.jpg';
 import CRTEffect from 'vault66-crt-effect';
 import "vault66-crt-effect/dist/vault66-crt-effect.css";
-import './pixelated_switch.css'
+import EFXSettings from './setting_panel';
 
 function Layout({ children }) {
   const [showTray, setShowTray] = useState(false);
+  const [scanlines, setScanlines] = useState(true);
+  const [sweep, setSweep] = useState(true);
+  const [flicker, setFlicker] = useState(true);
+  const [font, setFont] = useState(true);
 
   return (
     <CRTEffect
       enabled={true}
-      enableScanlines={true}
-      enableSweep={true}
+      enableScanlines={scanlines}
+      enableSweep={sweep}
       theme="custom"
-      enableFlicker={true}
+      enableFlicker={flicker}
       scanlineOrientation={"horizontal"}
       sweepDuration={5}
       sweepThickness={40}
@@ -37,18 +41,18 @@ function Layout({ children }) {
       </button>
 
       <div className={`settings-tray ${showTray ? 'open' : ''}`}>
-        {/* <label class="pixel-switch">
-          <input type="checkbox" />
-          <span class="slider"></span>
-        </label> */}
-        {/* <div class="pixel-toggle-container">
-          <input type="checkbox" role="switch" class="toggle"/>
-        </div> */}
-        <label class="switch">
-          <input class="toggle" type="checkbox" />
-          <span class="slider"></span>
-          <span class="card-side"></span>
-        </label>
+        <div className="settings-tray">
+          <EFXSettings
+            scanlines={scanlines}
+            setScanlines={setScanlines}
+            sweep={sweep}
+            setSweep={setSweep}
+            flicker={flicker}
+            setFlicker={setFlicker}
+            font={font}
+            setFont={setFont}
+          />
+        </div>
       </div>
 
       <div
