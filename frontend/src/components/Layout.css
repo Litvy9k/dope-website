@@ -108,6 +108,12 @@ html, body {
   letter-spacing: 0.5px;
   text-align: center;
   writing-mode: vertical-rl; 
+  text-shadow:
+     /* 3px     3px    0   #000, */
+    -3px    -3px    0   #000,
+    0    0   4px  magenta,
+    0    0  10px  magenta,
+    0    0  20px  magenta;
 
   position: fixed;
   bottom: 60px;
@@ -143,13 +149,13 @@ html, body {
   box-shadow: 0 0 20px rgba(0, 255, 255, 0.7);
 }
 
-.pixel-switch {
+/* .pixel-switch {
   position: relative;
   display: inline-block;
   width: 60px;
   height: 30px;
-  image-rendering: pixelated; /* 像素感 */
-}
+  image-rendering: pixelated;
+ } */
 
 .pixel-switch input {
   opacity: 0;
@@ -169,13 +175,23 @@ html, body {
 }
 
 .pixel-switch .slider::before {
-  content: "";
+  content: "✔";
+  color: magenta;
   position: absolute;
   width: 26px; height: 26px;
   left: 2px; top: 2px;
   background-color: #00ffcc;
   transition: transform 0.2s;
-  border-radius: 2px;
+  border-radius: 5px;
+}
+
+.pixel-switch input:checked + .slider::before {
+  content: "×";
+  color: #00ffcc;
+  position: absolute;
+  width: 26px; height: 26px;
+  left: 2px; top: 2px;
+  background-color: magenta;
 }
 
 .pixel-switch input:checked + .slider {

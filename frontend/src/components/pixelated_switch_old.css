@@ -1,0 +1,391 @@
+/* body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin: 0;
+  min-height: 100vh;
+  font-size: 50px;
+  gap: 0.5em;
+} */
+
+.pixel-toggle-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin: 0;
+  min-height: 10vh;
+  font-size: 30px;
+  gap: 0.5em;
+}
+
+.toggle {
+  --time: 0.2s;
+  appearance: none;
+  position: relative;
+  font-size: 1em;
+  box-sizing: content-box;
+  width: 2.5em;
+  height: 1em;
+  border: max(1px, 0.1em) solid;
+}
+
+.toggle::before, .toggle::after {
+  --p: linear-gradient(currentcolor 0 0);
+  --t: linear-gradient(transparent 0 0);
+  content: "";
+  position: absolute;
+  width: 0.7em;
+  height: 0.7em;
+  box-sizing: content-box;
+  left: 0.5em;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border: max(1px, 0.05em) solid #0000;
+  background-image:
+    var(--p), var(--p), var(--p), var(--p), var(--p), var(--p), var(--p),
+    var(--p), var(--t), var(--p), var(--p), var(--p), var(--t), var(--p),
+    var(--p), var(--p), var(--t), var(--p), var(--t), var(--p), var(--p),
+    var(--p), var(--p), var(--p), var(--t), var(--p), var(--p), var(--p),
+    var(--p), var(--p), var(--t), var(--p), var(--t), var(--p), var(--p),
+    var(--p), var(--t), var(--p), var(--p), var(--p), var(--t), var(--p),
+    var(--p), var(--p), var(--p), var(--p), var(--p), var(--p), var(--p)
+    ;
+  background-position: 
+    0.0em 0.0em, 0.1em 0.0em, 0.2em 0.0em, 0.3em 0.0em, 0.4em 0.0em, 0.5em 0.0em, 0.6em 0.0em,
+    0.0em 0.1em, 0.1em 0.1em, 0.2em 0.1em, 0.3em 0.1em, 0.4em 0.1em, 0.5em 0.1em, 0.6em 0.1em,
+    0.0em 0.2em, 0.1em 0.2em, 0.2em 0.2em, 0.3em 0.2em, 0.4em 0.2em, 0.5em 0.2em, 0.6em 0.2em,
+    0.0em 0.3em, 0.1em 0.3em, 0.2em 0.3em, 0.3em 0.3em, 0.4em 0.3em, 0.5em 0.3em, 0.6em 0.3em,
+    0.0em 0.4em, 0.1em 0.4em, 0.2em 0.4em, 0.3em 0.4em, 0.4em 0.4em, 0.5em 0.4em, 0.6em 0.4em,
+    0.0em 0.5em, 0.1em 0.5em, 0.2em 0.5em, 0.3em 0.5em, 0.4em 0.5em, 0.5em 0.5em, 0.6em 0.5em,
+    0.0em 0.6em, 0.1em 0.6em, 0.2em 0.6em, 0.3em 0.6em, 0.4em 0.6em, 0.5em 0.6em, 0.6em 0.6em
+    ;
+  background-size: 0.1em 0.1em;
+  background-repeat: no-repeat;
+  background-clip: content-box;
+  aopacity: 1;
+  transition: opacity var(--time);
+  animation: pixel-move var(--time) linear reverse forwards;
+}
+
+.toggle::after {
+  background-image:
+    var(--p), var(--p), var(--p), var(--p), var(--p), var(--p), var(--p),
+    var(--p), var(--p), var(--p), var(--p), var(--p), var(--t), var(--p),
+    var(--p), var(--p), var(--p), var(--p), var(--t), var(--p), var(--p),
+    var(--p), var(--t), var(--p), var(--t), var(--p), var(--p), var(--p),
+    var(--p), var(--p), var(--t), var(--t), var(--p), var(--p), var(--p),
+    var(--p), var(--p), var(--t), var(--p), var(--p), var(--p), var(--p),
+    var(--p), var(--p), var(--p), var(--p), var(--p), var(--p), var(--p)
+    ;
+  left: calc(100% - 0.5em);
+  opacity: 0;
+  animation: pixel-move var(--time) linear forwards;
+  transition: opacity 0.0s var(--time);
+}
+
+.toggle:checked::before {
+
+  opacity: 0;
+  animation: pixel-move2 var(--time) linear forwards;
+  transition: opacity 0.0s var(--time);
+}
+
+.toggle:checked::after { 
+  opacity: 1;
+  animation: pixel-move2 var(--time) linear reverse forwards;
+  transition: opacity var(--time);
+}
+
+.toggle[disabled] {
+  opacity: 0.25;
+}
+
+.toggle:indeterminate {
+  background: transparent;
+}
+
+.toggle:indeterminate::before {
+  opacity: 1;
+  left: 50%;
+  background-image:
+    var(--p), var(--p), var(--p), var(--p), var(--p), var(--p), var(--p),
+    var(--p), var(--t), var(--t), var(--t), var(--t), var(--t), var(--p),
+    var(--p), var(--t), var(--p), var(--p), var(--p), var(--t), var(--p),
+    var(--p), var(--p), var(--p), var(--t), var(--t), var(--t), var(--p),
+    var(--p), var(--p), var(--p), var(--p), var(--p), var(--p), var(--p),
+    var(--p), var(--p), var(--p), var(--t), var(--p), var(--p), var(--p),
+    var(--p), var(--p), var(--p), var(--p), var(--p), var(--p), var(--p)
+    ;
+}
+
+.toggle:indeterminate::after {
+  opacity: 0;
+}
+
+
+@media print {
+  .toggle, .toggle::before, .toggle::after {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+@media (prefers-reduced-motion) {
+  .toggle, .toggle::before, .toggle::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+@keyframes pixel-move {
+  0%, 9.99% {
+    background-position: 
+      0.0em 0.0em, 0.1em 0.0em, 0.2em 0.0em, 0.3em 0.0em, 0.4em 0.0em, 0.5em 0.0em, 0.6em 0.0em,
+      0.0em 0.1em, 0.1em 0.1em, 0.2em 0.1em, 0.3em 0.1em, 0.4em 0.1em, 0.5em 0.1em, 0.6em 0.1em,
+      0.0em 0.2em, 0.1em 0.2em, 0.2em 0.2em, 0.3em 0.2em, 0.4em 0.2em, 0.5em 0.2em, 0.6em 0.2em,
+      0.0em 0.3em, 0.1em 0.3em, 0.2em 0.3em, 0.3em 0.3em, 0.4em 0.3em, 0.5em 0.3em, 0.6em 0.3em,
+      0.0em 0.4em, 0.1em 0.4em, 0.2em 0.4em, 0.3em 0.4em, 0.4em 0.4em, 0.5em 0.4em, 0.6em 0.4em,
+      0.0em 0.5em, 0.1em 0.5em, 0.2em 0.5em, 0.3em 0.5em, 0.4em 0.5em, 0.5em 0.5em, 0.6em 0.5em,
+      0.0em 0.6em, 0.1em 0.6em, 0.2em 0.6em, 0.3em 0.6em, 0.4em 0.6em, 0.5em 0.6em, 0.6em 0.6em
+      ;
+  }
+  10%, 19.99% {
+    background-position: 
+      0.0em 0.0em, 0.1em 0.0em, 0.2em 0.0em, 0.3em 0.0em, 0.4em 0.0em, 0.5em 0.0em, 0.6em 0.0em,
+      0.0em 0.1em, -0.1em -0.1em, 0.2em 0.1em, 0.3em 0.1em, 0.4em 0.1em, 0.5em 0.1em, 0.6em 0.1em,
+      0.0em 0.2em, 0.1em 0.2em, -0.2em -0.2em, 0.3em 0.2em, 0.4em 0.2em, 0.5em 0.2em, -0.6em -0.2em,
+      0.0em 0.3em, 0.1em 0.3em, 0.2em 0.3em, 0.3em 0.3em, 0.4em 0.3em, 0.5em 0.3em, 0.6em 0.3em,
+      0.0em 0.4em, 0.1em 0.4em, 0.2em 0.4em, 0.3em 0.4em, 0.4em 0.4em, 0.5em 0.4em, 0.6em 0.4em,
+      -0.0em -0.5em, 0.1em 0.5em, 0.2em 0.5em, 0.3em 0.5em, -0.4em -0.5em, 0.5em 0.5em, 0.6em 0.5em,
+      0.0em 0.6em, 0.1em 0.6em, 0.2em 0.6em, 0.3em 0.6em, 0.4em 0.6em, 0.5em 0.6em, 0.6em 0.6em
+      ;
+  }
+  20%, 29.99% {
+    background-position: 
+      0.0em 0.0em, 0.1em 0.0em, 0.2em 0.0em, 0.3em 0.0em, 0.4em 0.0em, -0.5em -0.0em, 0.6em 0.0em,
+      0.0em 0.1em, -0.1em -0.1em, 0.2em 0.1em, 0.3em 0.1em, 0.4em 0.1em, -0.5em -0.1em, 0.6em 0.1em,
+      0.0em 0.2em, 0.1em 0.2em, -0.2em -0.2em, 0.3em 0.2em, 0.4em 0.2em, 0.5em 0.2em, -0.6em -0.2em,
+      0.0em 0.3em, -0.1em -0.3em, 0.2em 0.3em, -0.3em -0.3em, 0.4em 0.3em, 0.5em 0.3em, 0.6em 0.3em,
+      0.0em 0.4em, 0.1em 0.4em, 0.2em 0.4em, 0.3em 0.4em, 0.4em 0.4em, 0.5em 0.4em, 0.6em 0.4em,
+      -0.0em -0.5em, 0.1em 0.5em, 0.2em 0.5em, 0.3em 0.5em, -0.4em -0.5em, 0.5em 0.5em, 0.6em 0.5em,
+      0.0em 0.6em, 0.1em 0.6em, 0.2em 0.6em, -0.3em -0.6em, 0.4em 0.6em, 0.5em 0.6em, 0.6em 0.6em
+      ;
+  }
+  30%, 39.99% {
+    background-position: 
+      0.0em 0.0em, 0.1em 0.0em, -0.2em -0.0em, 0.3em 0.0em, 0.4em 0.0em, -0.5em -0.0em, 0.6em 0.0em,
+      0.0em 0.1em, -0.1em -0.1em, -0.2em -0.1em, 0.3em 0.1em, 0.4em 0.1em, -0.5em -0.1em, 0.6em 0.1em,
+      0.0em 0.2em, 0.1em 0.2em, -0.2em -0.2em, 0.3em 0.2em, -0.4em -0.2em, 0.5em 0.2em, -0.6em -0.2em,
+      0.0em 0.3em, -0.1em -0.3em, 0.2em 0.3em, -0.3em -0.3em, 0.4em 0.3em, 0.5em 0.3em, 0.6em 0.3em,
+      0.0em 0.4em, 0.1em 0.4em, 0.2em 0.4em, 0.3em 0.4em, 0.4em 0.4em, 0.5em 0.4em, 0.6em 0.4em,
+      -0.0em -0.5em, 0.1em 0.5em, -0.2em -0.5em, 0.3em 0.5em, -0.4em -0.5em, 0.5em 0.5em, 0.6em 0.5em,
+      0.0em 0.6em, 0.1em 0.6em, 0.2em 0.6em, -0.3em -0.6em, 0.4em 0.6em, -0.5em -0.6em, 0.6em 0.6em
+      ;
+  }
+  40%, 49.99% {
+    background-position: 
+      0.0em 0.0em, 0.1em 0.0em, -0.2em -0.0em, 0.3em 0.0em, 0.4em 0.0em, -0.5em -0.0em, 0.6em 0.0em,
+      -0.0em -0.1em, -0.1em -0.1em, -0.2em -0.1em, 0.3em 0.1em, 0.4em 0.1em, -0.5em -0.1em, 0.6em 0.1em,
+      0.0em 0.2em, 0.1em 0.2em, -0.2em -0.2em, 0.3em 0.2em, -0.4em -0.2em, 0.5em 0.2em, -0.6em -0.2em,
+      -0.0em -0.3em, -0.1em -0.3em, 0.2em 0.3em, -0.3em -0.3em, 0.4em 0.3em, -0.5em -0.3em, 0.6em 0.3em,
+      0.0em 0.4em, 0.1em 0.4em, -0.2em -0.4em, 0.3em 0.4em, 0.4em 0.4em, 0.5em 0.4em, 0.6em 0.4em,
+      -0.0em -0.5em, 0.1em 0.5em, -0.2em -0.5em, 0.3em 0.5em, -0.4em -0.5em, 0.5em 0.5em, 0.6em 0.5em,
+      0.0em 0.6em, 0.1em 0.6em, 0.2em 0.6em, -0.3em -0.6em, 0.4em 0.6em, -0.5em -0.6em, -0.6em -0.6em
+      ;
+  }
+  50%, 59.99% {
+    background-position: 
+      0.0em 0.0em, -0.1em -0.0em, -0.2em -0.0em, 0.3em 0.0em, 0.4em 0.0em, -0.5em -0.0em, 0.6em 0.0em,
+      -0.0em -0.1em, -0.1em -0.1em, -0.2em -0.1em, -0.3em -0.1em, 0.4em 0.1em, -0.5em -0.1em, 0.6em 0.1em,
+      0.0em 0.2em, 0.1em 0.2em, -0.2em -0.2em, 0.3em 0.2em, -0.4em -0.2em, 0.5em 0.2em, -0.6em -0.2em,
+      -0.0em -0.3em, -0.1em -0.3em, 0.2em 0.3em, -0.3em -0.3em, -0.4em -0.3em, -0.5em -0.3em, 0.6em 0.3em,
+      0.0em 0.4em, 0.1em 0.4em, -0.2em -0.4em, 0.3em 0.4em, -0.4em -0.4em, 0.5em 0.4em, 0.6em 0.4em,
+      -0.0em -0.5em, 0.1em 0.5em, -0.2em -0.5em, 0.3em 0.5em, -0.4em -0.5em, 0.5em 0.5em, 0.6em 0.5em,
+      0.0em 0.6em, -0.1em -0.6em, 0.2em 0.6em, -0.3em -0.6em, 0.4em 0.6em, -0.5em -0.6em, -0.6em -0.6em
+      ;
+  }
+  60%, 69.99% {
+    background-position: 
+      0.0em 0.0em, -0.1em -0.0em, -0.2em -0.0em, -0.3em -0.0em, 0.4em 0.0em, -0.5em -0.0em, 0.6em 0.0em,
+      -0.0em -0.1em, -0.1em -0.1em, -0.2em -0.1em, -0.3em -0.1em, 0.4em 0.1em, -0.5em -0.1em, 0.6em 0.1em,
+      0.0em 0.2em, 0.1em 0.2em, -0.2em -0.2em, 0.3em 0.2em, -0.4em -0.2em, 0.5em 0.2em, -0.6em -0.2em,
+      -0.0em -0.3em, -0.1em -0.3em, 0.2em 0.3em, -0.3em -0.3em, -0.4em -0.3em, -0.5em -0.3em, 0.6em 0.3em,
+      0.0em 0.4em, -0.1em -0.4em, -0.2em -0.4em, -0.3em -0.4em, -0.4em -0.4em, 0.5em 0.4em, 0.6em 0.4em,
+      -0.0em -0.5em, 0.1em 0.5em, -0.2em -0.5em, 0.3em 0.5em, -0.4em -0.5em, 0.5em 0.5em, -0.6em -0.5em,
+      -0.0em -0.6em, -0.1em -0.6em, 0.2em 0.6em, -0.3em -0.6em, 0.4em 0.6em, -0.5em -0.6em, -0.6em -0.6em
+      ;
+  }
+  70%, 79.99% {
+    background-position: 
+      0.0em 0.0em, -0.1em -0.0em, -0.2em -0.0em, -0.3em -0.0em, 0.4em 0.0em, -0.5em -0.0em, -0.6em -0.0em,
+      -0.0em -0.1em, -0.1em -0.1em, -0.2em -0.1em, -0.3em -0.1em, -0.4em -0.1em, -0.5em -0.1em, 0.6em 0.1em,
+      0.0em 0.2em, -0.1em -0.2em, -0.2em -0.2em, 0.3em 0.2em, -0.4em -0.2em, 0.5em 0.2em, -0.6em -0.2em,
+      -0.0em -0.3em, -0.1em -0.3em, 0.2em 0.3em, -0.3em -0.3em, -0.4em -0.3em, -0.5em -0.3em, 0.6em 0.3em,
+      0.0em 0.4em, -0.1em -0.4em, -0.2em -0.4em, -0.3em -0.4em, -0.4em -0.4em, -0.5em -0.4em, 0.6em 0.4em,
+      -0.0em -0.5em, -0.1em -0.5em, -0.2em -0.5em, 0.3em 0.5em, -0.4em -0.5em, 0.5em 0.5em, -0.6em -0.5em,
+      -0.0em -0.6em, -0.1em -0.6em, 0.2em 0.6em, -0.3em -0.6em, 0.4em 0.6em, -0.5em -0.6em, -0.6em -0.6em
+      ;
+  }
+  80%, 89.99% {
+    background-position: 
+      -0.1em -0.1em, -0.1em -0.0em, -0.2em -0.0em, -0.3em -0.0em, -0.4em -0.0em, -0.5em -0.0em, -0.6em -0.0em,
+      -0.0em -0.1em, -0.1em -0.1em, -0.2em -0.1em, -0.3em -0.1em, -0.4em -0.1em, -0.5em -0.1em, 0.6em 0.1em,
+      0.0em 0.2em, -0.1em -0.2em, -0.2em -0.2em, 0.3em 0.2em, -0.4em -0.2em, 0.5em 0.2em, -0.6em -0.2em,
+      -0.0em -0.3em, -0.1em -0.3em, -0.2em -0.3em, -0.3em -0.3em, -0.4em -0.3em, -0.5em -0.3em, 0.6em 0.3em,
+      0.0em 0.4em, -0.1em -0.4em, -0.2em -0.4em, -0.3em -0.4em, -0.4em -0.4em, -0.5em -0.4em, -0.6em -0.4em,
+      -0.0em -0.5em, -0.1em -0.5em, -0.2em -0.5em, 0.3em 0.5em, -0.4em -0.5em, 0.5em 0.5em, -0.6em -0.5em,
+      -0.0em -0.6em, -0.1em -0.6em, 0.2em 0.6em, -0.3em -0.6em, -0.4em -0.6em, -0.5em -0.6em, -0.6em -0.6em
+      ;
+  }
+  90%, 99.99% {
+    background-position: 
+      -0.1em -0.1em, -0.1em -0.0em, -0.2em -0.0em, -0.3em -0.0em, -0.4em -0.0em, -0.5em -0.0em, -0.6em -0.0em,
+      -0.0em -0.1em, -0.1em -0.1em, -0.2em -0.1em, -0.3em -0.1em, -0.4em -0.1em, -0.5em -0.1em, 0.6em 0.1em,
+      -0.0em -0.2em, -0.1em -0.2em, -0.2em -0.2em, -0.3em -0.2em, -0.4em -0.2em, 0.5em 0.2em, -0.6em -0.2em,
+      -0.0em -0.3em, -0.1em -0.3em, -0.2em -0.3em, -0.3em -0.3em, -0.4em -0.3em, -0.5em -0.3em, 0.6em 0.3em,
+      -0.0em -0.4em, -0.1em -0.4em, -0.2em -0.4em, -0.3em -0.4em, -0.4em -0.4em, -0.5em -0.4em, -0.6em -0.4em,
+      -0.0em -0.5em, -0.1em -0.5em, -0.2em -0.5em, -0.3em -0.5em, -0.4em -0.5em, 0.5em 0.5em, -0.6em -0.5em,
+      -0.0em -0.6em, -0.1em -0.6em, -0.2em -0.6em, -0.3em -0.6em, -0.4em -0.6em, -0.5em -0.6em, -0.6em -0.6em
+      ;
+  }
+  100% {
+    background-position: 
+      -0.1em -0.1em, -0.1em -0.0em, -0.2em -0.0em, -0.3em -0.0em, -0.4em -0.0em, -0.5em -0.0em, -0.6em -0.0em,
+      -0.0em -0.1em, -0.1em -0.1em, -0.2em -0.1em, -0.3em -0.1em, -0.4em -0.1em, -0.5em -0.1em, -0.6em -0.1em,
+      -0.0em -0.2em, -0.1em -0.2em, -0.2em -0.2em, -0.3em -0.2em, -0.4em -0.2em, -0.5em -0.2em, -0.6em -0.2em,
+      -0.0em -0.3em, -0.1em -0.3em, -0.2em -0.3em, -0.3em -0.3em, -0.4em -0.3em, -0.5em -0.3em, -0.6em -0.3em,
+      -0.0em -0.4em, -0.1em -0.4em, -0.2em -0.4em, -0.3em -0.4em, -0.4em -0.4em, -0.5em -0.4em, -0.6em -0.4em,
+      -0.0em -0.5em, -0.1em -0.5em, -0.2em -0.5em, -0.3em -0.5em, -0.4em -0.5em, -0.5em -0.5em, -0.6em -0.5em,
+      -0.0em -0.6em, -0.1em -0.6em, -0.2em -0.6em, -0.3em -0.6em, -0.4em -0.6em, -0.5em -0.6em, -0.6em -0.6em
+      ;
+  }
+}
+
+@keyframes pixel-move2 {
+  0%, 9.99% {
+    background-position: 
+      0.0em 0.0em, 0.1em 0.0em, 0.2em 0.0em, 0.3em 0.0em, 0.4em 0.0em, 0.5em 0.0em, 0.6em 0.0em,
+      0.0em 0.1em, 0.1em 0.1em, 0.2em 0.1em, 0.3em 0.1em, 0.4em 0.1em, 0.5em 0.1em, 0.6em 0.1em,
+      0.0em 0.2em, 0.1em 0.2em, 0.2em 0.2em, 0.3em 0.2em, 0.4em 0.2em, 0.5em 0.2em, 0.6em 0.2em,
+      0.0em 0.3em, 0.1em 0.3em, 0.2em 0.3em, 0.3em 0.3em, 0.4em 0.3em, 0.5em 0.3em, 0.6em 0.3em,
+      0.0em 0.4em, 0.1em 0.4em, 0.2em 0.4em, 0.3em 0.4em, 0.4em 0.4em, 0.5em 0.4em, 0.6em 0.4em,
+      0.0em 0.5em, 0.1em 0.5em, 0.2em 0.5em, 0.3em 0.5em, 0.4em 0.5em, 0.5em 0.5em, 0.6em 0.5em,
+      0.0em 0.6em, 0.1em 0.6em, 0.2em 0.6em, 0.3em 0.6em, 0.4em 0.6em, 0.5em 0.6em, 0.6em 0.6em
+      ;
+  }
+  10%, 19.99% {
+    background-position: 
+      0.0em 0.0em, 0.1em 0.0em, 0.2em 0.0em, 0.3em 0.0em, 0.4em 0.0em, 0.5em 0.0em, 0.6em 0.0em,
+      0.0em 0.1em, -0.1em -0.1em, 0.2em 0.1em, 0.3em 0.1em, 0.4em 0.1em, 0.5em 0.1em, 0.6em 0.1em,
+      0.0em 0.2em, 0.1em 0.2em, -0.2em -0.2em, 0.3em 0.2em, 0.4em 0.2em, 0.5em 0.2em, -0.6em -0.2em,
+      0.0em 0.3em, 0.1em 0.3em, 0.2em 0.3em, 0.3em 0.3em, 0.4em 0.3em, 0.5em 0.3em, 0.6em 0.3em,
+      0.0em 0.4em, 0.1em 0.4em, 0.2em 0.4em, 0.3em 0.4em, 0.4em 0.4em, 0.5em 0.4em, 0.6em 0.4em,
+      -0.0em -0.5em, 0.1em 0.5em, 0.2em 0.5em, 0.3em 0.5em, -0.4em -0.5em, 0.5em 0.5em, 0.6em 0.5em,
+      0.0em 0.6em, 0.1em 0.6em, 0.2em 0.6em, 0.3em 0.6em, 0.4em 0.6em, 0.5em 0.6em, 0.6em 0.6em
+      ;
+  }
+  20%, 29.99% {
+    background-position: 
+      0.0em 0.0em, 0.1em 0.0em, 0.2em 0.0em, 0.3em 0.0em, 0.4em 0.0em, -0.5em -0.0em, 0.6em 0.0em,
+      0.0em 0.1em, -0.1em -0.1em, 0.2em 0.1em, 0.3em 0.1em, 0.4em 0.1em, -0.5em -0.1em, 0.6em 0.1em,
+      0.0em 0.2em, 0.1em 0.2em, -0.2em -0.2em, 0.3em 0.2em, 0.4em 0.2em, 0.5em 0.2em, -0.6em -0.2em,
+      0.0em 0.3em, -0.1em -0.3em, 0.2em 0.3em, -0.3em -0.3em, 0.4em 0.3em, 0.5em 0.3em, 0.6em 0.3em,
+      0.0em 0.4em, 0.1em 0.4em, 0.2em 0.4em, 0.3em 0.4em, 0.4em 0.4em, 0.5em 0.4em, 0.6em 0.4em,
+      -0.0em -0.5em, 0.1em 0.5em, 0.2em 0.5em, 0.3em 0.5em, -0.4em -0.5em, 0.5em 0.5em, 0.6em 0.5em,
+      0.0em 0.6em, 0.1em 0.6em, 0.2em 0.6em, -0.3em -0.6em, 0.4em 0.6em, 0.5em 0.6em, 0.6em 0.6em
+      ;
+  }
+  30%, 39.99% {
+    background-position: 
+      0.0em 0.0em, 0.1em 0.0em, -0.2em -0.0em, 0.3em 0.0em, 0.4em 0.0em, -0.5em -0.0em, 0.6em 0.0em,
+      0.0em 0.1em, -0.1em -0.1em, -0.2em -0.1em, 0.3em 0.1em, 0.4em 0.1em, -0.5em -0.1em, 0.6em 0.1em,
+      0.0em 0.2em, 0.1em 0.2em, -0.2em -0.2em, 0.3em 0.2em, -0.4em -0.2em, 0.5em 0.2em, -0.6em -0.2em,
+      0.0em 0.3em, -0.1em -0.3em, 0.2em 0.3em, -0.3em -0.3em, 0.4em 0.3em, 0.5em 0.3em, 0.6em 0.3em,
+      0.0em 0.4em, 0.1em 0.4em, 0.2em 0.4em, 0.3em 0.4em, 0.4em 0.4em, 0.5em 0.4em, 0.6em 0.4em,
+      -0.0em -0.5em, 0.1em 0.5em, -0.2em -0.5em, 0.3em 0.5em, -0.4em -0.5em, 0.5em 0.5em, 0.6em 0.5em,
+      0.0em 0.6em, 0.1em 0.6em, 0.2em 0.6em, -0.3em -0.6em, 0.4em 0.6em, -0.5em -0.6em, 0.6em 0.6em
+      ;
+  }
+  40%, 49.99% {
+    background-position: 
+      0.0em 0.0em, 0.1em 0.0em, -0.2em -0.0em, 0.3em 0.0em, 0.4em 0.0em, -0.5em -0.0em, 0.6em 0.0em,
+      -0.0em -0.1em, -0.1em -0.1em, -0.2em -0.1em, 0.3em 0.1em, 0.4em 0.1em, -0.5em -0.1em, 0.6em 0.1em,
+      0.0em 0.2em, 0.1em 0.2em, -0.2em -0.2em, 0.3em 0.2em, -0.4em -0.2em, 0.5em 0.2em, -0.6em -0.2em,
+      -0.0em -0.3em, -0.1em -0.3em, 0.2em 0.3em, -0.3em -0.3em, 0.4em 0.3em, -0.5em -0.3em, 0.6em 0.3em,
+      0.0em 0.4em, 0.1em 0.4em, -0.2em -0.4em, 0.3em 0.4em, 0.4em 0.4em, 0.5em 0.4em, 0.6em 0.4em,
+      -0.0em -0.5em, 0.1em 0.5em, -0.2em -0.5em, 0.3em 0.5em, -0.4em -0.5em, 0.5em 0.5em, 0.6em 0.5em,
+      0.0em 0.6em, 0.1em 0.6em, 0.2em 0.6em, -0.3em -0.6em, 0.4em 0.6em, -0.5em -0.6em, -0.6em -0.6em
+      ;
+  }
+  50%, 59.99% {
+    background-position: 
+      0.0em 0.0em, -0.1em -0.0em, -0.2em -0.0em, 0.3em 0.0em, 0.4em 0.0em, -0.5em -0.0em, 0.6em 0.0em,
+      -0.0em -0.1em, -0.1em -0.1em, -0.2em -0.1em, -0.3em -0.1em, 0.4em 0.1em, -0.5em -0.1em, 0.6em 0.1em,
+      0.0em 0.2em, 0.1em 0.2em, -0.2em -0.2em, 0.3em 0.2em, -0.4em -0.2em, 0.5em 0.2em, -0.6em -0.2em,
+      -0.0em -0.3em, -0.1em -0.3em, 0.2em 0.3em, -0.3em -0.3em, -0.4em -0.3em, -0.5em -0.3em, 0.6em 0.3em,
+      0.0em 0.4em, 0.1em 0.4em, -0.2em -0.4em, 0.3em 0.4em, -0.4em -0.4em, 0.5em 0.4em, 0.6em 0.4em,
+      -0.0em -0.5em, 0.1em 0.5em, -0.2em -0.5em, 0.3em 0.5em, -0.4em -0.5em, 0.5em 0.5em, 0.6em 0.5em,
+      0.0em 0.6em, -0.1em -0.6em, 0.2em 0.6em, -0.3em -0.6em, 0.4em 0.6em, -0.5em -0.6em, -0.6em -0.6em
+      ;
+  }
+  60%, 69.99% {
+    background-position: 
+      0.0em 0.0em, -0.1em -0.0em, -0.2em -0.0em, -0.3em -0.0em, 0.4em 0.0em, -0.5em -0.0em, 0.6em 0.0em,
+      -0.0em -0.1em, -0.1em -0.1em, -0.2em -0.1em, -0.3em -0.1em, 0.4em 0.1em, -0.5em -0.1em, 0.6em 0.1em,
+      0.0em 0.2em, 0.1em 0.2em, -0.2em -0.2em, 0.3em 0.2em, -0.4em -0.2em, 0.5em 0.2em, -0.6em -0.2em,
+      -0.0em -0.3em, -0.1em -0.3em, 0.2em 0.3em, -0.3em -0.3em, -0.4em -0.3em, -0.5em -0.3em, 0.6em 0.3em,
+      0.0em 0.4em, -0.1em -0.4em, -0.2em -0.4em, -0.3em -0.4em, -0.4em -0.4em, 0.5em 0.4em, 0.6em 0.4em,
+      -0.0em -0.5em, 0.1em 0.5em, -0.2em -0.5em, 0.3em 0.5em, -0.4em -0.5em, 0.5em 0.5em, -0.6em -0.5em,
+      -0.0em -0.6em, -0.1em -0.6em, 0.2em 0.6em, -0.3em -0.6em, 0.4em 0.6em, -0.5em -0.6em, -0.6em -0.6em
+      ;
+  }
+  70%, 79.99% {
+    background-position: 
+      0.0em 0.0em, -0.1em -0.0em, -0.2em -0.0em, -0.3em -0.0em, 0.4em 0.0em, -0.5em -0.0em, -0.6em -0.0em,
+      -0.0em -0.1em, -0.1em -0.1em, -0.2em -0.1em, -0.3em -0.1em, -0.4em -0.1em, -0.5em -0.1em, 0.6em 0.1em,
+      0.0em 0.2em, -0.1em -0.2em, -0.2em -0.2em, 0.3em 0.2em, -0.4em -0.2em, 0.5em 0.2em, -0.6em -0.2em,
+      -0.0em -0.3em, -0.1em -0.3em, 0.2em 0.3em, -0.3em -0.3em, -0.4em -0.3em, -0.5em -0.3em, 0.6em 0.3em,
+      0.0em 0.4em, -0.1em -0.4em, -0.2em -0.4em, -0.3em -0.4em, -0.4em -0.4em, -0.5em -0.4em, 0.6em 0.4em,
+      -0.0em -0.5em, -0.1em -0.5em, -0.2em -0.5em, 0.3em 0.5em, -0.4em -0.5em, 0.5em 0.5em, -0.6em -0.5em,
+      -0.0em -0.6em, -0.1em -0.6em, 0.2em 0.6em, -0.3em -0.6em, 0.4em 0.6em, -0.5em -0.6em, -0.6em -0.6em
+      ;
+  }
+  80%, 89.99% {
+    background-position: 
+      -0.1em -0.1em, -0.1em -0.0em, -0.2em -0.0em, -0.3em -0.0em, -0.4em -0.0em, -0.5em -0.0em, -0.6em -0.0em,
+      -0.0em -0.1em, -0.1em -0.1em, -0.2em -0.1em, -0.3em -0.1em, -0.4em -0.1em, -0.5em -0.1em, 0.6em 0.1em,
+      0.0em 0.2em, -0.1em -0.2em, -0.2em -0.2em, 0.3em 0.2em, -0.4em -0.2em, 0.5em 0.2em, -0.6em -0.2em,
+      -0.0em -0.3em, -0.1em -0.3em, -0.2em -0.3em, -0.3em -0.3em, -0.4em -0.3em, -0.5em -0.3em, 0.6em 0.3em,
+      0.0em 0.4em, -0.1em -0.4em, -0.2em -0.4em, -0.3em -0.4em, -0.4em -0.4em, -0.5em -0.4em, -0.6em -0.4em,
+      -0.0em -0.5em, -0.1em -0.5em, -0.2em -0.5em, 0.3em 0.5em, -0.4em -0.5em, 0.5em 0.5em, -0.6em -0.5em,
+      -0.0em -0.6em, -0.1em -0.6em, 0.2em 0.6em, -0.3em -0.6em, -0.4em -0.6em, -0.5em -0.6em, -0.6em -0.6em
+      ;
+  }
+  90%, 99.99% {
+    background-position: 
+      -0.1em -0.1em, -0.1em -0.0em, -0.2em -0.0em, -0.3em -0.0em, -0.4em -0.0em, -0.5em -0.0em, -0.6em -0.0em,
+      -0.0em -0.1em, -0.1em -0.1em, -0.2em -0.1em, -0.3em -0.1em, -0.4em -0.1em, -0.5em -0.1em, 0.6em 0.1em,
+      -0.0em -0.2em, -0.1em -0.2em, -0.2em -0.2em, -0.3em -0.2em, -0.4em -0.2em, 0.5em 0.2em, -0.6em -0.2em,
+      -0.0em -0.3em, -0.1em -0.3em, -0.2em -0.3em, -0.3em -0.3em, -0.4em -0.3em, -0.5em -0.3em, 0.6em 0.3em,
+      -0.0em -0.4em, -0.1em -0.4em, -0.2em -0.4em, -0.3em -0.4em, -0.4em -0.4em, -0.5em -0.4em, -0.6em -0.4em,
+      -0.0em -0.5em, -0.1em -0.5em, -0.2em -0.5em, -0.3em -0.5em, -0.4em -0.5em, 0.5em 0.5em, -0.6em -0.5em,
+      -0.0em -0.6em, -0.1em -0.6em, -0.2em -0.6em, -0.3em -0.6em, -0.4em -0.6em, -0.5em -0.6em, -0.6em -0.6em
+      ;
+  }
+  100% {
+    background-position: 
+      -0.1em -0.1em, -0.1em -0.0em, -0.2em -0.0em, -0.3em -0.0em, -0.4em -0.0em, -0.5em -0.0em, -0.6em -0.0em,
+      -0.0em -0.1em, -0.1em -0.1em, -0.2em -0.1em, -0.3em -0.1em, -0.4em -0.1em, -0.5em -0.1em, -0.6em -0.1em,
+      -0.0em -0.2em, -0.1em -0.2em, -0.2em -0.2em, -0.3em -0.2em, -0.4em -0.2em, -0.5em -0.2em, -0.6em -0.2em,
+      -0.0em -0.3em, -0.1em -0.3em, -0.2em -0.3em, -0.3em -0.3em, -0.4em -0.3em, -0.5em -0.3em, -0.6em -0.3em,
+      -0.0em -0.4em, -0.1em -0.4em, -0.2em -0.4em, -0.3em -0.4em, -0.4em -0.4em, -0.5em -0.4em, -0.6em -0.4em,
+      -0.0em -0.5em, -0.1em -0.5em, -0.2em -0.5em, -0.3em -0.5em, -0.4em -0.5em, -0.5em -0.5em, -0.6em -0.5em,
+      -0.0em -0.6em, -0.1em -0.6em, -0.2em -0.6em, -0.3em -0.6em, -0.4em -0.6em, -0.5em -0.6em, -0.6em -0.6em
+      ;
+  }
+}
+
