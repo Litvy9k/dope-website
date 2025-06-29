@@ -24,7 +24,7 @@ export default function EFXSettings({
       </div>
 
       <div className="setting-row">
-        <label>Sweep</label>
+        <label>CRT Sweep</label>
         <label className="switch">
           <input
             className="toggle"
@@ -38,7 +38,7 @@ export default function EFXSettings({
       </div>
 
       <div className="setting-row">
-        <label>Flicker</label>
+        <label>Screen Flicker</label>
         <label className="switch">
           <input
             className="toggle"

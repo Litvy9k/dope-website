@@ -22,7 +22,7 @@ html, body {
   padding: 20px;
 }
 
-.fancy-button {
+/* .fancy-button {
   padding: 12px 24px;
   font-size: 16px;
   color: white;
@@ -36,4 +36,4 @@ html, body {
 .fancy-button:hover {
   background: linear-gradient(0deg, #000dff, #6b73ff);
   transform: scale(1.05);
-}
+} */

@@ -1,0 +1,27 @@
+@font-face {
+  font-family: "header_font";
+  src: url("../src/font/Demosdcyberglitch-yw6GM.ttf") format("truetype");
+  /* src: url("../src/font/UncrackedFreeTrial-X3WjK.otf") format("opentype"); */
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "pixel_slim";
+  src: url("../src/font/BitPap.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-header: "header_font", monospace;
+  --font-pixel-slim: "pixel_slim", monospace;
+}
+
+.testslimfont{
+  font-family: "pixel_slim";
+  color:cyan;
+  font-size: 10px;
+}
