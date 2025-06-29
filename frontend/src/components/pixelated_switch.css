@@ -67,6 +67,7 @@
   color: #00ffff;
 }
 
-.settings-tray .use-normal-font .setting-row {
+.settings-tray.open.use-normal-font .efx-settings .setting-row{
   font-family: var(--font-normal-slim);
+  font-size: 1.1rem;
 }

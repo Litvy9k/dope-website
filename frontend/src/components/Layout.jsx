@@ -40,7 +40,7 @@ function Layout({ children }) {
         SETTINGS
       </button>
 
-      <div className={`settings-tray ${showTray ? 'open' : ''} ${useFont ? 'use-pixel-font' : 'use-normal-font'}`}>
+      <div className={`settings-tray ${showTray ? 'open' : ''} ${useFont ? '' : 'use-normal-font'}`}>
           <EFXSettings
             scanlines={scanlines}
             setScanlines={setScanlines}
