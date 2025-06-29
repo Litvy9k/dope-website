@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './pixelated_switch.css';
 
-export default function EFXSettings() {
-  const [scanlines, setScanlines] = useState(true);
-  const [sweep, setSweep] = useState(true);
-  const [flicker, setFlicker] = useState(true);
-  const [font, setFont] = useState(true);
-
+export default function EFXSettings({
+  scanlines, setScanlines,
+  sweep, setSweep,
+  flicker, setFlicker,
+  font, setFont
+}) {
   return (
     <div className="efx-settings">
       <div className="setting-row">
