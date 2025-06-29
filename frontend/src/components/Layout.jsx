@@ -11,7 +11,7 @@ function Layout({ children }) {
   const [scanlines, setScanlines] = useState(true);
   const [sweep, setSweep] = useState(true);
   const [flicker, setFlicker] = useState(true);
-  const [font, setFont] = useState(true);
+  const [useFont, setFont] = useState(true);
 
   return (
     <CRTEffect
@@ -34,13 +34,13 @@ function Layout({ children }) {
       <Header />
 
       <button
-        className={`tray-tab ${showTray ? 'open' : ''}`}
+        className={`tray-tab ${showTray ? 'open' : ''} ${useFont ? 'use-pixel-font' : 'use-normal-font'} ${useFont ? '' : 'tray-tab-normal-font'}`}
         onClick={() => setShowTray(!showTray)}
       >
         SETTINGS
       </button>
 
-      <div className={`settings-tray ${showTray ? 'open' : ''}`}>
+      <div className={`settings-tray ${showTray ? 'open' : ''} ${useFont ? 'use-pixel-font' : 'use-normal-font'}`}>
           <EFXSettings
             scanlines={scanlines}
             setScanlines={setScanlines}
@@ -48,7 +48,7 @@ function Layout({ children }) {
             setSweep={setSweep}
             flicker={flicker}
             setFlicker={setFlicker}
-            font={font}
+            useFont={useFont}
             setFont={setFont}
           />
       </div>
@@ -63,7 +63,8 @@ function Layout({ children }) {
           minHeight: '100vh',
         }}
       >
-        <main className="main-content">
+        <main className={`main-content ${useFont ? 'use-pixel-font' : 'use-normal-font'}`}>
+        {/* <main className="main-content use-normal-font"> */}
           {children}
         </main>
       </div>

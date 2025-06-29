@@ -52,11 +52,13 @@ html, body {
 }
 
 .main-content {
+  font-family: var(--font-pixel-slim);
+  color: cyan;
+  font-size: 15px;
   padding: 2rem;
   padding-left: 35px;
   padding-top: 55px;
   background-color: transparent;
-  color: white;
 }
 
 .settings-tray {
@@ -87,7 +89,7 @@ html, body {
   font-family: var(--font-pixel-slim);
   font-size: 20px;
   padding-right: 8px;
-  padding-top: 10px;
+  /* padding-top: 10px; */
   color: white;
   letter-spacing: 0.5px;
   text-align: center;
@@ -115,6 +117,11 @@ html, body {
   cursor: pointer;
   z-index: 1001;
   transition: left 0.3s ease;
+}
+
+.tray-tab-normal-font{
+  padding-right: 0 !important;
+  font-size: 1.1rem !important;
 }
 
 .tray-tab.open {

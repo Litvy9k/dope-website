@@ -66,3 +66,7 @@
   font-family: "pixel_slim";
   color: #00ffff;
 }
+
+.settings-tray .use-normal-font .setting-row {
+  font-family: var(--font-normal-slim);
+}

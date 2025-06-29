@@ -15,13 +15,50 @@
   font-display: swap;
 }
 
-:root {
-  --font-header: "header_font", monospace;
-  --font-pixel-slim: "pixel_slim", monospace;
+@font-face {
+  font-family: "normal";
+  src: url("../src/font/Merriweather.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
-.testslimfont{
+@font-face {
+  font-family: "normal_italic";
+  src: url("../src/font/Merriweather-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "normal_slim";
+  src: url("../src/font/Oswald.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+
+:root {
+  --font-header: "header_font";
+  --font-pixel-slim: "pixel_slim";
+  --font-normal: "normal";
+  --font-normal-slim: 'normal_slim';
+}
+
+/* .testslimfont{
   font-family: "pixel_slim";
   color:cyan;
   font-size: 10px;
+} */
+
+.use-pixel-font {
+  font-family: var(--font-pixel-slim) !important;
 }
+
+.use-normal-font {
+  font-family: var(--font-normal-slim) !important;
+  font-size: 0.9rem !important;
+}
+

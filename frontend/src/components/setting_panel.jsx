@@ -5,7 +5,7 @@ export default function EFXSettings({
   scanlines, setScanlines,
   sweep, setSweep,
   flicker, setFlicker,
-  font, setFont
+  useFont, setFont
 }) {
   return (
     <div className="efx-settings">
@@ -57,7 +57,7 @@ export default function EFXSettings({
           <input
             className="toggle"
             type="checkbox"
-            checked={font}
+            checked={useFont}
             onChange={(e) => setFont(e.target.checked)}
           />
           <span className="slider"></span>
