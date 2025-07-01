@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './Layout.css';
 import Header from './Header';
-import bgImage from '../assets/bg.jpg';
+import bgImage from '/image/bg.jpg';
 import CRTEffect from 'vault66-crt-effect';
 import "vault66-crt-effect/dist/vault66-crt-effect.css";
 import EFXSettings from './setting_panel';

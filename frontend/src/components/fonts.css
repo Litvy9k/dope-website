@@ -1,7 +1,6 @@
 @font-face {
   font-family: "header_font";
-  src: url("./font/Demosdcyberglitch-yw6GM.ttf") format("truetype");
-  /* src: url("../src/font/UncrackedFreeTrial-X3WjK.otf") format("opentype"); */
+  src: url("/font/Demosdcyberglitch-yw6GM.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -9,7 +8,7 @@
 
 @font-face {
   font-family: "pixel_slim";
-  src: url("./font/BitPap.ttf") format("truetype");
+  src: url("/font/BitPap.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -17,7 +16,7 @@
 
 @font-face {
   font-family: "normal";
-  src: url("./font/Merriweather.ttf") format("truetype");
+  src: url("/font/Merriweather.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -25,7 +24,7 @@
 
 @font-face {
   font-family: "normal_italic";
-  src: url("./font/Merriweather-Italic.ttf") format("truetype");
+  src: url("/font/Merriweather-Italic.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -33,7 +32,7 @@
 
 @font-face {
   font-family: "normal_slim";
-  src: url("./font/Oswald.ttf") format("truetype");
+  src: url("/font/Oswald.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
