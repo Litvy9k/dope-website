@@ -24,7 +24,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: url("../assets/switch_bg_off.png");
+  background: url("./image/switch_bg_off.png");
   background-size: 100% 100%;
   transition: 0.3s;
 }
@@ -36,14 +36,14 @@
   height: 32px;
   width: 28px;
   bottom: 0px;
-  background: url("../assets/switch_slider.png");
+  background: url("./image/switch_slider.png");
   background-size: 28px 32px;
   transition: 0.3s;
   box-shadow: 0 0 20px rgba(255, 0, 255, 0.7);
 }
 
 .toggle:checked + .slider {
-  background: url("../assets/switch_bg_on.png");
+  background: url("./image/switch_bg_on.png");
   background-size: 100% 100%;
 }
 
