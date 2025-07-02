@@ -25,8 +25,13 @@
 // export default App;
 
 import Home from './pages/Home';
+import { useEffect } from 'react';
 
 function App() {
+  useEffect(() => {
+  window.dispatchEvent(new Event('resize'));
+    }, []);
+    
   return <Home />;
 }
 

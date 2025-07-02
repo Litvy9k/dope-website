@@ -38,12 +38,28 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "pixel_cn";
+  src: url("/font/IPix_cn.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "normal_cn";
+  src: url("/font/SourceHanSerifSC-SemiBold.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 
 :root {
   --font-header: "header_font";
-  --font-pixel-slim: "pixel_slim";
+  --font-pixel-slim: "pixel_slim", "pixel_cn";
   --font-normal: "normal";
-  --font-normal-slim: 'normal_slim';
+  --font-normal-slim: "normal_slim", "normal_cn";
 }
 
 /* .testslimfont{

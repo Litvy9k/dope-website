@@ -52,13 +52,19 @@ html, body {
 }
 
 .main-content {
-  font-family: var(--font-pixel-slim);
+  font-family: var(--font-pixel-slim);  
   color: cyan;
   font-size: 15px;
   padding: 2rem;
   padding-left: 35px;
   padding-top: 55px;
   background-color: transparent;
+  text-shadow: 1px 1px 2px black, 2px 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+.highlight {
+  color: yellow;
+  text-decoration: underline;
 }
 
 .settings-tray {
