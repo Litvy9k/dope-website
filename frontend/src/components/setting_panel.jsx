@@ -5,7 +5,8 @@ export default function EFXSettings({
   scanlines, setScanlines,
   sweep, setSweep,
   flicker, setFlicker,
-  useFont, setFont
+  useFont, setFont,
+  lang, setLang
 }) {
   return (
     <div className="efx-settings">
@@ -59,6 +60,20 @@ export default function EFXSettings({
             type="checkbox"
             checked={useFont}
             onChange={(e) => setFont(e.target.checked)}
+          />
+          <span className="slider"></span>
+          <span className="card-side"></span>
+        </label>
+      </div>
+
+      <div className="setting-row">
+        <label>CHN Translation</label>
+        <label className="switch">
+          <input
+            className="toggle"
+            type="checkbox"
+            checked={lang}
+            onChange={(e) => setLang(e.target.checked)}
           />
           <span className="slider"></span>
           <span className="card-side"></span>

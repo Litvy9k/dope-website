@@ -131,7 +131,7 @@ html, body {
 }
 
 .tray-tab.open {
-  left: 255px;
+  left: 254.5px;
 }
 
 .tray-tab:hover {

@@ -12,6 +12,7 @@ function Layout({ children }) {
   const [sweep, setSweep] = useState(true);
   const [flicker, setFlicker] = useState(true);
   const [useFont, setFont] = useState(true);
+  const [lang, setLang] = useState(false);
 
   return (
     <CRTEffect
@@ -50,6 +51,8 @@ function Layout({ children }) {
             setFlicker={setFlicker}
             useFont={useFont}
             setFont={setFont}
+            lang={lang}
+            setLang={setLang}
           />
       </div>
 
