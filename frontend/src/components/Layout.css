@@ -62,11 +62,6 @@ html, body {
   text-shadow: 1px 1px 2px black, 2px 2px 6px rgba(0, 0, 0, 0.6);
 }
 
-.highlight {
-  color: yellow;
-  text-decoration: underline;
-}
-
 .settings-tray {
   position: fixed;
   bottom: 20px;
@@ -131,7 +126,7 @@ html, body {
 }
 
 .tray-tab.open {
-  left: 254.5px;
+  left: 255px;
 }
 
 .tray-tab:hover {
