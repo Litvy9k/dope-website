@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, cloneElement   } from 'react';
 import './Layout.css';
+// import './highlight.css' // TEMP
+import HighlightText from './highlight';
 import Header from './Header';
-import bgImage from '../assets/bg.jpg';
+import bgImage from '/image/bg.jpg';
 import CRTEffect from 'vault66-crt-effect';
 import "vault66-crt-effect/dist/vault66-crt-effect.css";
 import EFXSettings from './setting_panel';
@@ -12,6 +14,13 @@ function Layout({ children }) {
   const [sweep, setSweep] = useState(true);
   const [flicker, setFlicker] = useState(true);
   const [useFont, setFont] = useState(true);
+  const [lang, setLang] = useState(false);
+
+  const childrenWithProps = React.Children.map(children, child =>
+    React.isValidElement(child)
+      ? cloneElement(child, { showTray, setShowTray })
+      : child
+  );
 
   return (
     <CRTEffect
@@ -50,6 +59,8 @@ function Layout({ children }) {
             setFlicker={setFlicker}
             useFont={useFont}
             setFont={setFont}
+            lang={lang}
+            setLang={setLang}
           />
       </div>
 
@@ -64,8 +75,7 @@ function Layout({ children }) {
         }}
       >
         <main className={`main-content ${useFont ? 'use-pixel-font' : 'use-normal-font'}`}>
-        {/* <main className="main-content use-normal-font"> */}
-          {children}
+          {childrenWithProps}
         </main>
       </div>
     </CRTEffect>
