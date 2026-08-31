@@ -60,7 +60,7 @@
   51%, 100% { opacity: 0; }
 }
 
-.sh-uptime {
+.sh-total {
   font-size: 14px;
   color: rgba(125, 255, 176, 0.55);
 }
@@ -135,5 +135,5 @@
 }
 
 @media (max-width: 420px) {
-  .sh-uptime { display: none; }
+  .sh-total { display: none; }
 }

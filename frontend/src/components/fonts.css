@@ -1,30 +1,6 @@
 @font-face {
-  font-family: "header_font";
-  src: url("/font/Demosdcyberglitch-yw6GM.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
   font-family: "pixel_slim";
   src: url("/font/BitPap.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "normal";
-  src: url("/font/Merriweather.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "normal_italic";
-  src: url("/font/Merriweather-Italic.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -56,9 +32,8 @@
 
 
 :root {
-  --font-header: "header_font";
+  /* 每个都是"拉丁字体, 中文字体"，中文自动落到后面那个 */
   --font-pixel-slim: "pixel_slim", "pixel_cn";
-  --font-normal: "normal";
   --font-normal-slim: "normal_slim", "normal_cn";
 }
 

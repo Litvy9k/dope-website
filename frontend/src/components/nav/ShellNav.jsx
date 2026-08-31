@@ -4,11 +4,6 @@ import { useUI } from '../UIContext';
 import { sections, labelOf, trailOf, pathLabel } from './sections';
 import './ShellNav.css';
 
-// 假的开机时间，纯装饰
-const SITE_BIRTH = new Date('2025-06-01T00:00:00');
-const uptimeDays = () =>
-  Math.max(0, Math.floor((Date.now() - SITE_BIRTH.getTime()) / 86400000));
-
 function ShellNav() {
   const { pathname } = useLocation();
   const { lang } = useUI();
@@ -20,6 +15,10 @@ function ShellNav() {
   const [hovered, setHovered] = useState(null);
   const focused = hovered ?? activeTop ?? null;
   const children = focused?.children ?? [];
+
+  // 当前所在目录的条目。根目录列的就是顶层栏目
+  const here = trail[trail.length - 1];
+  const entries = here ? here.children ?? [] : sections;
 
   const displayPath = pathLabel(trail, lang);
   const command = `cd ${displayPath}`;
@@ -63,7 +62,10 @@ function ShellNav() {
         <span className="sh-cursor" aria-hidden="true" />
 
         <span className="sh-spacer" />
-        <span className="sh-uptime">uptime {uptimeDays()}d</span>
+        {/* ls 本来就会报当前目录有多少条目。等栏目里真有内容了这个数字才有意义 */}
+        <span className="sh-total">
+          {lang === 'zh' ? `总计 ${entries.length}` : `total ${entries.length}`}
+        </span>
       </div>
 
       {/* 两行套在同一个容器里，鼠标从顶层挪到子级不会触发 leave，
