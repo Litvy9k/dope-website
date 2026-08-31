@@ -1,12 +1,11 @@
-import React, { useState, cloneElement   } from 'react';
+import { useMemo, useState } from 'react';
 import './Layout.css';
-// import './highlight.css' // TEMP
-import HighlightText from './highlight';
 import Header from './Header';
 import bgImage from '/image/bg.jpg';
 import CRTEffect from 'vault66-crt-effect';
 import "vault66-crt-effect/dist/vault66-crt-effect.css";
 import EFXSettings from './setting_panel';
+import { UIContext } from './UIContext';
 
 function Layout({ children }) {
   const [showTray, setShowTray] = useState(false);
@@ -16,13 +15,18 @@ function Layout({ children }) {
   const [useFont, setFont] = useState(true);
   const [lang, setLang] = useState(false);
 
-  const childrenWithProps = React.Children.map(children, child =>
-    React.isValidElement(child)
-      ? cloneElement(child, { showTray, setShowTray })
-      : child
+  const ui = useMemo(
+    () => ({
+      showTray,
+      setShowTray,
+      openTray: () => setShowTray(true),
+      closeTray: () => setShowTray(false),
+    }),
+    [showTray]
   );
 
   return (
+    <UIContext.Provider value={ui}>
     <CRTEffect
       enabled={true}
       enableScanlines={scanlines}
@@ -75,10 +79,11 @@ function Layout({ children }) {
         }}
       >
         <main className={`main-content ${useFont ? 'use-pixel-font' : 'use-normal-font'}`}>
-          {childrenWithProps}
+          {children}
         </main>
       </div>
     </CRTEffect>
+    </UIContext.Provider>
   );
 }
 

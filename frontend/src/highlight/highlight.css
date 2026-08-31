@@ -1,0 +1,113 @@
+:root {
+  --hl-yellow: #f5ff3d;
+  --hl-yellow-bright: #ffff9e;
+  --hl-glow: 245, 255, 61;
+}
+
+.highlight-text {
+  position: relative;
+  color: var(--hl-yellow);
+  cursor: pointer;
+  /* 这里不要加 transition：CRT 的 flicker 动画会不停触发样式重算，
+     把 color / text-shadow 的过渡永久卡在第一帧，光晕就永远出不来。 */
+}
+
+.highlight-label {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+/* 选中时罩一圈荧光。
+   两条规则分开写：万一浏览器不认 :focus-visible，整个选择器列表会被丢弃，
+   连带把 .is-active 也弄没。颜色也不走 rgba(var(...)) 那套，直接写字面值。 */
+.highlight-text.is-active {
+  color: #ffff9e;
+  text-shadow:
+    0 0 4px rgba(245, 255, 61, 0.9),
+    0 0 10px rgba(245, 255, 61, 0.7),
+    0 0 20px rgba(245, 255, 61, 0.5),
+    0 0 40px rgba(245, 255, 61, 0.3);
+}
+
+.highlight-text:focus-visible {
+  outline: none;
+  color: #ffff9e;
+  text-shadow:
+    0 0 4px rgba(245, 255, 61, 0.9),
+    0 0 10px rgba(245, 255, 61, 0.7),
+    0 0 20px rgba(245, 255, 61, 0.5),
+    0 0 40px rgba(245, 255, 61, 0.3);
+}
+
+.highlight-tooltip {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(calc(-50% + var(--tip-shift, 0px)));
+  z-index: 1200;
+
+  width: max-content;
+  max-width: min(320px, 90vw);
+  padding: 10px 12px;
+
+  color: #00ffcc;
+  background-color: rgba(10, 10, 10, 0.97);
+  border: 1px solid rgba(0, 255, 204, 0.6);
+  border-radius: 6px;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.35);
+
+  text-align: left;
+  line-height: 1.5;
+  white-space: normal;
+  cursor: default;
+
+  /* text-shadow 会从激活态的父元素继承下来，糊在正文上很难读 */
+  text-shadow: none;
+
+  /* 不吃鼠标事件，否则 tooltip 盖住文字会导致悬浮状态反复横跳 */
+  pointer-events: none;
+
+  animation: highlight-tooltip-in 0.15s ease-out;
+}
+
+/* 上方放不下时翻到下方 */
+.highlight-tooltip.below {
+  bottom: auto;
+  top: calc(100% + 12px);
+}
+
+/* 小三角。tooltip 被推回来多少，三角就反向补多少，保证一直指着文字 */
+.highlight-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: calc(50% - var(--tip-shift, 0px));
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: rgba(0, 255, 204, 0.6);
+}
+
+.highlight-tooltip.below::after {
+  top: auto;
+  bottom: 100%;
+  border-top-color: transparent;
+  border-bottom-color: rgba(0, 255, 204, 0.6);
+}
+
+@keyframes highlight-tooltip-in {
+  from {
+    opacity: 0;
+    transform: translateX(calc(-50% + var(--tip-shift, 0px))) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(calc(-50% + var(--tip-shift, 0px))) translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .highlight-tooltip {
+    animation: none;
+  }
+}
