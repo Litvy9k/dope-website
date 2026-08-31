@@ -1,0 +1,139 @@
+/* 视觉顺序自下而上：提示符贴底，顶层在上，子级再往上展开。
+   DOM 顺序保持阅读逻辑，靠 column-reverse 翻过来，Tab 顺序因此仍然正确。 */
+.sh-shell {
+  display: flex;
+  flex-direction: column-reverse;
+
+  background-color: rgba(6, 10, 8, 0.96);
+  border-top: 1px solid rgba(0, 255, 128, 0.35);
+  box-shadow: 0 0 24px rgba(0, 255, 128, 0.22);
+  font-family: var(--font-pixel-slim);
+  color: #7dffb0;
+}
+
+.sh-menu {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+/* ── 最底行：提示符 ─────────────────────────────── */
+.sh-line {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 16px 8px;
+  font-size: 17px;
+  white-space: nowrap;
+}
+
+.sh-spacer { flex: 1 1 auto; }
+
+.sh-user {
+  color: #00ffcc;
+  text-shadow: 0 0 8px rgba(0, 255, 204, 0.6);
+}
+
+.sh-punct { color: rgba(125, 255, 176, 0.6); }
+
+.sh-path {
+  color: #7db4ff;
+  text-shadow: 0 0 8px rgba(125, 180, 255, 0.5);
+}
+
+.sh-cmd {
+  margin-left: 8px;
+  color: #eaffee;
+}
+
+.sh-cursor {
+  display: inline-block;
+  width: 9px;
+  height: 17px;
+  margin-left: 2px;
+  background-color: #7dffb0;
+  box-shadow: 0 0 10px rgba(0, 255, 128, 0.8);
+  animation: sh-blink 1.1s steps(1, end) infinite;
+}
+
+@keyframes sh-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.sh-uptime {
+  font-size: 14px;
+  color: rgba(125, 255, 176, 0.55);
+}
+
+/* ── 中间行：顶层栏目 ───────────────────────────── */
+.sh-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  padding: 3px 16px 2px;
+  font-size: 17px;
+}
+
+/* ── 最上行：当前分支的子级，向上展开 ───────────── */
+.sh-subnav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 18px;
+  padding: 8px 16px 0 34px;
+  font-size: 16px;
+}
+
+/* 挂在底部时枝干朝上 */
+.sh-branch {
+  color: rgba(125, 255, 176, 0.4);
+  margin-right: -8px;
+  transform: scaleY(-1);
+  display: inline-block;
+}
+
+/* 悬浮预览别的分支时整行压暗，和"我正待在这儿"区分开 */
+.sh-subnav.is-preview { opacity: 0.62; }
+
+/* 被预览的那个顶层项：虚线下划提示"这是在看，不是在这儿" */
+.sh-entry.is-peeking {
+  color: #eaffee;
+  text-decoration: underline dashed rgba(125, 255, 176, 0.55);
+  text-underline-offset: 4px;
+}
+
+.sh-entry {
+  position: relative;
+  text-decoration: none;
+  color: rgba(125, 255, 176, 0.7);
+}
+
+.sh-entry:hover {
+  color: #eaffee;
+  text-shadow: 0 0 10px rgba(0, 255, 128, 0.7);
+}
+
+/* 选中项：像 shell 里被高亮的补全候选 */
+.sh-entry.is-on {
+  color: #06120c;
+  background-color: #7dffb0;
+  box-shadow: 0 0 14px rgba(0, 255, 128, 0.6);
+  padding: 0 5px;
+  margin: 0 -5px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sh-cursor { animation: none; }
+}
+
+/* ── 窄屏 ───────────────────────────────────────── */
+@media (max-width: 640px) {
+  .sh-line { font-size: 14px; padding: 3px 10px 7px; }
+  .sh-cursor { height: 14px; width: 7px; }
+  .sh-nav { font-size: 15px; gap: 14px; padding: 3px 10px 2px; }
+  .sh-subnav { font-size: 14px; gap: 14px; padding: 7px 10px 0 24px; }
+}
+
+@media (max-width: 420px) {
+  .sh-uptime { display: none; }
+}

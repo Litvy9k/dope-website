@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import './Layout.css';
-import Header from './Header';
+import SiteNav from './nav/SiteNav';
 import bgImage from '/image/bg.jpg';
 import CRTEffect from 'vault66-crt-effect';
 import "vault66-crt-effect/dist/vault66-crt-effect.css";
@@ -21,8 +21,9 @@ function Layout({ children }) {
       setShowTray,
       openTray: () => setShowTray(true),
       closeTray: () => setShowTray(false),
+      lang: lang ? 'zh' : 'en',
     }),
-    [showTray]
+    [showTray, lang]
   );
 
   return (
@@ -44,7 +45,7 @@ function Layout({ children }) {
       edgeGlowSize={30}
       scanlineColor="rgba(0, 50, 0, 0.3)" >
 
-      <Header />
+      <SiteNav />
 
       <button
         className={`tray-tab ${showTray ? 'open' : ''} ${useFont ? 'use-pixel-font' : 'use-normal-font'} ${useFont ? '' : 'tray-tab-normal-font'}`}

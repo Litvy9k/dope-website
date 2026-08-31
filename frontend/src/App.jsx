@@ -1,42 +1,27 @@
-// import './App.css';
-// import bgImage from './assets/bg.png';
-// import { motion } from "motion/react";
-
-// function App() {
-//   return (
-//     <div className="app" style={{ backgroundImage: `url(${bgImage})` }}>
-//       <header className="app-header">
-//         <h2 style={{ marginTop: 5, marginLeft: 15 , marginRight: 15 }} className="PFD">My Homepage</h2>
-//       </header>
-//       <main className="app-content">
-//         <p className="PFD">Welcome to my React ho12334page!</p>
-//         <button className="fancy-button">Click Me</button>
-//         <motion.button
-//           className="fancy-button"
-//           whileHover={{ scale: 1.1 }}
-//           whileTap={{ scale: 0.95 }}>
-//           Click me not
-//         </motion.button>
-//       </main>
-//     </div>
-//   );
-// }
-
-// export default App;
-
-import Home from './pages/Home';
 import { useEffect } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
+import Home from './pages/Home';
+import Section from './pages/Section';
 
 function App() {
+  // CRT 组件按挂载时的尺寸算特效，首帧偏早，补一次 resize 让它重新量
   useEffect(() => {
-  window.dispatchEvent(new Event('resize'));
-    }, []);
-    
+    window.dispatchEvent(new Event('resize'));
+  }, []);
+
   return (
-    <Layout>
-      <Home />
-    </Layout>
+    <BrowserRouter>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          {/* 所有栏目暂时共用占位页，两级都走这里 */}
+          <Route path="/:section" element={<Section />} />
+          <Route path="/:section/:sub" element={<Section />} />
+          <Route path="*" element={<Section />} />
+        </Routes>
+      </Layout>
+    </BrowserRouter>
   );
 }
 

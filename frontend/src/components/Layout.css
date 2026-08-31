@@ -17,54 +17,22 @@ html, body {
   background-attachment: fixed;
 }
 
-.header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 1000;
-  background-color: rgba(10, 10, 10, 0.95);
-  border-radius: 0 0 10px 10px;
-  color: white;
-  height: 55px;
-  padding: 0 16px;
-  display: flex;
-  align-items: center;
-  /* justify-content: space-between; */
-  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
-}
-
-.header_font {
-  font-family: var(--font-header);
-  font-size: 40px;
-  color: cyan;
-  text-shadow:
-     /* 3px     3px    0   #000, */
-    -3px    -3px    0   #000,
-    0    0   4px  magenta,
-    0    0  10px  magenta,
-    0    0  20px  magenta;
-  filter: drop-shadow(0 0 100px magenta);
-  margin: 0;
-  line-height: 1;
-  transform: translateY(1px);
-  padding-left: 10px;
-}
-
 .main-content {
   font-family: var(--font-pixel-slim);  
   color: cyan;
   font-size: 15px;
   padding: 2rem;
   padding-left: 35px;
-  padding-top: 55px;
+  /* 导航条固定在底部，正文得让位。高度由 nav/SiteNav.jsx 量出来写进这个变量 */
+  padding-bottom: calc(var(--nav-height, 80px) + 2rem);
   background-color: transparent;
   text-shadow: 1px 1px 2px black, 2px 2px 6px rgba(0, 0, 0, 0.6);
 }
 
 .settings-tray {
   position: fixed;
-  bottom: 20px;
+  /* 垫在导航条上方，别撞上 */
+  bottom: calc(var(--nav-height, 80px) + 16px);
   left: -255px;
   width: 223px;
   height: 300px;
@@ -104,7 +72,7 @@ html, body {
 
   border-color: transparent;
   position: fixed;
-  bottom: 60px;
+  bottom: calc(var(--nav-height, 80px) + 16px);
   left: 0;
   width: 40px;
   overflow: hidden;
