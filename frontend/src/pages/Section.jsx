@@ -1,6 +1,7 @@
 import { useLocation } from 'react-router-dom';
 import '../components/Layout.css'
 import { useUI } from '../components/UIContext';
+import { t } from '../i18n';
 import { labelOf, trailOf } from '../components/nav/sections';
 
 /**
@@ -27,12 +28,14 @@ function Section() {
   return (
     <>
       <h1>{labelOf(here, lang)}</h1>
-      <h2>{`~${trail.map((n) => '/' + labelOf(n, lang)).join('')} —— 占位页`}</h2>
+      <h2>
+        {`~${trail.map((n) => '/' + labelOf(n, lang)).join('')} —— ${t('placeholder', lang)}`}
+      </h2>
       {here.children && (
         <h2>
           {lang === 'zh'
-            ? `这层有 ${here.children.length} 个子栏目，在上面导航的第二行。`
-            : `${here.children.length} subsections — see the second nav row above.`}
+            ? `这层有 ${here.children.length} 个子栏目，在下面导航栏里。`
+            : `${here.children.length} subsections — see the nav bar below.`}
         </h2>
       )}
     </>

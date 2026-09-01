@@ -1,29 +1,61 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './Layout.css';
 import SiteNav from './nav/SiteNav';
 import bgImage from '/image/bg.jpg';
 import CRTEffect from 'vault66-crt-effect';
 import "vault66-crt-effect/dist/vault66-crt-effect.css";
-import EFXSettings from './setting_panel';
+import SetupPanel from './SetupPanel';
 import { UIContext } from './UIContext';
 
 function Layout({ children }) {
-  const [showTray, setShowTray] = useState(false);
+  const [showSetup, setShowSetup] = useState(false);
   const [scanlines, setScanlines] = useState(true);
   const [sweep, setSweep] = useState(true);
   const [flicker, setFlicker] = useState(true);
   const [useFont, setFont] = useState(true);
-  const [lang, setLang] = useState(false);
+  const [chinese, setChinese] = useState(false);
+
+  // 面板要锚在这个按钮上方，关闭时也要把焦点还给它
+  const setupTriggerRef = useRef(null);
+
+  const openSetup = useCallback(() => setShowSetup(true), []);
+  const closeSetup = useCallback(() => setShowSetup(false), []);
+  const toggleSetup = useCallback(() => setShowSetup((open) => !open), []);
+
+  // 正文里的高亮悬浮时，在底栏 SETUP 按钮上方冒一个箭头指着它。
+  // 只是指路，不代替按钮本身
+  const [setupHint, setSetupHint] = useState(false);
+  const showSetupHint = useCallback(() => setSetupHint(true), []);
+  const hideSetupHint = useCallback(() => setSetupHint(false), []);
+
+  // F10 开关面板，和底栏上写的 [F10] 对得上。Esc 由面板自己处理，
+  // 因为它还要负责把焦点送回按钮
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      if (e.key !== 'F10') return;
+      e.preventDefault();
+      toggleSetup();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [toggleSetup]);
 
   const ui = useMemo(
     () => ({
-      showTray,
-      setShowTray,
-      openTray: () => setShowTray(true),
-      closeTray: () => setShowTray(false),
-      lang: lang ? 'zh' : 'en',
+      showSetup,
+      openSetup,
+      closeSetup,
+      toggleSetup,
+      setupTriggerRef,
+      setupHint,
+      showSetupHint,
+      hideSetupHint,
+      lang: chinese ? 'zh' : 'en',
     }),
-    [showTray, lang]
+    [
+      showSetup, openSetup, closeSetup, toggleSetup,
+      setupHint, showSetupHint, hideSetupHint, chinese,
+    ]
   );
 
   return (
@@ -47,27 +79,23 @@ function Layout({ children }) {
 
       <SiteNav />
 
-      <button
-        className={`tray-tab ${showTray ? 'open' : ''} ${useFont ? 'use-pixel-font' : 'use-normal-font'} ${useFont ? '' : 'tray-tab-normal-font'}`}
-        onClick={() => setShowTray(!showTray)}
-      >
-        SETTINGS
-      </button>
-
-      <div className={`settings-tray ${showTray ? 'open' : ''} ${useFont ? '' : 'use-normal-font'}`}>
-          <EFXSettings
-            scanlines={scanlines}
-            setScanlines={setScanlines}
-            sweep={sweep}
-            setSweep={setSweep}
-            flicker={flicker}
-            setFlicker={setFlicker}
-            useFont={useFont}
-            setFont={setFont}
-            lang={lang}
-            setLang={setLang}
-          />
-      </div>
+      {showSetup && (
+        <SetupPanel
+          onClose={closeSetup}
+          triggerRef={setupTriggerRef}
+          lang={chinese ? 'zh' : 'en'}
+          scanlines={scanlines}
+          setScanlines={setScanlines}
+          sweep={sweep}
+          setSweep={setSweep}
+          flicker={flicker}
+          setFlicker={setFlicker}
+          useFont={useFont}
+          setFont={setFont}
+          chinese={chinese}
+          setChinese={setChinese}
+        />
+      )}
 
       <div
         className="bg"

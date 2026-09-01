@@ -5,7 +5,7 @@ import RichText from '../highlight/RichText';
 const paragraphs = [
   `This site is [tooltip=骨架搭好了，内容还在慢慢填。]UNDER CONSTRUCTION[/tooltip] and I kinda messed up the CI/CD process. So things might not be up to date.`,
 
-  `You can turn off the CRT effects (flickering etc.) and pixlated font if you find them annoying. There's a [settings]settings tab[/settings] at the bottom left of the page :)`,
+  `You can turn off the CRT effects (flickering etc.) and pixlated font if you find them annoying. Hit F10, or find [settings]SETUP[/settings] in the bar down there :)`,
 
   `[tooltip=Work In Progress —— 还没做完]WIP[/tooltip] You can also switch languages in the settings tab. Some of the contents (in both languages) may be automatically translated by i18next. Sometimes I just don't feel like writing same thing twice in two languages :p`,
 

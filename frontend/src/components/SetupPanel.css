@@ -1,0 +1,86 @@
+/* 锚在底栏 [F10] 按钮的正上方，右下角。没有遮罩，页面照常可点。 */
+.setup-panel {
+  position: fixed;
+  right: 16px;
+  bottom: calc(var(--nav-height, 80px) + 12px);
+  z-index: 1100;
+
+  width: min(340px, calc(100vw - 32px));
+  padding: 24px 22px 0;
+
+  background-color: rgba(6, 10, 8, 0.985);
+  color: #7dffb0;
+  font-family: var(--font-pixel-slim);
+
+  /* 双线硬边 —— DOS 对话框的 ╔═╗，但不依赖字体有没有制表符字形，
+     也不会因为字宽不一致而对不齐。圆角必须是 0，页面上没有别的曲线。 */
+  border: 4px double #7dffb0;
+  border-radius: 0;
+  box-shadow: 0 0 30px rgba(0, 255, 128, 0.3);
+
+  outline: none;
+  animation: setup-pop 0.12s steps(3, end);
+}
+
+/* 标题嵌在上边框里 */
+.setup-title {
+  position: absolute;
+  top: -13px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0 12px;
+  background-color: #060a08;
+  color: #eaffee;
+  font-size: 19px;
+  letter-spacing: 3px;
+  text-shadow: 0 0 10px rgba(0, 255, 128, 0.7);
+  white-space: nowrap;
+}
+
+.setup-footer {
+  display: block;
+  width: calc(100% + 44px);
+  margin: 16px -22px 0;
+  padding: 9px 0 10px;
+
+  background: none;
+  border: none;
+  border-top: 4px double rgba(125, 255, 176, 0.55);
+
+  color: rgba(125, 255, 176, 0.7);
+  font-family: inherit;
+  font-size: 15px;
+  letter-spacing: 1px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.setup-footer:hover,
+.setup-footer:focus-visible {
+  outline: none;
+  color: #eaffee;
+  background-color: rgba(125, 255, 176, 0.12);
+  text-shadow: 0 0 10px rgba(0, 255, 128, 0.7);
+}
+
+/* 分几帧跳出来，不做平滑缩放 —— 平滑不像这个年代的东西 */
+@keyframes setup-pop {
+  from { transform: translateY(8px); opacity: 0.3; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .setup-panel { animation: none; }
+}
+
+/* 窄屏铺满宽度，但仍然贴在底栏上方，不占整个屏幕 */
+@media (max-width: 480px) {
+  .setup-panel {
+    right: 8px;
+    left: 8px;
+    width: auto;
+    padding: 22px 18px 0;
+  }
+  .setup-footer { width: calc(100% + 36px); margin: 14px -18px 0; }
+  .setup-title { font-size: 17px; }
+}

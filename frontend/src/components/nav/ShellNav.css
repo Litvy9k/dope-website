@@ -4,6 +4,10 @@
   display: flex;
   flex-direction: column-reverse;
 
+  /* 顶边留白加在容器上，不加在各行上 ——
+     这样不管最上面那行是子菜单还是顶层栏目，离上边缘的距离都一样 */
+  padding-top: 12px;
+
   background-color: rgba(6, 10, 8, 0.96);
   border-top: 1px solid rgba(0, 255, 128, 0.35);
   box-shadow: 0 0 24px rgba(0, 255, 128, 0.22);
@@ -21,7 +25,7 @@
   display: flex;
   align-items: center;
   gap: 3px;
-  padding: 4px 16px 8px;
+  padding: 3px 16px 9px;
   font-size: 17px;
   white-space: nowrap;
 }
@@ -60,6 +64,82 @@
   51%, 100% { opacity: 0; }
 }
 
+.sh-fkey-slot {
+  position: relative;
+  display: inline-flex;
+}
+
+/* 正文里的高亮悬浮时，指向 SETUP 按钮的像素箭头。纯装饰，不吃鼠标 */
+.setup-arrow {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  /* 比底栏高，会顶出栏外一截 —— 就是要显眼 */
+  width: 32px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 0);
+  filter: drop-shadow(0 0 8px rgba(0, 255, 128, 0.9));
+}
+
+.setup-arrow svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  fill: #7dffb0;
+}
+
+/* 淡入下降 / 淡出上升。
+   用 keyframes 而不是 transition：箭头要能播退场，所以常驻挂载，
+   靠 fill-mode 让进出场各自停在自己的终点上 */
+/* 终态写在静态规则里，animation 只负责中间的过渡。
+   不靠 fill-mode 定终态 —— 那样一旦动画被节流或禁用，箭头就永远不出现了 */
+.setup-arrow.is-in {
+  opacity: 1;
+  animation: setup-arrow-in 0.18s steps(6, end);
+}
+
+.setup-arrow.is-out {
+  opacity: 0;
+  animation: setup-arrow-out 0.18s steps(6, end);
+}
+
+@keyframes setup-arrow-in {
+  from { opacity: 0; transform: translate(-50%, -13px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@keyframes setup-arrow-out {
+  from { opacity: 1; transform: translate(-50%, 0); }
+  to   { opacity: 0; transform: translate(-50%, -13px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .setup-arrow.is-in,
+  .setup-arrow.is-out { animation: none; }
+}
+
+.sh-fkey {
+  margin-right: 16px;
+  padding: 1px 7px;
+  background: none;
+  border: none;
+  color: rgba(125, 255, 176, 0.75);
+  font-family: inherit;
+  font-size: 15px;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+.sh-fkey:hover,
+.sh-fkey:focus-visible,
+.sh-fkey.is-on {
+  outline: none;
+  color: #06120c;
+  background-color: #7dffb0;
+  box-shadow: 0 0 14px rgba(0, 255, 128, 0.6);
+}
+
 .sh-total {
   font-size: 14px;
   color: rgba(125, 255, 176, 0.55);
@@ -70,7 +150,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 18px;
-  padding: 3px 16px 2px;
+  padding: 0 16px 3px;
   font-size: 17px;
 }
 
@@ -80,7 +160,7 @@
   flex-wrap: wrap;
   align-items: baseline;
   gap: 18px;
-  padding: 8px 16px 0 34px;
+  padding: 0 16px 7px 34px;
   font-size: 16px;
 }
 
@@ -128,10 +208,12 @@
 
 /* ── 窄屏 ───────────────────────────────────────── */
 @media (max-width: 640px) {
-  .sh-line { font-size: 14px; padding: 3px 10px 7px; }
+  .sh-shell { padding-top: 10px; }
+  .sh-line { font-size: 14px; padding: 3px 10px 8px; }
   .sh-cursor { height: 14px; width: 7px; }
-  .sh-nav { font-size: 15px; gap: 14px; padding: 3px 10px 2px; }
-  .sh-subnav { font-size: 14px; gap: 14px; padding: 7px 10px 0 24px; }
+  .sh-nav { font-size: 15px; gap: 14px; padding: 0 10px 3px; }
+  .sh-subnav { font-size: 14px; gap: 14px; padding: 0 10px 6px 24px; }
+  .setup-arrow { width: 26px; }
 }
 
 @media (max-width: 420px) {

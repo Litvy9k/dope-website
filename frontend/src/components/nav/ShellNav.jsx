@@ -1,12 +1,23 @@
 import { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useUI } from '../UIContext';
+import { t } from '../../i18n';
 import { sections, labelOf, trailOf, pathLabel } from './sections';
 import './ShellNav.css';
 
 function ShellNav() {
   const { pathname } = useLocation();
-  const { lang } = useUI();
+  const { lang, showSetup, toggleSetup, setupTriggerRef, setupHint } = useUI();
+
+  // 箭头要能播退场动画，所以一直挂着靠 class 切。
+  // 空字符串是"还没出现过"，免得首次渲染就播一遍退场
+  const [hintPhase, setHintPhase] = useState('');
+  const prevHint = useRef(setupHint);
+  useEffect(() => {
+    if (setupHint === prevHint.current) return;
+    prevHint.current = setupHint;
+    setHintPhase(setupHint ? 'is-in' : 'is-out');
+  }, [setupHint]);
 
   const trail = trailOf(pathname);
   const [activeTop, activeSub] = trail;
@@ -62,6 +73,31 @@ function ShellNav() {
         <span className="sh-cursor" aria-hidden="true" />
 
         <span className="sh-spacer" />
+
+        {/* Norton Commander 底部就是一排功能键，设置从这里进 */}
+        <span className="sh-fkey-slot">
+          <span className={`setup-arrow ${hintPhase}`} aria-hidden="true">
+            {/* 一格一格拼出来的箭头，保证是方的 */}
+            <svg viewBox="0 0 9 12" shapeRendering="crispEdges">
+              <rect x="3" y="0" width="3" height="7" />
+              <rect x="0" y="7" width="9" height="1" />
+              <rect x="1" y="8" width="7" height="1" />
+              <rect x="2" y="9" width="5" height="1" />
+              <rect x="3" y="10" width="3" height="1" />
+              <rect x="4" y="11" width="1" height="1" />
+            </svg>
+          </span>
+
+          <button
+            ref={setupTriggerRef}
+            className={`sh-fkey ${showSetup ? 'is-on' : ''}`}
+            onClick={toggleSetup}
+            aria-expanded={showSetup}
+          >
+            [F10] {t('setup', lang)}
+          </button>
+        </span>
+
         {/* ls 本来就会报当前目录有多少条目。等栏目里真有内容了这个数字才有意义 */}
         <span className="sh-total">
           {lang === 'zh' ? `总计 ${entries.length}` : `total ${entries.length}`}

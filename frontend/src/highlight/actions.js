@@ -23,10 +23,11 @@ export const actions = {
     tooltip: value ?? attrs.text,
   }),
 
-  /** [settings]settings tab[/settings] —— 悬浮弹出左下角设置面板 */
+  /** [settings]SETUP[/settings] —— 悬浮时在底栏 SETUP 按钮上方冒一个箭头指着它。
+      这是指路标不是入口：面板照旧从按钮或 F10 打开 */
   settings: ({ ui }) => ({
-    onActivate: ui.openTray,
-    onDeactivate: ui.closeTray,
+    onActivate: ui.showSetupHint,
+    onDeactivate: ui.hideSetupHint,
   }),
 
   /** [link=https://example.com]某处[/link] 或 [link href="..." tip="说明"]某处[/link] */

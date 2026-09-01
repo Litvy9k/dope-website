@@ -8,8 +8,7 @@
   position: relative;
   color: var(--hl-yellow);
   cursor: pointer;
-  /* 这里不要加 transition：CRT 的 flicker 动画会不停触发样式重算，
-     把 color / text-shadow 的过渡永久卡在第一帧，光晕就永远出不来。 */
+  transition: color 0.15s ease, text-shadow 0.15s ease;
 }
 
 .highlight-label {

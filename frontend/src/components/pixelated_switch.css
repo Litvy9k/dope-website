@@ -59,15 +59,17 @@
 }
 
 .setting-row {
-  font-size: 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-family: "pixel_slim";
-  color: #00ffff;
+  gap: 24px;
+  font-size: 19px;
+  /* 字体和颜色跟着外面的对话框走，不再自己写死 */
+  font-family: inherit;
+  color: inherit;
 }
 
-.settings-tray.open.use-normal-font .efx-settings .setting-row{
+.setup-panel.use-normal-font .setting-row {
   font-family: var(--font-normal-slim);
-  font-size: 1.1rem;
+  font-size: 1.05rem;
 }
