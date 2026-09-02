@@ -16,8 +16,8 @@ const strings = {
   // 语言开关两边都写"中文"：它要是跟着语言变，看不懂当前语言的人就找不到它了
   chinese: { en: '中文', zh: '中文' },
 
-  placeholder: { en: 'placeholder', zh: '占位页' },
-  subsections: { en: 'subsections', zh: '个子栏目' },
+  home: { en: 'home', zh: '主页' },
+  noSuchDir: { en: 'No such file or directory', zh: '没有那个文件或目录' },
 };
 
 export function t(key, lang) {

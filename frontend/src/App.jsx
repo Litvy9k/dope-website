@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import Home from './pages/Home';
-import Section from './pages/Section';
+import Resolve from './pages/Resolve';
 
 function App() {
   // CRT 组件按挂载时的尺寸算特效，首帧偏早，补一次 resize 让它重新量
@@ -15,10 +15,8 @@ function App() {
       <Layout>
         <Routes>
           <Route path="/" element={<Home />} />
-          {/* 所有栏目暂时共用占位页，两级都走这里 */}
-          <Route path="/:section" element={<Section />} />
-          <Route path="/:section/:sub" element={<Section />} />
-          <Route path="*" element={<Section />} />
+          {/* 深度不固定，是文章还是栏目交给 Resolve 判断 */}
+          <Route path="*" element={<Resolve />} />
         </Routes>
       </Layout>
     </BrowserRouter>

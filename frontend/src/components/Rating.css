@@ -1,0 +1,28 @@
+.rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  white-space: nowrap;
+}
+
+.rating-bars {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.rating-seg {
+  width: 7px;
+  height: 15px;
+  background-color: rgba(0, 255, 204, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(0, 255, 204, 0.3);
+}
+
+.rating-seg.is-on {
+  background-color: #00ffcc;
+  box-shadow: 0 0 8px rgba(0, 255, 204, 0.75);
+}
+
+.rating-num {
+  font-size: 0.85em;
+  color: rgba(0, 255, 204, 0.75);
+}

@@ -20,9 +20,8 @@ html, body {
 .main-content {
   font-family: var(--font-pixel-slim);  
   color: cyan;
-  font-size: 15px;
-  padding: 2rem;
-  padding-left: 35px;
+  font-size: 17px;
+  padding: 2rem 35px;
   /* 导航条固定在底部，正文得让位。高度由 nav/SiteNav.jsx 量出来写进这个变量 */
   padding-bottom: calc(var(--nav-height, 80px) + 2rem);
   background-color: transparent;

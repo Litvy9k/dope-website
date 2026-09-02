@@ -1,0 +1,39 @@
+.up-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 20px;
+
+  color: rgba(0, 255, 204, 0.85);
+  text-decoration: none;
+  font-size: 1.2em;
+}
+
+.up-link:hover,
+.up-link:focus-visible {
+  outline: none;
+  color: #eaffee;
+  text-shadow: 0 0 12px rgba(0, 255, 204, 0.8);
+}
+
+.up-arrow {
+  display: block;
+  width: 26px;
+  height: auto;
+  flex: 0 0 auto;
+  fill: currentColor;
+}
+
+/* 箭头往回挪一点，读起来像在往左推 */
+.up-link:hover .up-arrow,
+.up-link:focus-visible .up-arrow {
+  transform: translateX(-3px);
+  filter: drop-shadow(0 0 7px rgba(0, 255, 204, 0.85));
+}
+
+/* 没有外框了，下划线常驻着表示这是能点的 */
+.up-name {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 2px;
+}

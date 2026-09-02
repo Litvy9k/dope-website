@@ -1,0 +1,211 @@
+.cards {
+  max-width: 1400px;
+}
+
+/* 置顶那张只占 80% 并靠左，下面的双栏占满 ——
+   右侧多出的一截让两块错开，比齐平有层次 */
+.card-featured {
+  position: relative;
+  width: 80%;
+  margin-top: 16px;
+}
+
+/* 从右边框接出去的一条走线，正好填掉 80% 留下的那段空白，
+   让上下两块的错位看起来是设计而不是没对齐 */
+.card-featured::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: calc(100% + 18px);
+  width: 20%;
+  height: 2px;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(0, 255, 204, 0.75), rgba(0, 255, 204, 0)) left / 100% 2px no-repeat,
+    linear-gradient(rgba(0, 255, 204, 0.9), rgba(0, 255, 204, 0.9)) left / 6px 10px no-repeat;
+  background-position: left center, left center;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+  width: 100%;
+}
+
+/* ── 卡片本体 ───────────────────────────────────── */
+.post-card {
+  position: relative;
+  display: flex;
+  gap: 16px;
+  padding: 14px;
+
+  color: inherit;
+  text-decoration: none;
+  background-color: rgba(6, 10, 12, 0.72);
+
+  /* 和 SETUP 面板同一套外壳：双线硬边，零圆角 */
+  border: 4px double rgba(0, 255, 204, 0.5);
+  border-radius: 0;
+}
+
+.post-card:hover,
+.post-card:focus-visible {
+  outline: none;
+  border-color: rgba(0, 255, 204, 0.95);
+  background-color: rgba(10, 22, 22, 0.85);
+  box-shadow: 0 0 22px rgba(0, 255, 204, 0.3);
+}
+
+/* 置顶那张边框亮度和普通卡片完全一致 —— 亮度是留给"选中"这个状态的，
+   静止就亮着的话，它看起来会一直像被选中。区分全部交给几何。 */
+.post-card.is-featured {
+  padding: 18px 18px 18px 30px;
+  gap: 22px;
+}
+
+/* 左边一条分段脊条。整块实心、贯穿全高，在满是细节的背景图上
+   也不会被淹没 —— 细碎的装饰会直接被背景纹理吃掉。 */
+.post-card.is-featured::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 10px;
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(0, 255, 204, 0.95) 0 7px,
+    rgba(0, 255, 204, 0.25) 7px 11px
+  );
+  box-shadow: 0 0 14px rgba(0, 255, 204, 0.55);
+}
+
+.post-card.is-featured:hover::before,
+.post-card.is-featured:focus-visible::before {
+  box-shadow: 0 0 20px rgba(0, 255, 204, 0.9);
+}
+
+/* 右上角框内的五角星，用和正文高亮同一个荧光黄 */
+.card-star {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  width: 30px;
+  pointer-events: none;
+  filter: drop-shadow(0 0 8px rgba(245, 255, 61, 0.85));
+}
+
+.card-star svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  fill: var(--hl-yellow, #f5ff3d);
+}
+
+.post-card.is-featured:hover .card-star {
+  filter: drop-shadow(0 0 13px rgba(245, 255, 61, 1));
+}
+
+.post-card.is-featured .card-title {
+  text-shadow: 0 0 12px rgba(0, 255, 255, 0.7);
+}
+
+/* ── 封面 ───────────────────────────────────────── */
+.card-cover {
+  flex: 0 0 auto;
+  width: 92px;
+  height: 130px;
+  object-fit: cover;
+  background-color: rgba(0, 0, 0, 0.5);
+  box-shadow: inset 0 0 0 1px rgba(0, 255, 204, 0.35);
+}
+
+.post-card.is-featured .card-cover {
+  width: 150px;
+  height: 212px;
+}
+
+.card-cover.is-empty {
+  display: grid;
+  place-items: center;
+  text-align: center;
+  line-height: 1.3;
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: rgba(0, 255, 204, 0.4);
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(0, 255, 204, 0.05) 0 6px,
+    transparent 6px 12px
+  );
+}
+
+/* ── 文字区 ─────────────────────────────────────── */
+.card-body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.card-title {
+  margin: 0;
+  font-size: 1.35em;
+  line-height: 1.2;
+  color: #fff;
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.55);
+}
+
+.post-card.is-featured .card-title { font-size: 1.7em; }
+
+.post-card:hover .card-title {
+  text-shadow: 0 0 14px rgba(0, 255, 255, 0.9);
+}
+
+.card-sub {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 0.85em;
+  color: rgba(0, 255, 204, 0.6);
+}
+
+.card-rating { margin: 2px 0 3px; }
+
+/* 两行，超出打省略号。断在哪交给浏览器，不同宽度都合适 */
+.card-excerpt {
+  margin: 0;
+  font-size: 0.92em;
+  line-height: 1.55;
+  color: rgba(190, 255, 245, 0.8);
+
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+/* 置顶那篇给多两行 */
+.post-card.is-featured .card-excerpt {
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+}
+
+/* ── 窄屏：塌成单栏 ─────────────────────────────── */
+@media (max-width: 780px) {
+  .card-grid { grid-template-columns: minmax(0, 1fr); }
+  /* 单栏之后再让置顶窄一截就只剩尴尬了 */
+  .card-featured { width: 100%; }
+  /* 满宽之后右边没地方走线了 */
+  .card-featured::after { display: none; }
+}
+
+@media (max-width: 480px) {
+  .card-cover { width: 72px; height: 102px; }
+  .post-card.is-featured .card-cover { width: 96px; height: 136px; }
+  .card-title { font-size: 1.15em; }
+  .post-card.is-featured .card-title { font-size: 1.3em; }
+}

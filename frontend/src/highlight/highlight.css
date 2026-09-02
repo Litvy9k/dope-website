@@ -39,6 +39,33 @@
     0 0 40px rgba(245, 255, 61, 0.3);
 }
 
+/* ── 剧透：没揭开之前盖一层雪花 ─────────────────── */
+.highlight-text.is-spoiler {
+  position: relative;
+  color: transparent;
+}
+
+.highlight-text.is-spoiler .highlight-label {
+  text-decoration: none;
+}
+
+.highlight-text.is-spoiler::before {
+  content: '';
+  position: absolute;
+  inset: -1px -3px;
+  background-color: #0d1410;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='30'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  box-shadow: inset 0 0 0 1px rgba(0, 255, 204, 0.35);
+}
+
+.highlight-text.is-spoiler.is-revealed {
+  color: var(--hl-yellow-bright);
+}
+
+.highlight-text.is-spoiler.is-revealed::before {
+  content: none;
+}
+
 .highlight-tooltip {
   position: absolute;
   bottom: calc(100% + 12px);

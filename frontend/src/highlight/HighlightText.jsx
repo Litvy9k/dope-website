@@ -15,7 +15,7 @@ import './highlight.css';
  * @param onDeactivate 取消激活时触发
  * @param onSelect     明确的点击或回车，和悬浮无关
  */
-function HighlightText({ children, tooltip, onActivate, onDeactivate, onSelect }) {
+function HighlightText({ children, tooltip, spoiler, onActivate, onDeactivate, onSelect }) {
   const [active, setActive] = useState(false);
   const activeRef = useRef(false);
   const rootRef = useRef(null);
@@ -78,12 +78,14 @@ function HighlightText({ children, tooltip, onActivate, onDeactivate, onSelect }
     if (rect.top < margin) el.classList.add('below');
   }, [active, tooltip]);
 
-  const interactive = Boolean(tooltip || onActivate || onSelect);
+  const interactive = Boolean(tooltip || spoiler || onActivate || onSelect);
 
   return (
     <span
       ref={rootRef}
-      className={`highlight-text ${active ? 'is-active' : ''}`}
+      className={`highlight-text ${active ? 'is-active' : ''} ${
+        spoiler ? `is-spoiler ${active ? 'is-revealed' : ''}` : ''
+      }`}
       // 触屏的 pointerenter 时机不可靠，交给 click 处理
       onPointerEnter={(e) => e.pointerType !== 'touch' && activate()}
       onPointerLeave={(e) => e.pointerType !== 'touch' && deactivate()}

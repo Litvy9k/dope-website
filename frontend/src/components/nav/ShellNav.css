@@ -44,6 +44,22 @@
   text-shadow: 0 0 8px rgba(125, 180, 255, 0.5);
 }
 
+.sh-seg {
+  color: inherit;
+  text-decoration: none;
+}
+
+.sh-seg:hover,
+.sh-seg:focus-visible {
+  outline: none;
+  color: #d6e6ff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-shadow: 0 0 10px rgba(125, 180, 255, 0.9);
+}
+
+.sh-slash { color: rgba(125, 180, 255, 0.5); }
+
 .sh-cmd {
   margin-left: 8px;
   color: #eaffee;

@@ -30,6 +30,9 @@ export const actions = {
     onDeactivate: ui.hideSetupHint,
   }),
 
+  /** [spoiler]结局是……[/spoiler] —— 盖一层雪花，点了或悬浮才显形 */
+  spoiler: () => ({ spoiler: true }),
+
   /** [link=https://example.com]某处[/link] 或 [link href="..." tip="说明"]某处[/link] */
   link: ({ value, attrs }) => ({
     tooltip: attrs.tip,

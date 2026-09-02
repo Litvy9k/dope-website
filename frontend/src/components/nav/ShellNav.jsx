@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { Fragment, useEffect, useRef, useState } from 'react';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useUI } from '../UIContext';
 import { t } from '../../i18n';
 import { sections, labelOf, trailOf, pathLabel } from './sections';
@@ -65,9 +65,23 @@ function ShellNav() {
     // 好处是 Tab 键顺序仍然是先顶层后子级。
     <div className="sh-shell">
       <div className="sh-line">
-        <span className="sh-user">peter@dope</span>
+        <span className="sh-user">guest@somewhere</span>
         <span className="sh-punct">:</span>
-        <span className="sh-path">{displayPath}</span>
+        {/* 提示符里的路径本来就是面包屑，每一段可点就是现成的返回入口 */}
+        <span className="sh-path">
+          <Link to="/" className="sh-seg">~</Link>
+          {trail.map((node, i) => (
+            <Fragment key={node.slug}>
+              <span className="sh-slash">/</span>
+              <Link
+                to={`/${trail.slice(0, i + 1).map((n) => n.slug).join('/')}`}
+                className="sh-seg"
+              >
+                {labelOf(node, lang)}
+              </Link>
+            </Fragment>
+          ))}
+        </span>
         <span className="sh-punct">$</span>
         <span className="sh-cmd">{typed}</span>
         <span className="sh-cursor" aria-hidden="true" />
