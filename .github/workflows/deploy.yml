@@ -36,29 +36,71 @@ jobs:
         run: npm run build
 
       - name: Configure SSH
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
         run: |
+          set -e
           mkdir -p ~/.ssh
-          printf '%s\n' "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/deploy_key
+
+          # tr -d '\r'：在 Windows 上复制私钥很容易带上 CRLF，
+          # OpenSSH 会直接判为格式非法。这里统一清掉
+          printf '%s\n' "$SERVER_SSH_KEY" | tr -d '\r' > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H "${{ secrets.SERVER_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+
+          # 先确认私钥本身能解析，否则后面只会得到一个没有信息量的 255
+          if ! ssh-keygen -y -f ~/.ssh/deploy_key > /dev/null 2>&1; then
+            echo "::error::SERVER_SSH_KEY 无法解析。请确认粘贴了完整私钥，"
+            echo "::error::包含 -----BEGIN/END OPENSSH PRIVATE KEY----- 两行。"
+            exit 1
+          fi
+          echo "私钥解析正常，指纹："
+          ssh-keygen -lf <(ssh-keygen -y -f ~/.ssh/deploy_key)
+
+          if [ -z "$SERVER_HOST" ]; then
+            echo "::error::SERVER_HOST 是空的，secret 没配上"; exit 1
+          fi
+
+          ssh-keyscan -H "$SERVER_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          if [ ! -s ~/.ssh/known_hosts ]; then
+            echo "::error::ssh-keyscan 拿不到 $SERVER_HOST 的主机密钥，检查 IP 和 22 端口"
+            exit 1
+          fi
+
+      - name: Verify SSH access
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o IdentitiesOnly=yes \
+            "$SERVER_USER@$SERVER_HOST" \
+            "echo 已连接；touch /var/www/dope-website/.ci-probe && rm -f /var/www/dope-website/.ci-probe && echo 目录可写"
 
       - name: Upload
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
         run: |
+          set -e
           # --delete 会清掉服务器上多余的旧文件，否则改了文件名的旧构建
           # 产物会一直堆在那里
           rsync -az --delete \
-            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes" \
+            -e "ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o IdentitiesOnly=yes" \
             frontend/dist/ \
-            "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/var/www/dope-website/"
+            "$SERVER_USER@$SERVER_HOST:/var/www/dope-website/"
 
-          ssh -i ~/.ssh/deploy_key "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}" \
+          ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o IdentitiesOnly=yes \
+            "$SERVER_USER@$SERVER_HOST" \
             "chown -R nginx:nginx /var/www/dope-website && chmod -R a+rX /var/www/dope-website"
 
       - name: Smoke test
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
         # 部署完要真的验一下。只看 rsync 成功不够 —— 之前就出过
         # 首页正常但深层路由白屏的情况
         run: |
-          HOST="${{ secrets.SERVER_HOST }}"
+          HOST="$SERVER_HOST"
           fail=0
           for path in / /review /review/films /blog-post; do
             code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "http://$HOST$path")
