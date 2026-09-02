@@ -5,6 +5,9 @@ title:
 original: 墮落天使
 year: 1995
 rating: 7
+verdict:
+  en: Messier than its sibling, and I keep going back anyway.
+  zh: 比姊妹篇散得多，但我还是一遍遍回去看。
 date: 2026-08-27
 tags: [王家卫, 香港, 1990s]
 ---

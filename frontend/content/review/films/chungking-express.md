@@ -5,6 +5,9 @@ title:
 original: 重慶森林
 year: 1994
 rating: 9
+verdict:
+  en: Two heartbreaks in a row, and the pineapple cans do the talking.
+  zh: 两段失恋接连上演，替人说话的是那些凤梨罐头。
 date: 2026-08-20
 tags: [王家卫, 香港, 1990s]
 ---

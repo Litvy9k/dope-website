@@ -46,9 +46,10 @@
 .md blockquote {
   margin: 1.4em 0;
   padding: 0.2em 0 0.2em 1.1em;
+  /* 靠左边一条线和颜色区分。不用 font-style: italic —— 站里两套字体
+     都没有斜体 face，浏览器也不做倾斜合成，写了等于没写 */
   border-left: 4px double rgba(0, 255, 204, 0.6);
   color: rgba(180, 255, 240, 0.85);
-  font-style: italic;
 }
 
 .md blockquote p:last-child { margin-bottom: 0; }

@@ -5,6 +5,9 @@ title:
 original: 花樣年華
 year: 2000
 rating: 8
+verdict:
+  en: The most restrained film I know that is also unbearably horny.
+  zh: 我知道的最克制的电影，同时也最色情。
 date: 2026-08-24
 tags: [王家卫, 香港]
 ---

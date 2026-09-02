@@ -226,6 +226,9 @@
 @media (max-width: 640px) {
   .sh-shell { padding-top: 10px; }
   .sh-line { font-size: 14px; padding: 3px 10px 8px; }
+  /* 提示符整行是 nowrap 的，路径一长就会把屏幕撑破。
+     回显的命令在这里是冗余的 —— 路径本来就写在提示符里了 */
+  .sh-cmd { display: none; }
   .sh-cursor { height: 14px; width: 7px; }
   .sh-nav { font-size: 15px; gap: 14px; padding: 0 10px 3px; }
   .sh-subnav { font-size: 14px; gap: 14px; padding: 0 10px 6px 24px; }

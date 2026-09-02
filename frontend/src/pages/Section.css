@@ -2,14 +2,16 @@
   list-style: none;
   margin: 1.4em 0 0;
   padding: 0;
-  max-width: 70ch;
+  /* 固定宽度，不跟着页面拉伸 —— 日期钉在这个宽度的右端，
+     标题长了就在快撞上日期的地方截断 */
+  max-width: 46ch;
 }
 
 .entry {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 16px;
+  gap: 20px;
   padding: 9px 0;
   border-bottom: 1px solid rgba(0, 255, 204, 0.18);
 }
@@ -18,12 +20,20 @@
   display: flex;
   align-items: baseline;
   gap: 10px;
-  flex-wrap: wrap;
+  /* min-width:0 才允许它被压到比内容还窄，不然 flex 项不会收缩，
+     省略号就永远不出现 */
+  min-width: 0;
   color: inherit;
   text-decoration: none;
 }
 
 .entry-title {
+  /* 它自己也是个 flex 项，父元素给了 min-width:0 还不够，
+     这里不给就不会收缩，窄屏下会把整个页面撑破 */
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
@@ -41,11 +51,15 @@
 .entry-meta {
   display: inline-flex;
   align-items: center;
+  /* 日期不参与压缩，永远待在固定宽度的右端 */
+  flex: 0 0 auto;
   gap: 14px;
   font-size: 0.9em;
   color: rgba(0, 255, 204, 0.7);
   white-space: nowrap;
 }
+
+.entry-date { color: rgba(0, 255, 204, 0.55); }
 
 .section-empty {
   color: rgba(0, 255, 204, 0.6);
@@ -78,6 +92,8 @@
   color: rgba(0, 255, 204, 0.75);
 }
 
+/* 窄屏也保持标题和日期同一行 —— 之前这里把它们拆成上下两行，
+   列方向下标题会按内容撑开，既不截断也会把页面撑破 */
 @media (max-width: 560px) {
-  .entry { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .entry { gap: 12px; }
 }

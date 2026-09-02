@@ -96,16 +96,24 @@ export function postsUnder(pathname) {
 
 /**
  * 拆成"置顶那篇"和"其余"。
+ *
  * frontmatter 写了 featured: true 就用它，没写就取评分最高的那篇 ——
  * 这样新栏目不用先标一篇也能有置顶。
+ *
+ * 两种并列的情况都有确定规则，不靠数组顺序碰运气：
+ *   标了多篇  → 最新的那篇（entries 已按日期倒序）
+ *   评分打平  → 同样取最新的
  */
 export function splitFeatured(entries) {
   if (entries.length === 0) return { featured: null, rest: [] };
 
-  const marked = entries.find((p) => p.featured);
-  const featured =
-    marked ??
-    entries.reduce((best, p) => ((p.rating ?? -1) > (best.rating ?? -1) ? p : best));
+  const marked = entries.filter((p) => p.featured);
+  const pool = marked.length ? marked : entries;
+
+  // entries 是日期倒序，严格大于才替换，所以打平时留在前面的（更新的）那篇
+  const featured = pool.reduce((best, p) =>
+    (p.rating ?? -1) > (best.rating ?? -1) ? p : best
+  );
 
   return { featured, rest: entries.filter((p) => p !== featured) };
 }
