@@ -10,3 +10,5 @@ backend/publish/
 # docker volumes (local)
 **/.vscode/
 **/.DS_Store
+# 字体子集，构建时由 frontend/scripts/subset-font.mjs 生成
+frontend/public/font/*.subset.woff2

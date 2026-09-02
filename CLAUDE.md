@@ -17,6 +17,8 @@ frontend/src/
   highlight/               正文里的 [标记] 系统
   components/nav/sections.js  栏目树，路由/导航/面包屑的唯一来源
   i18n.js                  UI 文案，{ en, zh }
+frontend/font-source/     完整字体，只作子集化的输入，不部署
+frontend/scripts/subset-font.mjs   生成 public/font/*.subset.woff2
 ```
 
 文章格式和可用标记见 `frontend/content/README.md`。
@@ -34,6 +36,12 @@ ASCII slug，显示层才用中文。
 **Markdown 走 token 不走 HTML 字符串。** 正文里的 `[标记]` 要变成带事件的
 React 组件，HTML 字符串塞不进去。相邻文本 token 必须先合并，否则
 marked 会把一个标记拆到两个 token 里导致配不上对。
+
+**中文字体是构建时生成的子集。** 完整的思源宋体 22.8MB，站点实际只用到一千
+出头个字符。`scripts/subset-font.mjs` 扫 `content/` 和 `src/` 里的所有文字，
+子集化成 380KB 的 woff2，`predev` / `prebuild` 会自动跑，所以**加文章不用
+手动重新生成**。源字体在 `font-source/`，**别放回 `public/`** —— 那个目录
+会被 Vite 原样拷进 dist，等于把 22.8MB 一起发出去。产物不进 git。
 
 **置顶只在叶子栏目。** `/review` 这类汇总页跨媒介，选不出唯一的"最推荐"，
 所以只给各子栏目的置顶篇加星并排前面，不做横幅。
@@ -90,8 +98,6 @@ index.html → 浏览器收到 `text/html` 的 module script → 白屏。**首�
 
 ## 待办
 
-- **思源宋体 22.8MB 未子集化** —— 切中文且关掉点阵字体时会下载，是目前
-  最大的性能问题
 - `content/` 里的王家卫影评、Outer Wilds、两篇博文都是**示例内容**，
   以第一人称写的，上线前要替换或删除
 - 栏目名（`review` / `blog-post` / `abt-me`）待定

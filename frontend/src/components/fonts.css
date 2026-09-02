@@ -22,9 +22,14 @@
   font-display: swap;
 }
 
+/*
+ * 子集，不是完整的思源宋体：完整包 22.8MB，站点实际只用到一千个字符左右。
+ * 由 scripts/subset-font.mjs 扫 content/ 和 src/ 生成，dev / build 前自动跑，
+ * 所以加了新文章不用手动重新生成。源字体在 font-source/。
+ */
 @font-face {
   font-family: "normal_cn";
-  src: url("/font/SourceHanSerifSC-SemiBold.otf") format("opentype");
+  src: url("/font/SourceHanSerifSC-SemiBold.subset.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
