@@ -225,13 +225,16 @@
 /* ── 窄屏 ───────────────────────────────────────── */
 @media (max-width: 640px) {
   .sh-shell { padding-top: 10px; }
-  .sh-line { font-size: 14px; padding: 3px 10px 8px; }
+  .sh-line { font-size: 16px; padding: 3px 10px 8px; }
   /* 提示符整行是 nowrap 的，路径一长就会把屏幕撑破。
      回显的命令在这里是冗余的 —— 路径本来就写在提示符里了 */
   .sh-cmd { display: none; }
-  .sh-cursor { height: 14px; width: 7px; }
-  .sh-nav { font-size: 15px; gap: 14px; padding: 0 10px 3px; }
-  .sh-subnav { font-size: 14px; gap: 14px; padding: 0 10px 6px 24px; }
+  /* 手机上没有 F10 键，写出来既占地方又误导，只留 SETUP */
+  .sh-fkey-key { display: none; }
+  .sh-fkey { font-size: 16px; margin-right: 0; }
+  .sh-cursor { height: 16px; width: 8px; }
+  .sh-nav { font-size: 17px; gap: 15px; padding: 0 10px 4px; }
+  .sh-subnav { font-size: 16px; gap: 15px; padding: 0 10px 7px 24px; }
   .setup-arrow { width: 26px; }
 }
 

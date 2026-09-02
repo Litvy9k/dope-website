@@ -15,12 +15,16 @@
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
-  overflow-x: hidden;
 }
+
+/* 这里原本是 Vite 模板留下的 display:flex + place-items:center（用来居中
+   那个示例卡片）。它让 React 根节点变成 flex 项，min-width:auto 使它按
+   内容最大宽度撑开，而不是被视口限制住 —— 窄屏下任何一个宽元素都会
+   把整个页面撑破。
+   模板还带了 overflow-x:hidden，正好把这个症状盖住，所以问题一直看不见。
+   两个都去掉了：根因解决之后不需要遮罩，留着只会掩盖以后的布局问题。 */
 
 h1 {
   font-size: 3.2em;

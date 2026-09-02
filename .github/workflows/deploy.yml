@@ -1,43 +1,80 @@
----
-name: Deploy Frontend & Backend to EC2
+name: Deploy frontend
+
+# 仓库现在的主分支是 master。两个都写上，将来真改名成 main 也不用回来改这里。
 on:
   push:
-    branches:
-      - main
+    branches: [master, main]
+  workflow_dispatch:
+
+# 连着推两次时，让后一次直接取代前一次，避免两个部署互相踩
+concurrency:
+  group: deploy
+  cancel-in-progress: true
+
 jobs:
   deploy:
-    name: Build & Deploy to EC2
+    name: Build and deploy to server
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18
-      - name: Install & build frontend
+          # Vite 7 要求 ^20.19 || >=22.12，原来写的 18 会直接装不上
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install
         working-directory: frontend
+        run: npm ci
+
+      - name: Build
+        working-directory: frontend
+        # 产物在 frontend/dist（不是 build）
+        run: npm run build
+
+      - name: Configure SSH
         run: |
-          npm ci
-          npm run build
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 8.0.x
-      - name: Publish backend
-        working-directory: backend
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "${{ secrets.SERVER_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Upload
         run: |
-          dotnet restore
-          dotnet publish -c Release -o publish
-      - name: Deploy to EC2
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_KEY }}
-          source: |
-            frontend/build/*
-            backend/publish/*
-          target: |
-            /var/www/dope-website/frontend
-            /var/www/dope-website/backend
+          # --delete 会清掉服务器上多余的旧文件，否则改了文件名的旧构建
+          # 产物会一直堆在那里
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes" \
+            frontend/dist/ \
+            "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/var/www/dope-website/"
+
+          ssh -i ~/.ssh/deploy_key "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}" \
+            "chown -R nginx:nginx /var/www/dope-website && chmod -R a+rX /var/www/dope-website"
+
+      - name: Smoke test
+        # 部署完要真的验一下。只看 rsync 成功不够 —— 之前就出过
+        # 首页正常但深层路由白屏的情况
+        run: |
+          HOST="${{ secrets.SERVER_HOST }}"
+          fail=0
+          for path in / /review /review/films /blog-post; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "http://$HOST$path")
+            echo "$path -> $code"
+            [ "$code" = "200" ] || fail=1
+          done
+
+          # 首页引用的 JS 必须真的能取到，且 MIME 正确。
+          # 路径配错时它会被 SPA 回退成 index.html，浏览器直接白屏
+          asset=$(curl -s --max-time 20 "http://$HOST/" | grep -oE 'src="/assets/[^"]+\.js"' | head -1 | sed 's/src="//;s/"//')
+          type=$(curl -s -o /dev/null -w '%{content_type}' --max-time 20 "http://$HOST$asset")
+          echo "$asset -> $type"
+          case "$type" in *javascript*) ;; *) fail=1 ;; esac
+
+          exit $fail
+
+# 后端没有纳入部署：它现在只是个 /health 占位，nginx 也没有反代到它。
+# 真要上线时，这里加一个 setup-dotnet（9.0.x）+ dotnet publish，
+# 再传到服务器并用 systemd 托管，同时给 nginx 加一段 location /api 反代。

@@ -9,7 +9,9 @@ html, body {
 }
 
 .bg {
-  width: 100vw;
+  /* 不能用 100vw：它把垂直滚动条的宽度也算进去，页面一长就会
+     多出一条十几像素的横向滚动条 */
+  width: 100%;
   min-height: 100vh;
   background-size: cover;
   background-position: center;

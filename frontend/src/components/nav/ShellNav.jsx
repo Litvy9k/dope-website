@@ -108,7 +108,7 @@ function ShellNav() {
             onClick={toggleSetup}
             aria-expanded={showSetup}
           >
-            [F10] {t('setup', lang)}
+            <span className="sh-fkey-key">[F10]</span> {t('setup', lang)}
           </button>
         </span>
 

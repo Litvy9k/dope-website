@@ -5,6 +5,7 @@ frontend/dist/
 # dotnet (backend)
 backend/bin/
 backend/obj/
+backend/publish/
 
 # docker volumes (local)
 **/.vscode/
