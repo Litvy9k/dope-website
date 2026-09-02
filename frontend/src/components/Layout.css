@@ -13,10 +13,42 @@ html, body {
      多出一条十几像素的横向滚动条 */
   width: 100%;
   min-height: 100vh;
+}
+
+/*
+ * 背景图单独铺一层固定层，而不是给 .bg 加 background-attachment: fixed。
+ *
+ * fixed 背景的定位区域是视口。手机上页面一旦长过一屏，往下滑时地址栏会
+ * 收起，视口跟着变高，cover 就按新高度重算缩放 —— 看到的就是背景突然
+ * 放大一截（1920x1080 的图配竖屏，缩放一直是被高度卡住的，所以高度一变
+ * 就一定会跳）。
+ *
+ * 高度写成 lvh：那是地址栏收起时的视口高度，是个定值，不随地址栏变化，
+ * 缩放于是也定住了。dvh 会跟着视口变，等于没治；svh 虽然也不变，但太矮，
+ * 地址栏收起后底部会露出一条空白。
+ *
+ * z-index 用负值，并且 .bg 不加 position / isolation —— 一旦 .bg 建立了
+ * 层叠上下文，正文里那些要压过底栏（z-index 1000）的悬浮层就被关在里面
+ * 压不住了。祖先元素到 body 都是透明的，html 的底色由画布单独画在最下面，
+ * 所以负层照样看得见。
+ */
+.bg::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  /* 同样别用 100vw，理由见上面 */
+  width: 100%;
+  /* 老浏览器（iOS Safari < 15.4）不认 lvh 会丢掉这条，退回上面那行。
+     对固定定位元素来说 100vh 就是布局视口高度，结果其实一样 */
+  height: 100vh;
+  height: 100lvh;
+  z-index: -1;
+  background-image: var(--bg-image);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-attachment: fixed;
+  pointer-events: none;
 }
 
 .main-content {

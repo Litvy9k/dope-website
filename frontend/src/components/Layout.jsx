@@ -97,16 +97,9 @@ function Layout({ children }) {
         />
       )}
 
-      <div
-        className="bg"
-        style={{
-          backgroundImage: `url(${bgImage})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          minHeight: '100vh',
-        }}
-      >
+      {/* 只把图交给 CSS，其余全在 Layout.css 里 ——
+          真正画背景的是 .bg::before 那层固定层，不是这个元素本身 */}
+      <div className="bg" style={{ '--bg-image': `url(${bgImage})` }}>
         <main className={`main-content ${useFont ? 'use-pixel-font' : 'use-normal-font'}`}>
           {children}
         </main>
