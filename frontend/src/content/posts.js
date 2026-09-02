@@ -124,3 +124,18 @@ export function pick(field, lang) {
   if (typeof field === 'string') return field;
   return field[lang] ?? field.en ?? field.zh ?? '';
 }
+
+/**
+ * tags 这种"一串词"的字段。规则和 pick 一样，只是两边各是一个数组：
+ *
+ *   tags: [meta]                    两种语言共用这一份
+ *   tags: { en: [...], zh: [...] }  各写各的
+ *
+ * 直接写一个数组就是两边一样 —— 和正文里不写 <!-- en --> 标记就共用同一份
+ * 是同一个约定，省得为 1990s 这种两边本来就一样的词写两遍。
+ */
+export function pickList(field, lang) {
+  if (field == null) return [];
+  if (Array.isArray(field)) return field;
+  return field[lang] ?? field.en ?? field.zh ?? [];
+}

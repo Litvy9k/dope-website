@@ -3,7 +3,9 @@ title:
   en: Why this site exists
   zh: 这个站是干嘛的
 date: 2026-09-02
-tags: [meta]
+tags:
+  en: [meta]
+  zh: [关于本站]
 ---
 
 <!-- en -->

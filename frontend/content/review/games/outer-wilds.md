@@ -9,7 +9,9 @@ verdict:
   en: The only game where the sole collectible is understanding.
   zh: 唯一一款收集物只有"理解"的游戏。
 date: 2026-08-30
-tags: [解谜, 太空]
+tags:
+  en: [Puzzle, Space]
+  zh: [解谜, 太空]
 ---
 
 <!-- en -->

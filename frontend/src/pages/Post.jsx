@@ -2,12 +2,13 @@ import '../components/Layout.css';
 import { useUI } from '../components/UIContext';
 import Rating from '../components/Rating';
 import Markdown from '../content/Markdown';
-import { pick } from '../content/posts';
+import { pick, pickList } from '../content/posts';
 
 /** 单篇文章。评论和博文共用，区别只是有没有评分那些字段 */
 export default function Post({ post }) {
   const { lang } = useUI();
   const body = post.body[lang] ?? post.body.en ?? post.body.zh;
+  const tags = pickList(post.tags, lang);
 
   return (
     <article className="post">
@@ -20,9 +21,9 @@ export default function Post({ post }) {
         {post.rating != null && <Rating value={post.rating} />}
       </div>
 
-      {post.tags?.length > 0 && (
+      {tags.length > 0 && (
         <div className="post-tags">
-          {post.tags.map((tag) => (
+          {tags.map((tag) => (
             <span key={tag} className="post-tag">#{tag}</span>
           ))}
         </div>
