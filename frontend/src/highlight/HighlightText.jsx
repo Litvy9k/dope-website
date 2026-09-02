@@ -94,7 +94,18 @@ function HighlightText({ children, tooltip, spoiler, onActivate, onDeactivate, o
         if (activeRef.current) deactivate();
         else activate();
       }}
-      onFocus={activate}
+      // 只认键盘焦点。触屏点击的事件顺序是 focus → click，
+      // 若这里无条件 activate，紧接着 click 的切换逻辑会发现"已激活"
+      // 又把它关掉 —— 表现就是第一次点只闪一下，第二次才正常。
+      // :focus-visible 恰好能区分键盘聚焦和指针点击带来的聚焦
+      onFocus={(e) => {
+        try {
+          if (e.target.matches(':focus-visible')) activate();
+        } catch {
+          // 老浏览器不认 :focus-visible，退回原来的行为
+          activate();
+        }
+      }}
       onBlur={deactivate}
       onKeyDown={(e) => {
         if (e.key !== 'Enter' && e.key !== ' ') return;

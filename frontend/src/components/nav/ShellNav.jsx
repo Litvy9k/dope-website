@@ -24,6 +24,13 @@ function ShellNav() {
 
   // 悬浮顶层条目就预览它的子级，移开恢复当前所在分支
   const [hovered, setHovered] = useState(null);
+
+  // 换页时清掉预览。触屏点击会合成 mouseenter 却不会有 mouseleave，
+  // 不清的话 hovered 会一直卡在上次点过的栏目上，回到主页后
+  // 二级菜单还赖着不走
+  useEffect(() => {
+    setHovered(null);
+  }, [pathname]);
   const focused = hovered ?? activeTop ?? null;
   const children = focused?.children ?? [];
 
