@@ -2,9 +2,9 @@
   list-style: none;
   margin: 1.4em 0 0;
   padding: 0;
-  /* 固定宽度，不跟着页面拉伸 —— 日期钉在这个宽度的右端，
-     标题长了就在快撞上日期的地方截断 */
-  max-width: 46ch;
+  /* 不跟着页面拉伸 —— 日期钉在这个宽度的右端，标题长了就在快撞上日期的
+     地方截断。宽度和文章正文取同一个值，从列表点进文章时边界不会跳 */
+  max-width: var(--content-measure);
 }
 
 .entry {
@@ -81,7 +81,7 @@
  * 觉得还是太窄/太宽就改这一个数：大了行太长读着累，小了大屏上空得慌。
  */
 .post {
-  max-width: 100ch;
+  max-width: var(--content-measure);
 }
 
 .post-meta {

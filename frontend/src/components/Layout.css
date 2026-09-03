@@ -56,6 +56,15 @@ html, body {
   color: cyan;
   /* 跟着视口缩放，取值范围见 fonts.css 里的 --content-font-size */
   font-size: var(--content-font-size);
+
+  /*
+   * 正文和列表共用的宽度。写成一个变量而不是两处各写一个数，是因为这两个
+   * 值必须一起变 —— 从列表点进文章时左右边界要对得上，各写各的迟早跑偏。
+   *
+   * 用 ch 不用 px：ch 跟着字号，而字号跟着视口，所以每行字数在各种屏幕上
+   * 稳定。改宽窄只动这一个数。
+   */
+  --content-measure: 100ch;
   padding: 1.4rem 35px 2rem;
   /* 导航条固定在底部，正文得让位。高度由 nav/SiteNav.jsx 量出来写进这个变量 */
   padding-bottom: calc(var(--nav-height, 80px) + 2rem);
