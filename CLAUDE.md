@@ -31,7 +31,11 @@ ASCII slug，显示层才用中文。
 
 **只有一套标记系统。** `highlight/parse.js` 的 `[名字 key="值"]…[/名字]`
 已支持具名参数，不要再引入 XML 式语法。加新交互只往
-`highlight/actions.js` 加一条，组件不用动。
+`highlight/actions.js` 加一条，组件不用动。**参数名必须和
+`content/README.md` 写的一致** —— 对不上时高亮照样有样式，只是不可交互，
+页面上看不出区别（`tooltip` 一直读 `attrs.text`，而正文和文档写的都是
+`content=`，于是所有 tooltip 静悄悄失效）。现在缺内容会 `console.warn`，
+新加 action 也照着写一句。
 
 **Markdown 走 token 不走 HTML 字符串。** 正文里的 `[标记]` 要变成带事件的
 React 组件，HTML 字符串塞不进去。相邻文本 token 必须先合并，否则
