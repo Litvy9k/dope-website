@@ -40,6 +40,25 @@
   /* 每个都是"拉丁字体, 中文字体"，中文自动落到后面那个 */
   --font-pixel-slim: "pixel_slim", "pixel_cn";
   --font-normal-slim: "normal_slim", "normal_cn";
+
+  /*
+   * 正文基准字号，跟着视口宽度走。
+   *
+   * 写死 17px 时，14 寸 2K 笔记本上正好，32 寸 4K 上就太小 —— 不是屏幕
+   * 分辨率高的锅，是系统缩放不同：14 寸 2K 一般 200% 缩放，视口只有
+   * 1280 CSS px；32 寸 4K 常见 150% 甚至 100%，视口是 2560 到 3840。
+   * 同样的 17px 在后者上物理尺寸小得多，人还坐得更远。
+   *
+   *   视口 1280（14 寸 2K @200%）  17px   ← 保持原样，笔记本上别动
+   *   视口 1920                    19.3px
+   *   视口 2560（32 寸 4K @150%）  21.7px
+   *   视口 3200 以上               24px   ← 封顶
+   *
+   * 两端用 rem 不用纯 px，浏览器里调过默认字号的人仍然有效。
+   * 下游字号几乎全是 em（.md 1.12em、标题 1.5/1.25em、卡片 0.85em），
+   * 所以只动这一个值，整页会成比例一起变。
+   */
+  --content-font-size: clamp(1.0625rem, 0.365vw + 0.77rem, 1.5rem);
 }
 
 /* .testslimfont{
@@ -54,6 +73,23 @@
 
 .use-normal-font {
   font-family: var(--font-normal-slim) !important;
+}
+
+/*
+ * 宋体在同字号下比点阵字体显得大一号，正文里缩一档才看着平衡。
+ * 必须跟着 --content-font-size 算，不能写死 —— 写死的话大屏上刚放大的
+ * 字号会被它按回去，等于关掉点阵字体就白调了。
+ * 这个选择器是 0,2,0，比 .main-content 的 0,1,0 高，不需要 !important。
+ */
+.main-content.use-normal-font {
+  font-size: calc(var(--content-font-size) * 0.9);
+}
+
+/*
+ * 设置面板宽度写死成 min(340px, ...)，字号跟着视口放大会把里面的文字撑出去，
+ * 所以它保持原来的固定值，不参与上面那套缩放
+ */
+.setup-panel.use-normal-font {
   font-size: 0.9rem !important;
 }
 
