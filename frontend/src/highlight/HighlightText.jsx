@@ -11,11 +11,22 @@ import './highlight.css';
  *   <HighlightText tooltip="1996 年，王家卫">重庆森林</HighlightText>
  *
  * @param tooltip      有值就在激活时浮出信息框；可以是字符串或 JSX
+ * @param tooltipImage 信息框里的图片地址，默认排在文字上方
  * @param onActivate   激活时触发（悬浮进入 / 点击 / 获得焦点）
  * @param onDeactivate 取消激活时触发
  * @param onSelect     明确的点击或回车，和悬浮无关
  */
-function HighlightText({ children, tooltip, spoiler, onActivate, onDeactivate, onSelect }) {
+function HighlightText({
+  children,
+  tooltip,
+  tooltipImage,
+  spoiler,
+  onActivate,
+  onDeactivate,
+  onSelect,
+}) {
+  // 只有图没有字也是个有效的 tooltip
+  const hasTooltip = Boolean(tooltip || tooltipImage);
   const [active, setActive] = useState(false);
   const activeRef = useRef(false);
   const rootRef = useRef(null);
@@ -60,25 +71,44 @@ function HighlightText({ children, tooltip, spoiler, onActivate, onDeactivate, o
   // tooltip 贴边时会溢出屏幕，量一下往回推；上方放不下就翻到下方
   useEffect(() => {
     const el = tipRef.current;
-    if (!active || !tooltip || !el) return;
+    if (!active || !hasTooltip || !el) return;
 
-    const margin = 8;
-    el.style.setProperty('--tip-shift', '0px');
-    el.classList.remove('below');
+    const place = () => {
+      const margin = 8;
+      el.style.setProperty('--tip-shift', '0px');
+      el.classList.remove('below');
 
-    const rect = el.getBoundingClientRect();
-    let shift = 0;
-    if (rect.left < margin) {
-      shift = margin - rect.left;
-    } else if (rect.right > window.innerWidth - margin) {
-      shift = window.innerWidth - margin - rect.right;
-    }
-    el.style.setProperty('--tip-shift', `${shift}px`);
+      const rect = el.getBoundingClientRect();
+      let shift = 0;
+      if (rect.left < margin) {
+        shift = margin - rect.left;
+      } else if (rect.right > window.innerWidth - margin) {
+        shift = window.innerWidth - margin - rect.right;
+      }
+      el.style.setProperty('--tip-shift', `${shift}px`);
 
-    if (rect.top < margin) el.classList.add('below');
-  }, [active, tooltip]);
+      if (rect.top < margin) el.classList.add('below');
+    };
 
-  const interactive = Boolean(tooltip || spoiler || onActivate || onSelect);
+    place();
+
+    // 图片是异步解码的，加载完 tooltip 会变高。而"上方放不下就翻下去"是按
+    // 当时的高度判断的 —— 不重算的话，带图的 tooltip 会在图出来之后长出屏幕
+    // 顶部。已经 complete 的（缓存命中）不用等，place() 那次就量准了。
+    const pending = [...el.querySelectorAll('img')].filter((img) => !img.complete);
+    pending.forEach((img) => {
+      img.addEventListener('load', place);
+      img.addEventListener('error', place);
+    });
+    return () => {
+      pending.forEach((img) => {
+        img.removeEventListener('load', place);
+        img.removeEventListener('error', place);
+      });
+    };
+  }, [active, hasTooltip, tooltip, tooltipImage]);
+
+  const interactive = Boolean(hasTooltip || spoiler || onActivate || onSelect);
 
   return (
     <span
@@ -115,15 +145,20 @@ function HighlightText({ children, tooltip, spoiler, onActivate, onDeactivate, o
       }}
       tabIndex={interactive ? 0 : undefined}
       role={interactive ? 'button' : undefined}
-      aria-expanded={tooltip ? active : undefined}
-      aria-describedby={tooltip && active ? tooltipId : undefined}
+      aria-expanded={hasTooltip ? active : undefined}
+      aria-describedby={hasTooltip && active ? tooltipId : undefined}
     >
       {/* 下划线画在内层：祖先元素的 text-decoration 会穿透到子元素，
           子元素改不掉，画在外层的话 tooltip 也会被划一道线 */}
       <span className="highlight-label">{children}</span>
 
-      {tooltip && active && (
+      {hasTooltip && active && (
         <span className="highlight-tooltip" id={tooltipId} role="tooltip" ref={tipRef}>
+          {/* 图在上、字在下。alt 留空是有意的：紧挨着的 tooltip 文字就是
+              它的说明，再念一遍图片地址反而更吵 */}
+          {tooltipImage && (
+            <img className="highlight-tooltip-img" src={tooltipImage} alt="" />
+          )}
           {tooltip}
         </span>
       )}

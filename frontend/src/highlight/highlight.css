@@ -97,6 +97,27 @@
   animation: highlight-tooltip-in 0.15s ease-out;
 }
 
+/*
+ * tooltip 里的图。默认排在文字上方。
+ *
+ * display:block + max-width:100% 是必须的：图默认是 inline，行盒下面会多出
+ * 一条基线间隙；而原图比 tooltip 宽的话不限宽就会把整个框撑出屏幕。
+ * height:auto 保证按原比例缩，不写的话有些浏览器会用属性里的高度。
+ */
+.highlight-tooltip-img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 8px;
+  border: 1px solid rgba(0, 255, 204, 0.35);
+}
+
+/* 只有图没有字的时候，下边距就是多余的 */
+.highlight-tooltip-img:last-child {
+  margin-bottom: 0;
+}
+
 /* 上方放不下时翻到下方 */
 .highlight-tooltip.below {
   bottom: auto;

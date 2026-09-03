@@ -63,10 +63,14 @@ English body…
 
 ```
 [tooltip content="悬浮出来的说明"]某个词[/tooltip]
+[tooltip content="说明" img="/image/still.jpg"]某个词[/tooltip]   # 图在上，字在下
 [spoiler]会被雪花盖住，点一下才显形[/spoiler]
 [link href="https://example.com" tip="说明"]某处[/link]
 [settings]SETUP[/settings]
 ```
+
+`img` 是站点根目录起算的路径，图片放在 `public/image/` 下。图会按 tooltip
+的宽度等比缩放，只写 `img` 不写 `content` 也可以。
 
 要加新的交互类型，只往 `actions.js` 里加一条就行，不用动组件。
 

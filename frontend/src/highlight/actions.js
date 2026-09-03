@@ -21,6 +21,9 @@ export const actions = {
   /**
    * [tooltip=1996 年，王家卫]重庆森林[/tooltip]
    * [tooltip content="1996 年，王家卫"]重庆森林[/tooltip]
+   * [tooltip content="1996 年，王家卫" img="/image/ce.jpg"]重庆森林[/tooltip]
+   *
+   * img 是站点根目录起算的路径（图片放 public/image/），默认图在上、字在下。
    *
    * 没有内容的 tooltip 会渲染成一段"看着像高亮、点了却没反应"的文字：
    * 样式照上，但 HighlightText 判定它不可交互，连 tabIndex 都不给。
@@ -28,10 +31,13 @@ export const actions = {
    */
   tooltip: ({ value, attrs }) => {
     const text = value ?? attrs.content;
-    if (!text) {
-      console.warn('[highlight] [tooltip] 没有内容，写成 [tooltip=文字] 或 [tooltip content="文字"]');
+    // 只有图没有字也算数（图片本身就是内容），两样都没有才是写错了
+    if (!text && !attrs.img) {
+      console.warn(
+        '[highlight] [tooltip] 没有内容，写成 [tooltip=文字]、[tooltip content="文字"] 或 [tooltip img="/image/x.png"]'
+      );
     }
-    return { tooltip: text };
+    return { tooltip: text, tooltipImage: attrs.img };
   },
 
   /** [settings]SETUP[/settings] —— 悬浮时在底栏 SETUP 按钮上方冒一个箭头指着它。
