@@ -1,0 +1,3 @@
+[submodule "frontend/vendor/temu-thea"]
+	path = frontend/vendor/temu-thea
+	url = git@github.com:Litvy9k/temu-thea.git

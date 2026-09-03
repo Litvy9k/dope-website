@@ -29,6 +29,12 @@ export const sections = [
     slug: 'blog-post',
     label: { en: 'blog-post', zh: '博文' },
   },
+  {
+    slug: 'game',
+    label: { en: 'game', zh: '小游戏' },
+    // 这一栏不是文章列表，是一个页面。Resolve 认这个字段去查组件表
+    page: 'game',
+  },
 ];
 
 export function labelOf(node, lang) {

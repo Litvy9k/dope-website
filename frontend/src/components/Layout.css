@@ -57,6 +57,9 @@ html, body {
   /* 跟着视口缩放，取值范围见 fonts.css 里的 --content-font-size */
   font-size: var(--content-font-size);
 
+  /* 左右留白。游戏页要拿它对齐下方留白，所以提成变量，别两处各写一个 35px */
+  --gutter: 35px;
+
   /*
    * 正文和列表共用的宽度。写成一个变量而不是两处各写一个数，是因为这两个
    * 值必须一起变 —— 从列表点进文章时左右边界要对得上，各写各的迟早跑偏。
@@ -65,11 +68,41 @@ html, body {
    * 稳定。改宽窄只动这一个数。
    */
   --content-measure: 100ch;
-  padding: 1.4rem 35px 2rem;
+  padding: 1.4rem var(--gutter) 2rem;
   /* 导航条固定在底部，正文得让位。高度由 nav/SiteNav.jsx 量出来写进这个变量 */
   padding-bottom: calc(var(--nav-height, 80px) + 2rem);
   background-color: transparent;
   text-shadow: 1px 1px 2px black, 2px 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+/*
+ * 游戏页要占满一屏，且底下留白和左右一样宽。
+ *
+ * 别的页面是文章，长度不定、靠滚动；游戏是一屏内的东西，高度写死多少都不对：
+ * 视口一高一矮，它到底栏的距离就变。所以这里把正文区改成一列 flex，
+ * 让游戏拿走剩余高度，距离就固定了。
+ *
+ * 高度这么算：底栏是固定定位的，占掉视口底部 --nav-height；再往上留一个
+ * --gutter 就是要的间距；1.4rem 是正文自己的上内边距 —— box-sizing 是
+ * content-box，min-height 不含内边距，得单独减掉。
+ * 下内边距配成 nav + gutter，于是 border box 正好等于 100lvh，页面不会
+ * 多出一条滚动。用 lvh 不用 vh 的理由见背景图那条坑。
+ */
+.main-content:has(.game-page) {
+  display: flex;
+  flex-direction: column;
+
+  /* 必须是 height 不能是 min-height。min-height 下容器高度是"不确定"的，
+     flex 要先按内容量一遍再分配，嵌套两层 flex 时子项不会缩回来 ——
+     实测容器会比 min-height 多出 22px（正好一个上内边距），底部间距就跑掉了。
+     写成确定高度，分配才是一次算准的 */
+  height: calc(100lvh - var(--nav-height, 80px) - var(--gutter) - 1.4rem);
+
+  /* 视口很矮时上面那个值会小到放不下游戏。给个下限让它改为撑开、页面转成
+     滚动，而不是把游戏压扁或者塞到底栏底下去 */
+  min-height: 520px;
+
+  padding-bottom: calc(var(--nav-height, 80px) + var(--gutter));
 }
 
 /* h1 的默认上下外边距是按 font-size 算的，而 index.css 里

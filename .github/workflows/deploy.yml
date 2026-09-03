@@ -18,6 +18,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # 游戏（temu-thea）是子模块，站点直接编译它的源码。不写这行的话
+          # CI 拿到的是一个空目录，构建会以"找不到模块"失败 —— 而本地因为
+          # 早就检出过，一切正常，只有 CI 会红
+          submodules: true
 
       - uses: actions/setup-node@v4
         with:

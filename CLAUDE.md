@@ -19,6 +19,7 @@ frontend/src/
   i18n.js                  UI 文案，{ en, zh }
 frontend/font-source/     完整字体，只作子集化的输入，不部署
 frontend/scripts/subset-font.mjs   生成 public/font/*.subset.woff2
+frontend/vendor/temu-thea/  git 子模块：小游戏，站点直接编译它的源码
 ```
 
 文章格式和可用标记见 `frontend/content/README.md`。
@@ -46,6 +47,14 @@ marked 会把一个标记拆到两个 token 里导致配不上对。
 子集化成 380KB 的 woff2，`predev` / `prebuild` 会自动跑，所以**加文章不用
 手动重新生成**。源字体在 `font-source/`，**别放回 `public/`** —— 那个目录
 会被 Vite 原样拷进 dist，等于把 22.8MB 一起发出去。产物不进 git。
+
+**游戏是子模块，不是 iframe 也不是 npm 包。** `vendor/temu-thea` 挂的是
+另一个仓库，站点的 Vite 直接编译它的 `src/game`（Vite 别名 `@game`）。
+所以它共享站点的字体、CRT 外壳和语言状态 —— 底栏切中文会同时切游戏文案。
+代价是**游戏仓库自己不部署**：它的 CI 只跑 lint / typecheck / test，
+上线要在这边 `git submodule update --remote` 把指针 bump 上去再 push。
+克隆时记得 `--recurse-submodules`，CI 里对应的是 checkout 的 `submodules: true`
+—— 漏了的话本地一切正常，只有 CI 会以"找不到模块"失败。
 
 **置顶只在叶子栏目。** `/review` 这类汇总页跨媒介，选不出唯一的"最推荐"，
 所以只给各子栏目的置顶篇加星并排前面，不做横幅。

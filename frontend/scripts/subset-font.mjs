@@ -21,7 +21,15 @@ const OUTPUT = path.join(root, 'public/font/SourceHanSerifSC-SemiBold.subset.wof
 
 /** 扫这些地方。文案散在 content/ 的正文和 src/ 的 i18n、sections 里 */
 const SCAN_DIRS = ['content', 'src'];
-const SCAN_FILES = ['index.html'];
+const SCAN_FILES = [
+  'index.html',
+  // 游戏子模块。它的界面文字全部走 i18n.js（其余文件里的中文都是注释），
+  // 而画布那部分用的是它自己的等宽字体、轮不到这里的中文字体 ——
+  // 但存档那几个按钮是跟着站点样式走的，那几个字得在子集里，
+  // 否则只有那一小块会掉到系统字体上，页面照常能用，不专门看发现不了。
+  // 只扫这一个文件而不是整个 game/：其余全是注释，白白多带一百多个字形
+  'vendor/temu-thea/src/game/i18n.js',
+];
 const SCAN_EXT = /\.(md|jsx?|tsx?|css|html)$/;
 
 /**

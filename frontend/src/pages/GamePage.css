@@ -1,0 +1,61 @@
+/*
+ * 游戏页的外框。游戏自己带全部内部样式，这里只负责给它一块地方。
+ *
+ * 高度不写死，让它占满"从存档条下面到底栏上面"的全部空间：游戏的布局是
+ * 按容器尺寸切换宽窄版的（不是视口），给多少它就用多少。写死成 72vh 那种
+ * 值的话，视口一高一矮，它到底栏的距离就跟着忽大忽小 —— 而这个距离是要
+ * 和左右留白对齐的。
+ */
+.game-page {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  /* 撑满 .main-content 分给它的高度，剩下的交给 .game-stage */
+  flex: 1;
+  /* flex 项默认 min-height/min-width 是 auto，会按内容撑开而不是被容器限制。
+     不写这两条，画布一大就会把页面顶出去 —— 和 index.css 里 body 那个
+     flex 坑是同一个来源 */
+  min-height: 0;
+  min-width: 0;
+}
+
+.game-stage {
+  flex: 1;
+  /* 视口太矮时不至于压成一条缝，代价是那种情况下页面会开始滚动 */
+  min-height: 420px;
+  min-width: 0;
+  /* 游戏内部自己定位，收一下免得画布溢出到边框外 */
+  overflow: hidden;
+  border: 1px solid rgba(0, 255, 204, 0.35);
+}
+
+.game-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+/*
+ * 存档那组按钮的样式归站点管：游戏的 SaveControls.css 只排布、不定颜色
+ * 边框，注释里写明"要放进宿主自己的 chrome 里，跟着周围样式走"。
+ * 站点不接这一手的话，button 不继承字体，浏览器会给它默认的 Arial ——
+ * 在这一整页里格外显眼。样式照着底栏 .sh-fkey 那套来。
+ */
+.game-bar button {
+  padding: 3px 10px;
+  background: none;
+  border: 1px solid rgba(125, 255, 176, 0.45);
+  color: rgba(125, 255, 176, 0.8);
+  font-family: inherit;
+  font-size: 0.85em;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+.game-bar button:hover,
+.game-bar button:focus-visible {
+  outline: none;
+  color: #06120c;
+  background-color: #7dffb0;
+}
