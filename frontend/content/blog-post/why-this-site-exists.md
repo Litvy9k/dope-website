@@ -21,6 +21,7 @@ Things that work right now:
 - a bottom bar you can walk like a filesystem
 - English and 中文, switchable in [settings]SETUP[/settings]
 - interactive markup inside the prose, which is what this sentence is demonstrating
+- tooltips that can [tooltip content="Image on top, text underneath." img="/image/tooltip-demo.gif"]carry a picture[/tooltip], not just words
 
 Things that don't, yet:
 
@@ -41,6 +42,7 @@ Things that don't, yet:
 - 一条能像文件系统一样走的底栏
 - 中英文切换，在 [settings]设置[/settings] 里
 - 正文里的可交互标记，比如这句话本身
+- 悬浮说明里还能[tooltip content="图在上，文字在下。" img="/image/tooltip-demo.gif"]放一张图[/tooltip]，不只是文字
 
 还不能用的：
 
