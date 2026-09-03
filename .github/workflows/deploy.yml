@@ -96,24 +96,35 @@ jobs:
 
       - name: Smoke test
         env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          # 测对外的域名 + HTTPS，不测 IP：.dev 是 HSTS 预加载的顶级域，
+          # 浏览器只会走 https，测 http 或测 IP 都不是用户真正经过的路径。
+          # 而且 80 端口现在只回 301，照旧测 http 会直接判失败
+          SITE: https://l9k.dev
         # 部署完要真的验一下。只看 rsync 成功不够 —— 之前就出过
         # 首页正常但深层路由白屏的情况
         run: |
-          HOST="$SERVER_HOST"
           fail=0
           for path in / /review /review/films /blog-post; do
-            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "http://$HOST$path")
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$SITE$path")
             echo "$path -> $code"
             [ "$code" = "200" ] || fail=1
           done
 
           # 首页引用的 JS 必须真的能取到，且 MIME 正确。
           # 路径配错时它会被 SPA 回退成 index.html，浏览器直接白屏
-          asset=$(curl -s --max-time 20 "http://$HOST/" | grep -oE 'src="/assets/[^"]+\.js"' | head -1 | sed 's/src="//;s/"//')
-          type=$(curl -s -o /dev/null -w '%{content_type}' --max-time 20 "http://$HOST$asset")
+          asset=$(curl -s --max-time 20 "$SITE/" | grep -oE 'src="/assets/[^"]+\.js"' | head -1 | sed 's/src="//;s/"//')
+          type=$(curl -s -o /dev/null -w '%{content_type}' --max-time 20 "$SITE$asset")
           echo "$asset -> $type"
           case "$type" in *javascript*) ;; *) fail=1 ;; esac
+
+          # 证书是 acme.sh 自动续期的，而续期失败是悄无声息的。上面的 curl
+          # 没有 -k，证书一旦过期或装错，这些请求会直接失败 —— 等于顺带把
+          # 证书也监控了，比用户先撞上强。
+          # 这条单独验 80 的跳转还在：它同时是 ACME 校验的必经之路，
+          # 跳转配错会让续期在三个月后静默失败
+          redirect=$(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' --max-time 20 http://l9k.dev/)
+          echo "http 跳转 -> $redirect"
+          case "$redirect" in "301 https://l9k.dev/") ;; *) fail=1 ;; esac
 
           exit $fail
 

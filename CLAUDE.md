@@ -3,7 +3,7 @@
 赛博朋克 / CRT 风格的个人站。前端 React 19 + Vite，纯静态；`backend/` 是
 .NET 占位，暂未使用。中英双语。
 
-线上：http://107.149.92.201
+线上：https://l9k.dev（107.149.92.201）
 
 ## 架构
 
@@ -84,6 +84,14 @@ index.html → 浏览器收到 `text/html` 的 module script → 白屏。**首�
 **`.bg` 不能加 `position` / `isolation`** —— 一旦它建立层叠上下文，正文里
 `z-index: 1200` 的 tooltip 就压不住 `z-index: 1000` 的底栏了。
 
+**nginx 的 `add_header` 是整组覆盖，不是叠加。** 只要某个 `location` 里写了
+任意一条 `add_header`，这一整组就不再从 `server` 继承。给 server 加了
+`Strict-Transport-Security` 之后，凡是自己设了缓存头的 location
+（`/assets/`、`/font/`、`/image/`、`= /index.html`）全都没有这个头，而首页
+经 `try_files` 回退到 `/index.html`，正好命中其中一个 —— 于是最该有 HSTS 的
+那条路径反而没有。加 `always` 救不了，那管的是错误响应。只能每个 location
+重复写一遍。这个头缺了页面照常打开，不专门查根本发现不了。
+
 **`width: 100vw` 含滚动条宽度**，会导致桌面端多出十几像素的横向滚动条。
 用 `100%`。
 
@@ -104,7 +112,17 @@ index.html → 浏览器收到 `text/html` 的 module script → 白屏。**首�
 ## 部署
 
 - 服务器 CentOS 7（已 EOL，yum 源已改指 `vault.centos.org`），nginx 1.26
-- 站点目录 `/var/www/dope-website`，配置见 `deploy/nginx.conf`
+- 站点目录 `/var/www/dope-website`，vhost 在服务器的
+  `/etc/nginx/conf.d/dope-website.conf`，仓库里的副本是 `deploy/nginx.conf`
+  （CI 不部署它，改了要手动传上去）
+- 域名 `l9k.dev`，`www` 301 到裸域。**`.dev` 整个顶级域是浏览器 HSTS 预加载
+  的**，所以 HTTPS 不是可选项 —— 没有证书时浏览器压根不会去试 80 端口，
+  只会给一个 `CONNECTION_REFUSED`，而且改浏览器设置也绕不过去
+- 证书用 **acme.sh 不是 certbot**：这台机器连 python3 都没有，而现在的
+  certbot 要 Python 3.8+。acme.sh 是纯 shell 的。签发和续期命令写在
+  `deploy/nginx.conf` 末尾，续期是 root 的 crontab，每天四次，自动 reload
+- ACME 校验目录是 `/var/www/acme`，**不能放在站点目录里** —— CI 的
+  `rsync --delete` 会清掉站点目录里的多余文件，续期撞上就失败
 - **nginx 必须有 `try_files $uri $uri/ /index.html`**，否则深层链接 404
 - CI：push 到 master/main 自动构建部署，末尾有冒烟测试（验 4 条路由 +
   JS 的 MIME 类型，正好能抓住上面那个白屏 bug）
@@ -119,4 +137,3 @@ index.html → 浏览器收到 `text/html` 的 module script → 白屏。**首�
 - 首页和 `abt-me` 仍是占位文字
 - `origin/dev` 已完全合并，可以删
 - 服务器用 root 部署，可以改成专用 deploy 用户
-- 没有 HTTPS（还没有域名，有了之后 `certbot --nginx` 即可）
