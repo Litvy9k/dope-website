@@ -79,7 +79,17 @@ function parse(path, raw) {
   };
 }
 
+/**
+ * 主页正文也是一篇 md，但它不是"文章"：不进列表、不排序、没有上一层。
+ * 单独摘出来，这样栏目页拿到的 posts 里天然不会混进它，
+ * 不用在每个用到列表的地方各自过滤一遍。
+ */
+const HOME = '/content/home.md';
+
+export const home = files[HOME] ? parse(HOME, files[HOME]) : null;
+
 export const posts = Object.entries(files)
+  .filter(([path]) => path !== HOME)
   .map(([path, raw]) => parse(path, raw))
   // 新的在前。没写日期的排到最后
   .sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));

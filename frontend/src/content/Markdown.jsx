@@ -106,7 +106,36 @@ function Block({ tokens }) {
   });
 }
 
-export default function Markdown({ children }) {
+/**
+ * frontmatter 里的 fontScale 是个倍率，不是绝对字号 —— 写死 px 的话这篇
+ * 就退出了随视口缩放那套（见 fonts.css 的 --content-font-size），
+ * 在大屏上会重新变回"太小"。倍率是叠在基准之上的，两者不打架。
+ *
+ * 夹在一个区间里：1.3 手滑写成 13 的话，不至于糊一屏才发现。
+ */
+const SCALE_MIN = 0.8;
+const SCALE_MAX = 1.6;
+
+function scaleOf(value) {
+  if (value == null) return null;
+  const n = Number(value);
+  if (!Number.isFinite(n)) {
+    console.warn(`[Markdown] fontScale "${value}" 不是数字，已忽略`);
+    return null;
+  }
+  const clamped = Math.min(Math.max(n, SCALE_MIN), SCALE_MAX);
+  if (clamped !== n) {
+    console.warn(`[Markdown] fontScale ${n} 超出 ${SCALE_MIN}–${SCALE_MAX}，按 ${clamped} 处理`);
+  }
+  return clamped;
+}
+
+export default function Markdown({ children, fontScale }) {
   if (!children) return null;
-  return <div className="md">{Block({ tokens: marked.lexer(children) })}</div>;
+  const scale = scaleOf(fontScale);
+  return (
+    <div className="md" style={scale ? { '--md-scale': scale } : undefined}>
+      {Block({ tokens: marked.lexer(children) })}
+    </div>
+  );
 }

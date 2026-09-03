@@ -4,7 +4,8 @@
   /* 宽度交给 .post 统一管（见 pages/Section.css）。这里再设一个自己的
      max-width 的话，正文又会比标题窄一截，就是之前那个毛病 */
   max-width: 100%;
-  font-size: 1.12em;
+  /* --md-scale 来自 frontmatter 的 fontScale，没写就是 1 */
+  font-size: calc(1.12em * var(--md-scale, 1));
   line-height: 1.8;
 }
 

@@ -29,7 +29,7 @@ export default function Post({ post }) {
         </div>
       )}
 
-      <Markdown>{body}</Markdown>
+      <Markdown fontScale={post.fontScale}>{body}</Markdown>
     </article>
   );
 }
