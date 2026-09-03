@@ -1,7 +1,9 @@
 /* 正文比其它地方再大一号：这里是要一段一段读下去的，
    点阵字体在小字号下尤其费眼 */
 .md {
-  max-width: 68ch;
+  /* 宽度交给 .post 统一管（见 pages/Section.css）。这里再设一个自己的
+     max-width 的话，正文又会比标题窄一截，就是之前那个毛病 */
+  max-width: 100%;
   font-size: 1.12em;
   line-height: 1.8;
 }
