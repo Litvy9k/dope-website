@@ -6,6 +6,8 @@ fontScale: 1.34
 <!-- en -->
 This site is UNDER CONSTRUCTION.
 
+The console-like stuff down below is a navigation bar, try clicking it (it's so cool I love Claude)
+
 If you're seeing [tooltip=SURPRISE!]highlighted texts[/tooltip], click them. There might be surprises.
 
 You can turn off the CRT effects (flickering, scanline etc.) and pixlated font if you find them annoying. Hit F10 on PC, or find [settings]SETUP[/settings] in the bar down there :)
@@ -15,6 +17,8 @@ You can turn off the CRT effects (flickering, scanline etc.) and pixlated font i
 <!-- zh -->
 
 正在施工!
+
+底下那个长得像终端的是导航条,试着点一下上面的项目(这也太酷了omg克劳德大人)
 
 点击[tooltip=惊喜!]高亮文字[/tooltip]可能有惊喜.
 
