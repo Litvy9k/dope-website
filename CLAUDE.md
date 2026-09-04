@@ -1,183 +1,288 @@
 # dope-website
 
-赛博朋克 / CRT 风格的个人站。前端 React 19 + Vite，纯静态；`backend/` 是
-.NET 占位，暂未使用。中英双语。
+A cyberpunk / CRT personal site. Front end is React 19 + Vite, fully static.
+`backend/` is a .NET placeholder, not in use. Bilingual (English / 中文).
 
-线上：https://l9k.dev（107.149.92.201）
+Live: https://l9k.dev (107.149.92.201)
 
-## 架构
+## Working agreement
+
+**Do not commit unless asked.** Make the change, verify it, report what
+happened — then stop. Committing, merging and pushing all wait for an explicit
+request. Pushing to `master` triggers a deploy, so it is never a tidy-up step.
+
+**Verify by measuring, not by screenshotting.** Most bugs in this repo's
+history were invisible: a missing HTTP header, an inert highlight, a font
+silently falling back. Read computed styles, check `scrollWidth >
+clientWidth`, fetch the deployed asset and grep it.
+
+**Say what could not be verified.** The preview browser cannot paint
+animations (0 rAF frames), cannot grow a mobile URL bar, and cannot reproduce
+a real device's touch behaviour. Those need the user's own machine — say so
+rather than implying coverage.
+
+## Architecture
 
 ```
-frontend/content/          文章（markdown），目录结构 = URL
-  review/<媒介>/<slug>.md    → /review/<媒介>/<slug>
-  blog-post/<slug>.md        → /blog-post/<slug>
-  <slug>.md                  → /<slug>  单页（home.md 即主页），不进列表
+frontend/content/            markdown; directory layout = URL
+  review/<medium>/<slug>.md    → /review/<medium>/<slug>
+  blog-post/<slug>.md          → /blog-post/<slug>
+  <slug>.md                    → /<slug>   standalone page, never in listings
+                                 (home.md is the homepage; README.md excluded)
 frontend/src/
-  content/posts.js         构建时 import.meta.glob 读入、解析 frontmatter
-  content/Markdown.jsx     marked 的 token → React（不是 HTML 字符串）
-  highlight/               正文里的 [标记] 系统
-  components/nav/sections.js  栏目树，路由/导航/面包屑的唯一来源
-  i18n.js                  UI 文案，{ en, zh }
-frontend/font-source/     完整字体，只作子集化的输入，不部署
-frontend/scripts/subset-font.mjs   生成 public/font/*.subset.woff2
-frontend/vendor/temu-thea/  git 子模块：小游戏，站点直接编译它的源码
+  content/posts.js           import.meta.glob at build time, parses frontmatter
+  content/Markdown.jsx       marked tokens → React (not an HTML string)
+  highlight/                 the [markup] system used inside prose
+  components/nav/sections.js the section tree; sole source for routes, nav,
+                             breadcrumbs. Plain data — must not import React
+  i18n.js                    UI strings, { en, zh }
+frontend/font-source/        full font, subsetting input only, never deployed
+frontend/scripts/subset-font.mjs   emits public/font/*.subset.woff2
+frontend/vendor/temu-thea/   git submodule: the game, compiled from source
+deploy/nginx.conf            reference copy of the vhost; CI does NOT deploy it
+deploy/bootstrap.sh          rebuild a fresh server to the point CI can take over
 ```
 
-文章格式和可用标记见 `frontend/content/README.md`。
+Article format and available markup: `frontend/content/README.md`.
 
-## 定下的规则
+## Settled rules
 
-**语法不翻译，名字才翻译。** `ls` / `cd` / `$` / `~` / `[F10]` / `[ESC]` 是
-语法不是英语，不进 i18n；路径段、栏目名、UI 词汇跟着语言切。URL 永远用
-ASCII slug，显示层才用中文。
+**Syntax is not translated, names are.** `ls` / `cd` / `$` / `~` / `[F10]` /
+`[ESC]` are syntax, not English; they stay out of i18n. Path segments, section
+names and UI words follow the language. URLs are always ASCII slugs; Chinese
+appears only in the display layer.
 
-**只有一套标记系统。** `highlight/parse.js` 的 `[名字 key="值"]…[/名字]`
-已支持具名参数，不要再引入 XML 式语法。加新交互只往
-`highlight/actions.js` 加一条，组件不用动。**参数名必须和
-`content/README.md` 写的一致** —— 对不上时高亮照样有样式，只是不可交互，
-页面上看不出区别（`tooltip` 一直读 `attrs.text`，而正文和文档写的都是
-`content=`，于是所有 tooltip 静悄悄失效）。现在缺内容会 `console.warn`，
-新加 action 也照着写一句。
+**One markup system.** `highlight/parse.js` already supports
+`[name key="value"]…[/name]` with named parameters — do not add XML-style
+syntax. A new interaction is one entry in `highlight/actions.js`; components
+stay untouched. **Parameter names must match `content/README.md`.** When they
+do not, the highlight still gets its styling but is not interactive, and the
+page looks identical — `tooltip` read `attrs.text` while every article and the
+docs wrote `content=`, so every tooltip on the site was dead. Missing content
+now `console.warn`s; new actions should do the same.
 
-**Markdown 走 token 不走 HTML 字符串。** 正文里的 `[标记]` 要变成带事件的
-React 组件，HTML 字符串塞不进去。相邻文本 token 必须先合并，否则
-marked 会把一个标记拆到两个 token 里导致配不上对。
+**Markdown goes through tokens, not an HTML string.** `[markup]` inside prose
+becomes a React component with event handlers, which cannot be injected into an
+HTML string. Adjacent text tokens must be merged first, or marked splits one
+piece of markup across two tokens and the pair never matches.
 
-**中文字体是构建时生成的子集。** 完整的思源宋体 22.8MB，站点实际只用到一千
-出头个字符。`scripts/subset-font.mjs` 扫 `content/` 和 `src/` 里的所有文字，
-子集化成 380KB 的 woff2，`predev` / `prebuild` 会自动跑，所以**加文章不用
-手动重新生成**。源字体在 `font-source/`，**别放回 `public/`** —— 那个目录
-会被 Vite 原样拷进 dist，等于把 22.8MB 一起发出去。产物不进 git。
+**The Chinese font is a build-time subset.** Full Source Han Serif is 22.8MB;
+the site uses a bit over a thousand characters. `scripts/subset-font.mjs` scans
+`content/`, `src/` and the game's `i18n.js`, and emits ~420KB of woff2.
+`predev` / `prebuild` run it, so **adding an article needs no manual step**. The
+source font lives in `font-source/` — **do not move it back into `public/`**,
+which Vite copies verbatim into `dist`. The output is gitignored.
 
-**游戏是子模块，不是 iframe 也不是 npm 包。** `vendor/temu-thea` 挂的是
-另一个仓库，站点的 Vite 直接编译它的 `src/game`（Vite 别名 `@game`）。
-所以它共享站点的字体、CRT 外壳和语言状态 —— 底栏切中文会同时切游戏文案。
-代价是**游戏仓库自己不部署**：它的 CI 只跑 lint / typecheck / test，
-上线要在这边 `git submodule update --remote` 把指针 bump 上去再 push。
-克隆时记得 `--recurse-submodules`，CI 里对应的是 checkout 的 `submodules: true`
-—— 漏了的话本地一切正常，只有 CI 会以"找不到模块"失败。
+A few HUD symbols (`✦ ◆ ❙ ×`) are appended to the subset's baseline because
+they appear in JSX rather than in scanned text. `✦` and `❙` do not exist in
+Source Han Serif or Oswald at all, so they fall back to a system face; the
+lasting fix would be drawing them, as `Rating.jsx` already does for `▮▯`.
 
-游戏留了三个口子给站点，都在 `pages/GamePage.css` 里设：`--line-w`（描边
-粗细）、`--game-font`（字体家族）、`--game-font-size`（整体大小，游戏内部
-所有间距和点击区都挂在它上面）。**它们在游戏那边一律"不声明、只写兜底"**
-—— 自定义属性就近的赢，游戏自己声明了的话，站点在外层设的值反而不生效。
+**Article and listing share one measure.** `--content-measure` (100ch) is used
+by both `.post` and `.entry-list`, so the left and right edges do not jump when
+you click from a list into an article. Two independent literals would drift.
 
-**置顶只在叶子栏目。** `/review` 这类汇总页跨媒介，选不出唯一的"最推荐"，
-所以只给各子栏目的置顶篇加星并排前面，不做横幅。
+**Body size is fluid.** `--content-font-size` clamps 17px → 24px by viewport.
+Do not set an absolute px font size anywhere downstream: it opts that element
+out of the scaling and recreates "too small on a 4K screen". Per-article
+overrides use `fontScale` in frontmatter, a multiplier that composes with the
+base (clamped 0.8–1.6).
 
-## 踩过的坑（都是排查很久才找到的）
+**Headline entries only on leaf sections.** `/review` aggregates several media
+and cannot pick one "most recommended", so it stars each sub-section's pick and
+sorts them first, with no banner.
 
-**`vite.config.js` 的 `base` 必须是 `/`。** 用 `'./'` 时，`/review/films`
-下资源会解析成 `/review/assets/…`，不存在 → 被 nginx 的 SPA 回退成
-index.html → 浏览器收到 `text/html` 的 module script → 白屏。**首页完全
-正常**，所以只测首页发现不了。
+## The game submodule
 
-**`index.css` 里不能给 body 加 `display: flex`。** Vite 模板原本有
-`display:flex + place-items:center`，它让 React 根节点变成 flex 项，
-`min-width:auto` 使其按内容撑开而非受限于视口，窄屏下任何宽元素都会撑破
-页面。模板同时带的 `overflow-x: hidden` 正好把症状盖住了。两个都已删除，
-**不要加回来** —— 遮罩只会掩盖下一个布局 bug。
+`vendor/temu-thea` is a separate repo. The site's Vite compiles its `src/game`
+directly through the `@game` alias — not an iframe, not an npm package — so the
+game shares the site's fonts, CRT shell and language state. The bottom bar's
+中文 toggle switches the game's text too.
 
-**字体没有斜体。** BitPap 和 Oswald 都没有 italic face，浏览器也不做倾斜
-合成，实测 `normal` / `italic` / `oblique 14deg` 渲染完全一致。要强调就用
-引号、颜色、字号，别写 `font-style: italic`。
+**The game repo does not deploy.** Its CI runs lint / typecheck / test / build
+only. A submodule pins a commit, so pushing there changes nothing on the site.
+Shipping a game change takes three steps:
 
-**触屏的 focus 早于 click。** 可聚焦元素上无条件 `onFocus={activate}` 会
-被随后的 click 切换掉，表现为"第一次点只闪一下"。用
-`e.target.matches(':focus-visible')` 区分键盘聚焦和指针点击。
+```
+1. commit and push in the game repo          (CI runs the checks)
+2. git submodule update --remote frontend/vendor/temu-thea
+3. commit the moved pointer and push          (this is what deploys)
+```
 
-**触屏只有 mouseenter 没有 mouseleave。** 依赖 hover 的状态必须在换页时
-主动清除，否则会一直卡住。
+Skipping 2–3 leaves the game repo green and the site unchanged, with nothing
+anywhere reporting a problem.
 
-**手机上 `background-attachment: fixed` 会在滑动时突然放大。** fixed 背景的
-定位区域是视口，而手机往下滑时地址栏收起、视口变高，`cover` 就按新高度重算
-缩放 —— 背景整个跳大一截。页面短于一屏时不会触发，所以只看首页发现不了。
-背景图 1920x1080 配竖屏，缩放一直是被高度卡住的，高度一变就必跳。
-现在改成 `.bg::before` 一层 `position: fixed` 的独立层，高度写 `100lvh`：
-固定定位元素量的是布局视口，不随地址栏变化。`dvh` 会跟着变等于没治，
-`svh` 不变但太矮、地址栏收起后底部露白。这一层的 `z-index` 是负的，而且
-**`.bg` 不能加 `position` / `isolation`** —— 一旦它建立层叠上下文，正文里
-`z-index: 1200` 的 tooltip 就压不住 `z-index: 1000` 的底栏了。
+Clone with `--recurse-submodules`; CI needs `submodules: true` on checkout.
+Without it every local machine works and only CI fails on a missing module.
 
-**nginx 的 `add_header` 是整组覆盖，不是叠加。** 只要某个 `location` 里写了
-任意一条 `add_header`，这一整组就不再从 `server` 继承。给 server 加了
-`Strict-Transport-Security` 之后，凡是自己设了缓存头的 location
-（`/assets/`、`/font/`、`/image/`、`= /index.html`）全都没有这个头，而首页
-经 `try_files` 回退到 `/index.html`，正好命中其中一个 —— 于是最该有 HSTS 的
-那条路径反而没有。加 `always` 救不了，那管的是错误响应。只能每个 location
-重复写一遍。这个头缺了页面照常打开，不专门查根本发现不了。
+**Host knobs**, all set in `pages/GamePage.css`: `--line-w` (stroke width),
+`--game-font` (typeface), `--game-font-size` (overall size — every gap,
+padding, min-width and tap target inside the game derives from it via
+`--u = --game-font-size / 13`). **The game declares none of them, it only
+writes fallbacks.** Custom properties resolve by inheritance and the nearest
+declaration wins, so a value on `.hexgame` would override whatever the host
+sets further out — which is the whole point of exposing them.
 
-**`lvh` 和 `svh` 在这个站里各用一处，方向正好相反，别抄错。** 背景层
-（`.bg::before`）要"盖住最大的情况"，用 `lvh`，矮了会露白；游戏页
-（`.main-content:has(.game-page)`）要"永远不超过看得见的部分"，用 `svh`。
-游戏页一开始误用了 `lvh`：手机地址栏一露出来，页面就比可视区正好高出一个
-地址栏（实测 844 对 750，多 94px），于是那一页始终"能滚一点点"。而棋盘是
-`touch-action: none` 拖不动的，点底栏时地址栏正在收放、固定定位的底栏跟着
-移动，手指就点空了 —— 症状是"必须点在底栏上方一截才点得到"。桌面浏览器
-三种单位都等于视口高，模拟器也复现不了，只有真机能看出来。
+**`--u` is unavailable outside `.hexgame`.** `SaveControls` renders into the
+host's chrome, outside the game root, so its stylesheet must use plain px. A
+`calc()` referring to an undefined custom property is invalid at computed-value
+time: `gap` fell back to `normal` and the three buttons ran together, silently.
 
-**`width: 100vw` 含滚动条宽度**，会导致桌面端多出十几像素的横向滚动条。
-用 `100%`。
+**The game is sized by its own width, not the viewport.** `.game-stage` is a
+container (`container-type: inline-size`) and `--game-font-size` is
+`clamp(14px, 1.15cqw, 44px)`, so the HUD stays a constant ~20% of the board at
+any size. The 44px ceiling is not large: a 4K panel at 100% scaling gives a
+3770px stage and lands on 43px, while the same panel at 150% gives 28px —
+identical physical size. Capping lower makes the 100% case top out early and
+the panel shrink to 13%, which is the defect this replaced.
 
-**布局改动后要验横向溢出**，别只看截图：
-`document.documentElement.scrollWidth > clientWidth`。
+## Traps (each of these took a long time to find)
 
-## 本机环境
+**`base` in `vite.config.js` must be `/`.** With `'./'`, assets under
+`/review/films` resolve to `/review/assets/…`, which does not exist, gets caught
+by nginx's SPA fallback and returns index.html — the browser receives a module
+script with `text/html` and the page is blank. **The homepage is fine**, so
+testing only the homepage will not find it.
 
-- **git push 必须指定 Windows 的 ssh**，Git Bash 自带的 ssh 看不见 Windows
-  ssh-agent 里的密钥：
+**Never give `body` `display: flex` in `index.css`.** The Vite template shipped
+`display:flex + place-items:center`, which makes the React root a flex item
+whose `min-width:auto` sizes it to content instead of the viewport; on a narrow
+screen any wide element bursts the page. The template's `overflow-x: hidden`
+happened to hide the symptom. Both are removed — **do not add them back**; the
+mask only hides the next layout bug.
+
+**The fonts have no italics.** Neither BitPap nor Oswald has an italic face and
+browsers do not synthesise oblique — `normal` / `italic` / `oblique 14deg`
+render identically. Emphasise with quotes, colour or size.
+
+**On touch, focus precedes click.** An unconditional `onFocus={activate}` on a
+focusable element is toggled straight back off by the click, so the first tap
+appears to flash. Use `e.target.matches(':focus-visible')` to tell keyboard
+focus from a pointer tap.
+
+**Touch has mouseenter but no mouseleave.** Hover-dependent state must be
+cleared on navigation or it stays stuck.
+
+**`background-attachment: fixed` zooms mid-scroll on phones.** A fixed
+background's positioning area is the viewport, and the viewport grows when the
+URL bar retracts, so `cover` recomputes its scale and the image jumps. The
+image is 1920x1080 against a portrait screen, where height always decides the
+scale. It is now `.bg::before`, a `position: fixed` layer of its own at
+`100lvh`. Its `z-index` is negative, and **`.bg` must not get `position` or
+`isolation`** — a stacking context there stops the body's `z-index: 1200`
+tooltips clearing the `z-index: 1000` bottom bar.
+
+**`lvh` and `svh` are both used here, in opposite directions.** The background
+layer must cover the largest case, so `lvh`; too short shows bare canvas. The
+game page must never exceed what is visible, so `svh`. With `lvh` the game page
+sat exactly one URL bar taller than the screen (844 against 750, 94px), leaving
+it permanently scrollable, and since the board takes its own pointer events the
+only thing that moved was the fixed bottom bar — taps landed below the finger.
+Desktop cannot show any of this; all three units equal the viewport there.
+
+**nginx `add_header` replaces the inherited set, it does not add to it.** Any
+`add_header` in a `location` drops every one inherited from `server`. After
+adding `Strict-Transport-Security` at server level, every location with its own
+cache headers (`/assets/`, `/font/`, `/image/`, `= /index.html`) lost it — and
+the homepage reaches `/index.html` through `try_files`, so the most important
+path was the one missing it. `always` does not help; that governs error
+responses. Repeat it per location. Nothing breaks visibly.
+
+**`width: 100vw` includes the scrollbar** and adds a stray horizontal scrollbar
+on desktop. Use `100%`.
+
+**Check horizontal overflow after any layout change**, rather than trusting a
+screenshot: `document.documentElement.scrollWidth > clientWidth`.
+
+## Local environment
+
+- **`git push` must use the Windows ssh binary** — Git Bash's own ssh cannot see
+  the keys in the Windows ssh-agent:
   `GIT_SSH_COMMAND="/c/Windows/System32/OpenSSH/ssh.exe" git push`
-  （或者一次性 `git config --global core.sshCommand "C:/Windows/System32/OpenSSH/ssh.exe"`）
-- 本机**没有 rsync**，传文件用 `tar -czf - . | ssh … tar -xzf -`
-- .NET 只有 9.0 SDK，所以 `backend` 目标框架是 net9.0
-- 预览环境不合成画面（rAF 0 帧），**无法验证任何带时间的动画**，只能验最终
-  状态和 class 切换。动画观感要让用户本地确认。
+- Git Bash rewrites POSIX-looking arguments; `MSYS_NO_PATHCONV=1` disables it,
+  but that also stops `/tmp/...` from resolving. Prefer relative paths.
+- `autocrlf` is on. `.gitattributes` pins `*.sh`, `*.yml` and `deploy/nginx.conf`
+  to LF — a CRLF shell script fails on Linux as `bad interpreter: ^M`, and only
+  on the machine you are trying to rebuild.
+- **No rsync locally.** Transfer with `tar -czf - . | ssh … tar -xzf -` or `scp`.
+- Windows builds hash differently from CI: markdown is inlined by
+  `import.meta.glob`, and CRLF makes the JS bundle a few hundred bytes larger.
+  **Never use the bundle hash to decide whether a deploy landed** — grep content.
+- Server backups (SSH public keys, acme.sh certs) live outside the repo at
+  `C:\Users\36214\dope-server-backup\`. They contain private keys.
 
-## 部署
+## Deployment
 
-- 服务器 CentOS 7（已 EOL，yum 源已改指 `vault.centos.org`），nginx 1.26
-- 站点目录 `/var/www/dope-website`，vhost 在服务器的
-  `/etc/nginx/conf.d/dope-website.conf`，仓库里的副本是 `deploy/nginx.conf`
-  （CI 不部署它，改了要手动传上去）
-- 域名 `l9k.dev`，`www` 301 到裸域。**`.dev` 整个顶级域是浏览器 HSTS 预加载
-  的**，所以 HTTPS 不是可选项 —— 没有证书时浏览器压根不会去试 80 端口，
-  只会给一个 `CONNECTION_REFUSED`，而且改浏览器设置也绕不过去
-- 证书用 **acme.sh 不是 certbot**：这台机器连 python3 都没有，而现在的
-  certbot 要 Python 3.8+。acme.sh 是纯 shell 的。签发和续期命令写在
-  `deploy/nginx.conf` 末尾，续期是 root 的 crontab，每天四次，自动 reload
-- ACME 校验目录是 `/var/www/acme`，**不能放在站点目录里** —— CI 的
-  `rsync --delete` 会清掉站点目录里的多余文件，续期撞上就失败
-- **nginx 必须有 `try_files $uri $uri/ /index.html`**，否则深层链接 404
-- CI：push 到 master/main 自动构建部署，末尾有冒烟测试（验 4 条路由 +
-  JS 的 MIME 类型，正好能抓住上面那个白屏 bug）
-- secrets：`SERVER_HOST` / `SERVER_USER` / `SERVER_SSH_KEY`
+- **Debian 13 (trixie)**, Python 3.13, nginx 1.30 from nginx.org's repo
+- Site root `/var/www/dope-website`; vhost at
+  `/etc/nginx/conf.d/dope-website.conf`. `deploy/nginx.conf` is the repo's copy
+  — **CI does not deploy it**; changes must be uploaded by hand
+- Domain `l9k.dev`, `www` 301s to the apex. **The whole `.dev` TLD is HSTS
+  preloaded**, so HTTPS is not optional: without a certificate browsers refuse
+  to try port 80 at all and give `CONNECTION_REFUSED`, and no browser setting
+  works around it
+- Certificates via **acme.sh, not certbot** — pure shell, no Python dependency.
+  Renewal is a root crontab entry, four times a day, reloading nginx through the
+  hook recorded at install time. `--ecc` is required on `--install-cert`: the
+  cert is ec-256 and lives in `<domain>_ecc/`
+- The ACME webroot is `/var/www/acme` and **must not be inside the site
+  directory** — CI rsyncs with `--delete` and would race a renewal
+- **nginx needs `try_files $uri $uri/ /index.html`** or deep links 404
+- CI: push to master/main builds and deploys, ending in a smoke test (five
+  routes over https, the JS MIME type, and the http→https redirect). Because
+  curl validates certificates and these calls have no `-k`, the smoke test
+  doubles as certificate-expiry monitoring
+- Secrets: `SERVER_HOST` / `SERVER_USER` / `SERVER_SSH_KEY`
 
-## 从零重建服务器
+## Rebuilding the server from scratch
 
-`deploy/bootstrap.sh` 把新机器恢复到"CI 能接手"的状态。**CI 只 rsync
-`dist/`**，不装 nginx、不写 vhost、不签证书、不建目录 —— 光跑 CI 是起不来的，
-而且它会先卡在三个地方：SSH 公钥没了、`/var/www/dope-website` 不存在
-（探针步骤会 `touch` 它）、冒烟测试打的是 https 但证书还没有。
+`deploy/bootstrap.sh` takes a fresh machine to the point CI can take over.
+**CI only rsyncs `dist/`** — it installs nothing, writes no vhost, issues no
+certificate, creates no directories. Running it alone gets nowhere, and it
+fails ahead of all that anyway: the deploy key is gone, the probe step touches
+a `/var/www/dope-website` that does not exist, and the smoke test asks for
+https before there is a certificate.
 
-顺序不能反：**完整 vhost 引用了还不存在的证书文件，`nginx -t` 会失败、
-nginx 起不来、80 端口没人听、ACME 校验做不了、于是签不出证书。** 所以脚本
-先上一个只有 80 的临时 vhost，签完再换正式的。
+The ordering cannot be reversed: **the real vhost names certificate files, so
+on a new machine `nginx -t` fails, nginx will not start, nothing listens on 80,
+the ACME challenge cannot be answered and no certificate can be issued.** The
+script stands up an HTTP-only vhost first and swaps in the real one after.
 
-**nginx 必须从 nginx.org 的源装**，不能用发行版自带的：自带的是 1.22/1.24，
-而配置里的 `http2 on;` 要 1.25.1+，直接起不来；而且它们跑在 `www-data` 下，
-CI 里写死的 `chown nginx:nginx` 会失败。
+**nginx must come from nginx.org**, not the distribution: Debian ships 1.22/1.24
+while the config uses `http2 on;`, which needs 1.25.1, and its nginx runs as
+`www-data` while the workflow hardcodes `chown nginx:nginx`.
 
-重装前先备份 `/root/.ssh/authorized_keys` 和 `/root/.acme.sh`。把
-`acme.sh-backup.tar.gz` 和脚本放一起，它就恢复证书而不是重签 ——
-Let's Encrypt 一周只让同一组域名签 5 张，反复重装很容易撞上，
-而 `.dev` 是 HSTS 预加载域，没证书不是降级是整站打不开。
+Things a minimal Debian image does not have, all of which broke a real rebuild:
+`cron` (acme.sh prints "cannot install cron jobs" and continues, so the
+certificate silently stops renewing three months later), `rsync` (every check
+passes, the server looks finished, and CI's upload fails somewhere else
+entirely), and a tty (`gpg --dearmor` prompts before overwriting an existing
+keyring, so the script worked once and failed on every re-run — `--batch --yes`).
 
-## 待办
+Some provider images ship `PubkeyAuthentication no`, which makes key auth fail
+no matter how correct the file, its permissions and its fingerprints are. Only
+`sshd -T` shows it.
 
-- `content/` 里的王家卫影评、Outer Wilds、两篇博文都是**示例内容**，
-  以第一人称写的，上线前要替换或删除
-- 栏目名（`review` / `blog-post` / `abt-me`）待定
-- `anime` / `books` 两个栏目还没有内容
-- 首页和 `abt-me` 仍是占位文字
-- `origin/dev` 已完全合并，可以删
-- 服务器用 root 部署，可以改成专用 deploy 用户
+Back up `/root/.ssh/authorized_keys` and `/root/.acme.sh` before reinstalling.
+Put `acme.sh-backup.tar.gz` beside the script and it restores the certificate
+instead of issuing one — Let's Encrypt allows five duplicates a week, a couple
+of reinstalls can reach that, and on an HSTS-preloaded domain no certificate
+means the site is unreachable, not degraded.
+
+## Pending
+
+- A FastAPI bookkeeping app is planned at `l9k.dev/ef`, reverse-proxied from
+  nginx. Needs: a `location ^~ /ef/` that beats the SPA fallback, `root_path`
+  set on the app or every generated URL points at the site root, its own
+  `add_header` for HSTS (see the trap above), a systemd unit bound to
+  127.0.0.1, and code outside `/var/www/dope-website` so `rsync --delete`
+  cannot reach it
+- Root still logs in with a password; `PasswordAuthentication no` once key auth
+  is confirmed from a second terminal
+- Deploys run as root; a dedicated deploy user would be better
+- The Wong Kar-wai reviews, Outer Wilds and both blog posts are **sample
+  content** written in the first person — replace or delete before launch
+- `home.md` and `abt-me.md` are still placeholder text
+- Section names (`review` / `blog-post` / `abt-me` / `game`) are not settled
+- `anime` and `books` have no content
+- `origin/dev` is fully merged and can be deleted
