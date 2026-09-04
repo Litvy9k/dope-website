@@ -48,6 +48,16 @@ function baseline() {
   for (const [lo, hi] of ranges) {
     for (let cp = lo; cp <= hi; cp += 1) out += String.fromCodePoint(cp);
   }
+
+  /*
+   * 游戏 HUD 里的几个符号。它们写在 JSX 里而不是 i18n.js 里，扫不到；
+   * 而站点的四个字体一个都没有这几个字形（查过 cmap），漏掉的话它们会
+   * 逐字回退到系统字体 —— 一行字里混进两个不一样的符号，能看出别扭，
+   * 但不会报任何错。地图上的 ♣ ∩ ▲ ≈ ⌂ 不在这里：那些画在 canvas 上，
+   * 用的是 draw.ts 自己的等宽字体，跟这套字体无关。
+   */
+  out += '✦◆❙×';
+
   return out;
 }
 

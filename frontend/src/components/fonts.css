@@ -67,12 +67,19 @@
   font-size: 10px;
 } */
 
+/*
+ * --game-font 是游戏留给宿主换字体的口子（它自己只写 var(--game-font, 等宽栈)）。
+ * 挂在这两个类上，底栏那个"点阵字体"开关就会连游戏里的文字一起切，
+ * 和语言的流向一致。字号不传：游戏的 HUD 是按它自己那个密度调的。
+ */
 .use-pixel-font {
   font-family: var(--font-pixel-slim) !important;
+  --game-font: var(--font-pixel-slim);
 }
 
 .use-normal-font {
   font-family: var(--font-normal-slim) !important;
+  --game-font: var(--font-normal-slim);
 }
 
 /*
