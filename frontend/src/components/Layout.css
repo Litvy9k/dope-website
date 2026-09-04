@@ -97,8 +97,19 @@ html, body {
  * svh 偏矮的代价只是地址栏收起时底部多留一条空白，不影响操作。
  */
 .main-content:has(.game-page) {
-  display: flex;
-  flex-direction: column;
+  /*
+   * 两行两列：第一行左边是"返回上一层"、右边是存档那组按钮，第二行整行是棋盘。
+   * 把按钮挪到返回链接那一行，纵向就省出一条来全给棋盘。
+   *
+   * 返回链接是 Resolve 渲染的、在 GamePage 外面，所以拼不到一个组件里；
+   * 交给这一层的 grid 排，比把按钮绝对定位过去稳 —— 绝对定位要自己对齐
+   * 基线，而返回链接的高度是跟着字号走的。
+   */
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto 1fr;
+  column-gap: 12px;
+  row-gap: 10px;
 
   /* 必须是 height 不能是 min-height。min-height 下容器高度是"不确定"的，
      flex 要先按内容量一遍再分配，嵌套两层 flex 时子项不会缩回来 ——

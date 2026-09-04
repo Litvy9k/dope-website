@@ -1,15 +1,18 @@
 /*
- * 游戏页的外框。游戏自己带全部内部样式，这里只负责给它一块地方。
+ * 游戏页的排版。游戏自己带全部内部样式，这里只负责给它一块地方。
  *
- * 高度不写死，让它占满"从存档条下面到底栏上面"的全部空间：游戏的布局是
- * 按容器尺寸切换宽窄版的（不是视口），给多少它就用多少。写死成 72vh 那种
- * 值的话，视口一高一矮，它到底栏的距离就跟着忽大忽小 —— 而这个距离是要
- * 和左右留白对齐的。
+ * 两行两列的 grid 定义在 components/Layout.css 的 .main-content:has(.game-page)
+ * 上，因为"返回上一层"那个链接是 Resolve 渲染的、在这个组件外面，只能由
+ * 共同的父元素来排。这个文件负责把自己的两块放进那两行。
+ */
+
+/*
+ * 自己不占格子，让 .game-bar 和 .game-stage 直接成为上层 grid 的项 ——
+ * 这样按钮才能和"返回上一层"排到同一行去。
+ * display: contents 不影响自定义属性，下面两个变量照常往下继承。
  */
 .game-page {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  display: contents;
 
   /*
    * 游戏这一块所有边框的粗细。1px 在这个站里太细 —— 页面别处的框
@@ -22,33 +25,36 @@
    * 游戏内部的描边也走这个粗细。--line-w 是游戏那边留给宿主的口子
    * （它自己不定义，只在用到的地方写 var(--line-w, 1px)），所以在这里设一次，
    * 里面 HUD、面板、拇指栏、游戏内按钮的线会一起跟着变。
-   * 颜色那边同理有 --line，暂时用它自己的。
    */
   --line-w: var(--frame-w);
-  /* 撑满 .main-content 分给它的高度，剩下的交给 .game-stage */
-  flex: 1;
-  /* flex 项默认 min-height/min-width 是 auto，会按内容撑开而不是被容器限制。
-     不写这两条，画布一大就会把页面顶出去 —— 和 index.css 里 body 那个
-     flex 坑是同一个来源 */
-  min-height: 0;
-  min-width: 0;
 }
 
-.game-stage {
-  flex: 1;
-  /* 视口太矮时不至于压成一条缝，代价是那种情况下页面会开始滚动 */
-  min-height: 420px;
-  min-width: 0;
-  /* 游戏内部自己定位，收一下免得画布溢出到边框外 */
-  overflow: hidden;
-  border: var(--frame-w) solid rgba(0, 255, 204, 0.45);
-}
-
+/* 第一行右侧，和"返回上一层"平齐 —— 挪上来是为了把一整行的高度让给棋盘 */
 .game-bar {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+  align-self: center;
+
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   align-items: center;
+}
+
+/* 第二行整行。高度由上层 grid 的 1fr 给，这里只要别按内容撑开 */
+.game-stage {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  /* 视口太矮时不至于压成一条缝，代价是那种情况下页面会开始滚动 */
+  min-height: 420px;
+  /* grid 项的 min-width/min-height 默认是 auto，会按内容撑开而不是被容器
+     限制住。不写 min-width，画布一宽就会把页面顶出去 —— 和 index.css 里
+     body 那个 flex 坑是同一个来源 */
+  min-width: 0;
+  /* 游戏内部自己定位，收一下免得画布溢出到边框外 */
+  overflow: hidden;
+  border: var(--frame-w) solid rgba(0, 255, 204, 0.45);
 }
 
 /*
