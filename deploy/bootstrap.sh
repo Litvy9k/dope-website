@@ -38,11 +38,20 @@ nginx 源的路径和用户名都不一样。"
 
 . /etc/os-release
 apt-get update -qq
-apt-get install -y -qq curl gnupg2 ca-certificates ubuntu-keyring 2>/dev/null \
-  || apt-get install -y -qq curl gnupg2 ca-certificates
+# cron 不是想当然就有的：Debian 13 的最小镜像不装它，而 acme.sh 的
+# --install-cronjob 是往 crontab 里写的 —— 没有 cron 它只打印一句
+# "cannot install cron jobs" 就过去了，证书到期前三个月都不会有人发现
+apt-get install -y -qq curl gnupg2 ca-certificates
+# cron 单独装并且不要 recommends：它推荐一个 MTA（exim），
+# 一台只跑网站的机器不需要多一个监听邮件的服务
+apt-get install -y -qq --no-install-recommends cron
+systemctl enable --now cron
 
+# --batch --yes：钥匙串已经存在时 gpg 会问"要覆盖吗"，而通过 ssh 跑
+# 是没有 tty 的，它会直接以 "cannot open /dev/tty" 失败 ——
+# 也就是这个脚本第一次能跑、第二次就跑不了。加上这两个才是可重入的
 curl -fsSL https://nginx.org/keys/nginx_signing.key \
-  | gpg --dearmor -o /usr/share/keyrings/nginx-archive-keyring.gpg
+  | gpg --batch --yes --dearmor -o /usr/share/keyrings/nginx-archive-keyring.gpg
 echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] \
 http://nginx.org/packages/${ID}/ ${VERSION_CODENAME} nginx" \
   > /etc/apt/sources.list.d/nginx.list
