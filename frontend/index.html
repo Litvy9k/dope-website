@@ -1,14 +1,147 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <link rel="preload" as="font" href="/font/BitPap.ttf" type="font/truetype" crossorigin="anonymous">
     <meta charset="UTF-8" />
+
+    <!--
+      首屏真正要等的三样东西，全部提前到解析时就开始下载。
+
+      不 preload 的话它们要等 CSSOM 建好才被发现：实测 CSS/JS 在 999ms 就
+      下完了，而 bg.jpg 和字体到 1056ms 才开始 —— 白等一整轮。bg.jpg 尤其
+      藏得深，它是 Layout.jsx 里用内联 style 设的 --bg-image，预加载扫描器
+      永远看不见它。
+
+      只 preload 默认状态用得上的两个字体：默认是点阵字体 + 英文，而首页
+      英文段里就有一句中文，所以 IPix_cn 首屏一定会用到。Oswald 和思源
+      （19KB / 429KB）只在关掉点阵字体时才用，留给按需加载。
+    -->
+    <link rel="preload" as="font" type="font/woff2" crossorigin="anonymous"
+          href="/font/BitPap.subset.woff2" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin="anonymous"
+          href="/font/IPix_cn.subset.woff2" />
+    <link rel="preload" as="image" href="/image/bg.jpg" />
+
     <link rel="icon" type="image/svg+xml" href="/image/SugarRush.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Personal website WIP</title>
+
+    <!--
+      开机自检画面。样式和结构必须内联在这里，不能做成 React 组件 ——
+      组件要等 126KB 的 bundle 下完才存在，而这段东西的全部意义就是在那之前
+      就能画出来。收尾逻辑在 src/boot.js，那部分不急。
+
+      两条硬约束：
+      1. 只能用 ASCII 和系统等宽字体。站点自己的字体正是此刻还没到位的东西，
+         中文字形更是要等 IPix_cn，用了就会在开机画面上重演一遍要修的毛病。
+      2. 必须有一个不依赖 bundle 的兜底。万一 JS 加载失败，boot.js 永远跑不
+         到，这层盖住整个站点就等于把站点变砖 —— 所以下面那个 setTimeout
+         是内联的。
+    -->
+    <style>
+      #boot {
+        position: fixed;
+        inset: 0;
+        z-index: 100000;
+        background: #06120c;
+        color: #7dffb0;
+        font: 13px/1.9 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        display: grid;
+        /* 必须是 place-items 不是 place-content：后者让网格轨道按内容收缩，
+           轨道宽度就是不确定的，.boot-panel 里的 100% 没有参照可算、塌成 0，
+           min-width 那条等于没写（实测面板还是 256px）。place-items 下轨道
+           撑满容器，百分比才有意义 */
+        place-items: center;
+        /* 100vw 会把滚动条宽度算进来，多出一条横向滚动条 */
+        width: 100%;
+        padding: 24px;
+        box-sizing: border-box;
+        transition: opacity 260ms linear;
+      }
+      #boot[data-done] {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .boot-title {
+        color: #eaffee;
+        margin-bottom: 0.9em;
+        letter-spacing: 0.08em;
+      }
+      /* 内容自身只有 256px 宽，点线引导挤成一小截、看不出是自检屏。
+         撑开一点，窄屏上再让位给视口 */
+      .boot-panel {
+        width: min(420px, 100%);
+      }
+      .boot-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 1.5em;
+        white-space: nowrap;
+      }
+      /* 每行中间那串点，用边框画而不是敲一串 '.'，宽度自适应不用数字符 */
+      .boot-row::before {
+        content: '';
+        flex: 1;
+        align-self: center;
+        border-bottom: 1px dotted rgba(125, 255, 176, 0.35);
+      }
+      .boot-row > span:first-child {
+        order: -1;
+      }
+      .boot-mark {
+        color: rgba(125, 255, 176, 0.45);
+      }
+      .boot-row[data-ok] .boot-mark {
+        color: #00ffcc;
+      }
+      .boot-ready {
+        margin-top: 0.9em;
+        color: #eaffee;
+        visibility: hidden;
+      }
+      #boot[data-ready] .boot-ready {
+        visibility: visible;
+      }
+      .boot-cursor {
+        display: inline-block;
+        width: 0.6em;
+        height: 1em;
+        margin-left: 0.35em;
+        vertical-align: text-bottom;
+        background: #00ffcc;
+        animation: boot-blink 1s steps(1) infinite;
+      }
+      @keyframes boot-blink {
+        50% { opacity: 0; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #boot { transition: none; }
+        .boot-cursor { animation: none; }
+      }
+    </style>
   </head>
   <body>
+    <div id="boot" role="status" aria-label="Loading">
+      <div class="boot-panel">
+        <div class="boot-title">L9K SYSTEM - POWER ON SELF TEST</div>
+        <div class="boot-row" data-step="rom"><span>BOOT ROM</span><span class="boot-mark">....</span></div>
+        <div class="boot-row" data-step="css"><span>STYLESHEET</span><span class="boot-mark">....</span></div>
+        <div class="boot-row" data-step="font"><span>FONT SUBSET</span><span class="boot-mark">....</span></div>
+        <div class="boot-row" data-step="bg"><span>BACKGROUND PLATE</span><span class="boot-mark">....</span></div>
+        <div class="boot-row" data-step="runtime"><span>RUNTIME</span><span class="boot-mark">....</span></div>
+        <div class="boot-ready">READY<span class="boot-cursor"></span></div>
+      </div>
+    </div>
+
     <div id="root"></div>
+
+    <script>
+      // 兜底：不管 boot.js 有没有跑起来，8 秒后一定揭开。
+      // 这段必须内联 —— 它防的正是 bundle 加载失败的情况。
+      window.__bootFallback = setTimeout(function () {
+        var el = document.getElementById('boot');
+        if (el) el.setAttribute('data-done', '');
+      }, 8000);
+    </script>
     <script type="module" src="./src/main.jsx"></script>
   </body>
 </html>

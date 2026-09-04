@@ -1,38 +1,43 @@
+/*
+ * 四个字体全部是子集产物，不是原始文件：由 scripts/subset-font.mjs 扫
+ * content/ 和 src/ 生成，dev / build 前自动跑，加了新文章不用手动重新生成。
+ * 源字体都在 font-source/ —— 放进 public/ 的话 Vite 会原样拷进 dist。
+ *
+ * 值得记一下量级：IPix_cn 原本是 2.8MB 的裸 TTF，而它是默认字体，且首页
+ * 英文段里就有中文，所以每次首屏都得等它下完；子集化 + woff2 之后是 53KB。
+ * 思源宋体 22.8MB → 429KB。别把 src 改回 .ttf。
+ */
+
 @font-face {
   font-family: "pixel_slim";
-  src: url("/font/BitPap.ttf") format("truetype");
+  src: url("/font/BitPap.subset.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
   font-family: "normal_slim";
-  src: url("/font/Oswald.ttf") format("truetype");
+  src: url("/font/Oswald.subset.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
   font-family: "pixel_cn";
-  src: url("/font/IPix_cn.ttf") format("truetype");
+  src: url("/font/IPix_cn.subset.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
 }
 
-/*
- * 子集，不是完整的思源宋体：完整包 22.8MB，站点实际只用到一千个字符左右。
- * 由 scripts/subset-font.mjs 扫 content/ 和 src/ 生成，dev / build 前自动跑，
- * 所以加了新文章不用手动重新生成。源字体在 font-source/。
- */
 @font-face {
   font-family: "normal_cn";
   src: url("/font/SourceHanSerifSC-SemiBold.subset.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
 }
 
 

@@ -1,11 +1,13 @@
 /**
- * 把思源宋体子集化成只含站点真正用到的那几百个字。
+ * 把站点的四个字体都子集化成只含真正用到的那一千来个字，并转成 woff2。
  *
- * 完整的 SourceHanSerifSC-SemiBold.otf 有 22.8MB / 六万多字形，
- * 切到中文并关掉点阵字体时浏览器要整包下载。但这个站是纯静态的，
- * 所有会显示的文字都在仓库里躺着，构建时扫一遍就能知道到底用了哪些字。
+ * 这个站是纯静态的，所有会显示的文字都在仓库里躺着，构建时扫一遍就知道
+ * 到底用了哪些字。完整的 SourceHanSerifSC-SemiBold.otf 有 22.8MB /
+ * 六万多字形；而点阵中文字体 IPix_cn 原本是 2.8MB 的裸 TTF —— 它是默认
+ * 字体，且首页英文段里就有中文，所以每次首屏都要等它，文字会先用兜底
+ * 字体画一遍再换（四个 @font-face 都是 font-display: swap）。
  *
- * 所以源字体放在 font-source/（不进 public/，否则 Vite 会原样拷进 dist），
+ * 源字体全部放在 font-source/（不进 public/，否则 Vite 会原样拷进 dist），
  * 产物写到 public/font/ 让 CSS 引用。dev 和 build 前都会自动跑一次
  * （package.json 的 predev / prebuild），加文章不用记得手动重新生成。
  */
@@ -16,8 +18,22 @@ import subsetFont from 'subset-font';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
-const SOURCE = path.join(root, 'font-source/SourceHanSerifSC-SemiBold.otf');
-const OUTPUT = path.join(root, 'public/font/SourceHanSerifSC-SemiBold.subset.woff2');
+/**
+ * 每个字体一条。输出名固定以 .subset.woff2 结尾 —— .gitignore 是按这个
+ * 后缀忽略产物的，换个命名就会把生成物提交进仓库。
+ */
+const FONTS = [
+  ['font-source/BitPap.ttf', 'public/font/BitPap.subset.woff2'],
+  ['font-source/Oswald.ttf', 'public/font/Oswald.subset.woff2'],
+  ['font-source/IPix_cn.ttf', 'public/font/IPix_cn.subset.woff2'],
+  [
+    'font-source/SourceHanSerifSC-SemiBold.otf',
+    'public/font/SourceHanSerifSC-SemiBold.subset.woff2',
+  ],
+].map(([source, output]) => ({
+  source: path.join(root, source),
+  output: path.join(root, output),
+}));
 
 /** 扫这些地方。文案散在 content/ 的正文和 src/ 的 i18n、sections 里 */
 const SCAN_DIRS = ['content', 'src'];
@@ -89,26 +105,37 @@ function charset() {
 
 const chars = charset();
 
-// 光是读进这个 23MB 的字体就要好几秒，而 predev 每次 npm run dev 都会跑。
-// 产物比所有输入都新就说明没什么可做的了。
-const fresh =
-  fs.existsSync(OUTPUT) &&
-  fs.statSync(OUTPUT).mtimeMs > Math.max(newest, fs.statSync(SOURCE).mtimeMs);
-if (fresh) {
-  console.log('字体子集已是最新，跳过');
-  process.exit(0);
+const kb = (n) => `${(n / 1024).toFixed(0)}KB`;
+
+// 光是读进思源那个 23MB 的字体就要好几秒，而 predev 每次 npm run dev 都会跑。
+// 逐个判断，只重算真正过期的：改一篇文章不该让四个字体全部重新生成。
+let rebuilt = 0;
+let skipped = 0;
+for (const { source, output } of FONTS) {
+  const fresh =
+    fs.existsSync(output) &&
+    fs.statSync(output).mtimeMs > Math.max(newest, fs.statSync(source).mtimeMs);
+  if (fresh) {
+    skipped += 1;
+    continue;
+  }
+
+  const raw = fs.readFileSync(source);
+  const subset = await subsetFont(raw, chars, { targetFormat: 'woff2' });
+
+  fs.mkdirSync(path.dirname(output), { recursive: true });
+  fs.writeFileSync(output, subset);
+
+  console.log(
+    `  ${path.basename(source).padEnd(30)} ${kb(raw.length).padStart(8)} → ` +
+      `${kb(subset.length).padStart(7)}（${(
+        (1 - subset.length / raw.length) * 100
+      ).toFixed(1)}% 减少）`,
+  );
+  rebuilt += 1;
 }
 
-const source = fs.readFileSync(SOURCE);
-const subset = await subsetFont(source, chars, { targetFormat: 'woff2' });
-
-fs.mkdirSync(path.dirname(OUTPUT), { recursive: true });
-fs.writeFileSync(OUTPUT, subset);
-
-const mb = (n) => `${(n / 1024 / 1024).toFixed(2)}MB`;
 console.log(
   `字体子集化：${Array.from(chars).length} 个字符，` +
-    `${mb(source.length)} → ${mb(subset.length)}（${(
-      (1 - subset.length / source.length) * 100
-    ).toFixed(1)}% 减少）`,
+    `${rebuilt} 个重新生成，${skipped} 个已是最新`,
 );
