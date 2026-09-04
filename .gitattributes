@@ -1,0 +1,9 @@
+# 这个仓库在 Windows 上开发（autocrlf 是开的），但有些文件必须是 LF：
+# 带 \r 的 shell 脚本传到 Linux 上会以
+#   bash: /usr/bin/env bash^M: bad interpreter
+# 失败，而且 heredoc 的结束标记也会因为多一个 \r 而匹配不上。
+# 现在工作区里是 LF，但重新检出一次就会变成 CRLF —— 到时候才炸，很难查。
+*.sh      text eol=lf
+*.yml     text eol=lf
+*.yaml    text eol=lf
+deploy/nginx.conf text eol=lf
