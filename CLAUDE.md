@@ -152,6 +152,26 @@ index.html → 浏览器收到 `text/html` 的 module script → 白屏。**首�
   JS 的 MIME 类型，正好能抓住上面那个白屏 bug）
 - secrets：`SERVER_HOST` / `SERVER_USER` / `SERVER_SSH_KEY`
 
+## 从零重建服务器
+
+`deploy/bootstrap.sh` 把新机器恢复到"CI 能接手"的状态。**CI 只 rsync
+`dist/`**，不装 nginx、不写 vhost、不签证书、不建目录 —— 光跑 CI 是起不来的，
+而且它会先卡在三个地方：SSH 公钥没了、`/var/www/dope-website` 不存在
+（探针步骤会 `touch` 它）、冒烟测试打的是 https 但证书还没有。
+
+顺序不能反：**完整 vhost 引用了还不存在的证书文件，`nginx -t` 会失败、
+nginx 起不来、80 端口没人听、ACME 校验做不了、于是签不出证书。** 所以脚本
+先上一个只有 80 的临时 vhost，签完再换正式的。
+
+**nginx 必须从 nginx.org 的源装**，不能用发行版自带的：自带的是 1.22/1.24，
+而配置里的 `http2 on;` 要 1.25.1+，直接起不来；而且它们跑在 `www-data` 下，
+CI 里写死的 `chown nginx:nginx` 会失败。
+
+重装前先备份 `/root/.ssh/authorized_keys` 和 `/root/.acme.sh`。把
+`acme.sh-backup.tar.gz` 和脚本放一起，它就恢复证书而不是重签 ——
+Let's Encrypt 一周只让同一组域名签 5 张，反复重装很容易撞上，
+而 `.dev` 是 HSTS 预加载域，没证书不是降级是整站打不开。
+
 ## 待办
 
 - `content/` 里的王家卫影评、Outer Wilds、两篇博文都是**示例内容**，
