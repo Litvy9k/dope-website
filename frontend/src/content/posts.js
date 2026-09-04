@@ -80,16 +80,35 @@ function parse(path, raw) {
 }
 
 /**
- * 主页正文也是一篇 md，但它不是"文章"：不进列表、不排序、没有上一层。
- * 单独摘出来，这样栏目页拿到的 posts 里天然不会混进它，
+ * 直接放在 content/ 底下（不在子目录里）的 md 是"单页"，不是文章：
+ * 主页、关于我这种。它们不进列表、不排序、不参与置顶。
+ *
+ *   content/home.md    →  /
+ *   content/abt-me.md  →  /abt-me
+ *
+ * 摘出来单独放，栏目页拿到的 posts 里就天然不会混进它们，
  * 不用在每个用到列表的地方各自过滤一遍。
+ *
+ * README.md 是写给人看的格式说明，不是内容 —— 不排除的话它会变成
+ * 一篇标题为空的文章挂在 /README 上，没人会注意到，但它确实能访问。
  */
-const HOME = '/content/home.md';
+const isPage = (path) => path.split('/').length === 3 && path !== '/content/README.md';
 
-export const home = files[HOME] ? parse(HOME, files[HOME]) : null;
+/** 单页按路由索引：{ '/': 主页文档, '/abt-me': …… } */
+export const pages = Object.fromEntries(
+  Object.entries(files)
+    .filter(([path]) => isPage(path))
+    .map(([path, raw]) => {
+      const doc = parse(path, raw);
+      // 主页的 slug 是 home，但它的地址是根目录
+      return [doc.slug === 'home' ? '/' : doc.route, doc];
+    })
+);
+
+export const home = pages['/'] ?? null;
 
 export const posts = Object.entries(files)
-  .filter(([path]) => path !== HOME)
+  .filter(([path]) => !isPage(path) && path !== '/content/README.md')
   .map(([path, raw]) => parse(path, raw))
   // 新的在前。没写日期的排到最后
   .sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));

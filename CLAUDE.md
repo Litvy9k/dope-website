@@ -11,6 +11,7 @@
 frontend/content/          文章（markdown），目录结构 = URL
   review/<媒介>/<slug>.md    → /review/<媒介>/<slug>
   blog-post/<slug>.md        → /blog-post/<slug>
+  <slug>.md                  → /<slug>  单页（home.md 即主页），不进列表
 frontend/src/
   content/posts.js         构建时 import.meta.glob 读入、解析 frontmatter
   content/Markdown.jsx     marked 的 token → React（不是 HTML 字符串）

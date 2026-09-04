@@ -10,6 +10,19 @@ content/blog-post/hello.md                 →  /blog-post/hello
 栏目本身在 `src/components/nav/sections.js` 里定义。这里的目录要和那边的
 `slug` 对上，文章才会出现在对应的栏目页里。
 
+**直接放在 `content/` 底下（不在子目录里）的 md 是"单页"，不是文章**：
+
+```
+content/home.md    →  /          主页
+content/abt-me.md  →  /abt-me    关于我
+```
+
+单页不进任何列表、不排序、不参与置顶，页面上只有标题和正文，没有日期评分
+标签那些。格式和文章完全一样，标记、中英分栏、`fontScale` 都能用。
+加一个新的单页就是加一个 md 加一条 `sections.js` 的栏目，不用动组件。
+
+（`README.md` 是这份说明本身，不算内容，解析时排除掉了。）
+
 ## 格式
 
 ```markdown

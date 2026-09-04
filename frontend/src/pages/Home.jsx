@@ -1,29 +1,15 @@
 import '../components/Layout.css';
-import Markdown from '../content/Markdown';
-import { home, pick } from '../content/posts';
-import { useUI } from '../components/UIContext';
+import MarkdownPage from './MarkdownPage';
+import { home } from '../content/posts';
 
 /**
- * 主页。正文在 content/home.md 里，和文章走同一套解析和标记系统 ——
- * 之前是硬编码在这个文件里的四段，改一句话都要动代码。
+ * 主页。正文在 content/home.md 里，和文章、关于我走同一套解析和标记系统。
  *
- * 标题留在组件里而不是交给 Markdown：和文章页一致，h1 由页面渲染，
- * md 只负责正文。md 里的 # 标题会被降成 h2（见 content/Markdown.jsx），
- * 写进正文的话字号对不上。
+ * 单独留一个组件而不是并进 Resolve：主页在 App.jsx 里有自己的路由，
+ * 而且不该有"返回上一层"那个链接。
  */
 function Home() {
-  const { lang } = useUI();
-
-  if (!home) return null;
-
-  const body = home.body[lang] ?? home.body.en ?? home.body.zh;
-
-  return (
-    <>
-      <h1>{pick(home.title, lang)}</h1>
-      <Markdown fontScale={home.fontScale}>{body}</Markdown>
-    </>
-  );
+  return <MarkdownPage doc={home} />;
 }
 
 export default Home;

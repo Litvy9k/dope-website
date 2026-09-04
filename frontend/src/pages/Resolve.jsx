@@ -2,8 +2,9 @@ import { useLocation } from 'react-router-dom';
 import { useUI } from '../components/UIContext';
 import UpLink from '../components/UpLink';
 import { trailOf } from '../components/nav/sections';
-import { getPost } from '../content/posts';
+import { getPost, pages } from '../content/posts';
 import GamePage from './GamePage';
+import MarkdownPage from './MarkdownPage';
 import Post from './Post';
 import Section, { NotFound } from './Section';
 
@@ -24,10 +25,12 @@ export default function Resolve() {
   const { lang } = useUI();
 
   const post = getPost(pathname);
+  // content/ 根目录下的 md 撑起来的单页（关于我这种）
+  const page = pages[pathname];
   const trail = trailOf(pathname);
   const depth = pathname.split('/').filter(Boolean).length;
 
-  // 栏目自带页面的（比如 /play），走它自己的组件，不进列表那套
+  // 栏目自带组件的（比如 /game），走它自己的组件，不进列表那套
   const node = trail.length === depth ? trail[trail.length - 1] : null;
   const CustomPage = node?.page ? PAGES[node.page] : null;
 
@@ -37,6 +40,8 @@ export default function Resolve() {
       <UpLink />
       {post ? (
         <Post post={post} />
+      ) : page ? (
+        <MarkdownPage doc={page} />
       ) : CustomPage ? (
         <CustomPage />
       ) : trail.length && trail.length === depth ? (
