@@ -41,7 +41,10 @@ apt-get update -qq
 # cron 不是想当然就有的：Debian 13 的最小镜像不装它，而 acme.sh 的
 # --install-cronjob 是往 crontab 里写的 —— 没有 cron 它只打印一句
 # "cannot install cron jobs" 就过去了，证书到期前三个月都不会有人发现
-apt-get install -y -qq curl gnupg2 ca-certificates
+# rsync 是 CI 上传产物用的，两端都得有。Debian 的最小镜像不带它 ——
+# 少了它前面所有检查都会过，只有 workflow 的 Upload 那步会失败，
+# 而那时候你已经以为服务器弄好了
+apt-get install -y -qq curl gnupg2 ca-certificates rsync
 # cron 单独装并且不要 recommends：它推荐一个 MTA（exim），
 # 一台只跑网站的机器不需要多一个监听邮件的服务
 apt-get install -y -qq --no-install-recommends cron
@@ -142,6 +145,7 @@ ss -lnt | grep -q ':443 ' && check "443 在监听" OK || check "443 在监听" �
 openssl x509 -in /etc/nginx/ssl/${DOMAIN}.fullchain.cer -noout -checkend 0 >/dev/null 2>&1 \
   && check "证书未过期" OK || check "证书未过期" 失败
 id nginx >/dev/null 2>&1 && check "nginx 用户存在（CI 的 chown 要用）" OK || check "nginx 用户存在" 失败
+command -v rsync >/dev/null && check "rsync 已装（CI 上传要用）" OK || check "rsync 已装" 失败
 [ -d "$WEBROOT" ] && [ -w "$WEBROOT" ] && check "站点目录可写（CI 探针要用）" OK || check "站点目录可写" 失败
 crontab -l 2>/dev/null | grep -q acme.sh && check "续期 cron 已装" OK || check "续期 cron 已装" 失败
 
