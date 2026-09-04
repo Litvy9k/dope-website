@@ -39,9 +39,17 @@
 
   display: flex;
   flex-wrap: wrap;
-  /* 跟着正文字号走，别写死 —— 写死的话字号一大，按钮就挤成一坨 */
-  gap: calc(0.75 * var(--content-font-size));
   align-items: center;
+}
+
+/*
+ * 三个按钮之间的间距要设在 .hg-save 上，不是 .game-bar 上 —— SaveControls
+ * 自己是一个 flex 容器，.game-bar 底下只有它这一个孩子，设在外面那层
+ * 一点用都没有（我第一次就设错了地方）。
+ * 取值和返回链接里箭头与文字之间的 11px 对齐，跟着正文字号缩放。
+ */
+.game-bar .hg-save {
+  gap: calc(0.65 * var(--content-font-size));
 }
 
 /* 第二行整行。高度由上层 grid 的 1fr 给，这里只要别按内容撑开 */
@@ -90,8 +98,10 @@
 .game-bar button {
   padding: 3px 10px;
   background: none;
-  border: var(--frame-w) solid rgba(125, 255, 176, 0.55);
-  color: rgba(125, 255, 176, 0.8);
+  /* 颜色跟左上角"返回上一层"同一套（见 components/UpLink.css），
+     两处都是这一页顶部的导航件，不该是两个色系 */
+  border: var(--frame-w) solid rgba(0, 255, 204, 0.5);
+  color: rgba(0, 255, 204, 0.85);
   font-family: inherit;
   font-size: 0.85em;
   letter-spacing: 1px;
@@ -102,5 +112,5 @@
 .game-bar button:focus-visible {
   outline: none;
   color: #06120c;
-  background-color: #7dffb0;
+  background-color: rgba(0, 255, 204, 0.85);
 }
