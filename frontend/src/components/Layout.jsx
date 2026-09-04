@@ -60,12 +60,15 @@ function Layout({ children }) {
 
   return (
     <UIContext.Provider value={ui}>
+    {/* enableFlicker 一直是 false：包的实现是给 .crt-effect-wrapper 加
+        opacity 动画，而那个 wrapper 裹着整站，透出来的是根元素的底色 ——
+        浅色模式下会闪白。闪烁改由 .crt-flicker 那层负责，见 Layout.css */}
     <CRTEffect
       enabled={true}
       enableScanlines={scanlines}
       enableSweep={sweep}
       theme="custom"
-      enableFlicker={flicker}
+      enableFlicker={false}
       scanlineOrientation={"horizontal"}
       sweepDuration={5}
       sweepThickness={40}
@@ -76,6 +79,9 @@ function Layout({ children }) {
       edgeGlowColor="rgba(0,255,128,0.3)"
       edgeGlowSize={30}
       scanlineColor="rgba(0, 50, 0, 0.3)" >
+
+      {/* 屏幕闪烁：自己画的一层，见 Layout.css */}
+      {flicker && <div className="crt-flicker" aria-hidden="true" />}
 
       <SiteNav />
 

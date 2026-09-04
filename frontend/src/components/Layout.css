@@ -130,3 +130,53 @@ html, body {
   margin: 0 0 0.45em;
 }
 
+
+/*
+ * 屏幕闪烁（flicker）自己画一层，不用 vault66-crt-effect 自带的那条。
+ *
+ * 包的做法是给 .crt-effect-wrapper 加 opacity 动画，而这个 wrapper 裹着
+ * 整站 —— 连画背景图的 .bg::before 都在里面。opacity < 1 会把整组元素跟
+ * "背后的东西"混合，而背后只剩根元素的底色，index.css 里 Vite 模板留的
+ * prefers-color-scheme: light 把它设成了白的。于是浅色模式下闪的方向是
+ * 反的：近黑像素被抬高 0.05 × (255 − 20) ≈ 11/255，看起来是一层白纱在闪。
+ * 深色模式下底色是 #242424，偏移不到 1/255，几乎无感 —— 同一份代码，只是
+ * 系统主题不同，所以当初表现为"只有某些浏览器有问题"。
+ *
+ * 所以 Layout.jsx 里 enableFlicker 恒为 false（包只在它为真时才加
+ * flicker-on，那条动画就永远不存在），闪烁由下面这层固定的黑色遮罩负责：
+ * 方向恒定向暗，跟背后是什么颜色无关。
+ */
+.crt-flicker {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  /* 压在扫描线（9998）和扫描光带（9999）之上：真正的 CRT 亮度抖动是整块
+     屏幕一起暗，不该被这两层挡住 */
+  z-index: 10000;
+  background: #000;
+  opacity: 0;
+  animation: crt-flicker-dim 0.8s infinite;
+}
+
+/* 每一帧的 alpha = 1 − 包原来那帧的 opacity，逐帧对齐，
+   所以深色模式下看到的观感跟修之前完全一样 */
+@keyframes crt-flicker-dim {
+  0%   { opacity: 0; }
+  10%  { opacity: 0.04; }
+  20%  { opacity: 0.01; }
+  30%  { opacity: 0.03; }
+  40%  { opacity: 0.02; }
+  50%  { opacity: 0.03; }
+  60%  { opacity: 0; }
+  70%  { opacity: 0.05; }
+  80%  { opacity: 0.02; }
+  90%  { opacity: 0; }
+  100% { opacity: 0.01; }
+}
+
+/* 0.8s 不停的全屏亮度动画对光敏感的人有风险。系统说了要减少动效就别闪 */
+@media (prefers-reduced-motion: reduce) {
+  .crt-flicker {
+    animation: none;
+  }
+}
