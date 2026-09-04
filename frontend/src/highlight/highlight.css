@@ -74,7 +74,23 @@
   z-index: 1200;
 
   width: max-content;
-  max-width: min(320px, 90vw);
+
+  /*
+   * 两道上限取小的那个：
+   *   --tip-max-w  作者写的 maxw=（或 width="image" 时图片的原始宽度），默认 320px
+   *   --tip-room   视口留出边距后还剩多少，由 place() 按 clientWidth 算好写进来
+   *
+   * --tip-room 的兜底写 90vw 只是为了 place() 跑起来之前那一帧。别把它当正式
+   * 取值：vw 是含滚动条的，正是它会让 tooltip 伸到滚动条底下、给页面撑出
+   * 横向滚动——那时背景 position:fixed 不动，正文却能横着滑走。
+   */
+  max-width: min(var(--tip-max-w, 320px), var(--tip-room, 90vw));
+
+  /* 这一条不能少。默认的 content-box 下 max-width 只管内容盒，左右各 12px
+     内边距和 1px 边框加在外面 —— 上限给到 1252 的框实际是 1278 宽，照样撑出
+     横向滚动（实测右边缘 1285 对 clientWidth 1268）。border-box 之后 maxw=
+     写的就是整个框的宽度，跟作者的预期也一致 */
+  box-sizing: border-box;
   padding: 10px 12px;
 
   color: #00ffcc;
@@ -109,6 +125,10 @@
   width: auto;
   max-width: 100%;
   height: auto;
+  /* maxh= 限的是图，不是整个框：框上加 max-height 会把下面的文字裁掉，而
+     tooltip 是 pointer-events:none 的，裁掉就没有任何办法再看到。
+     宽高都是 auto 时两条上限一起作用，图会按原比例缩到都满足为止 */
+  max-height: var(--tip-img-max-h, none);
   margin-bottom: 8px;
   border: 1px solid rgba(0, 255, 204, 0.35);
 }

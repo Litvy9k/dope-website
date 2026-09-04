@@ -11,11 +11,34 @@
  *   ui     —— Layout 提供的界面控制，见 components/UIContext.jsx
  *
  * 能返回的 props：
- *   tooltip       浮出的信息框内容
- *   onActivate    悬浮进入 / 触屏点击 / 键盘聚焦时触发
- *   onDeactivate  移开 / 点别处 / 失焦时触发
- *   onSelect      明确的点击或回车，和悬浮无关
+ *   tooltip          浮出的信息框内容
+ *   tooltipImage     信息框里的图片地址
+ *   tooltipMaxWidth  信息框最大宽度
+ *   tooltipMaxHeight 信息框里图片的最大高度
+ *   tooltipFitImage  宽度跟着图片原始宽度走
+ *   onActivate       悬浮进入 / 触屏点击 / 键盘聚焦时触发
+ *   onDeactivate     移开 / 点别处 / 失焦时触发
+ *   onSelect         明确的点击或回车，和悬浮无关
  */
+
+/**
+ * 尺寸参数统一按 CSS 长度处理，纯数字补 px —— 正文里写 maxw="420" 比
+ * maxw="420px" 顺手，但 maxw="30em" 也该能用。
+ *
+ * 认不出来的值不能悄悄丢掉：CSS 会把非法的自定义属性当没写，页面看着
+ * 一切正常，只是那条限制没生效。和 tooltip 少了 content 一样要喊一声。
+ */
+function cssLength(raw, action, key) {
+  if (raw == null || raw === '') return undefined;
+  const v = String(raw).trim();
+  if (/^-?\d*\.?\d+$/.test(v)) return `${v}px`;
+  if (/^-?\d*\.?\d+(px|em|rem|ch|vw|vh|vmin|vmax|%)$/.test(v)) return v;
+  console.warn(
+    `[highlight] [${action}] ${key}="${raw}" 不是长度，已忽略。` +
+      '写成数字（按 px 算）或带单位的 CSS 长度，例如 420 / 30em'
+  );
+  return undefined;
+}
 
 export const actions = {
   /**
@@ -37,7 +60,25 @@ export const actions = {
         '[highlight] [tooltip] 没有内容，写成 [tooltip=文字]、[tooltip content="文字"] 或 [tooltip img="/image/x.png"]'
       );
     }
-    return { tooltip: text, tooltipImage: attrs.img };
+
+    const fitImage = attrs.width === 'image';
+    if (attrs.width != null && !fitImage) {
+      console.warn(
+        `[highlight] [tooltip] width="${attrs.width}" 只认 "image"（宽度跟着图片走）。` +
+          '想指定具体宽度用 maxw="420"'
+      );
+    }
+    if (fitImage && !attrs.img) {
+      console.warn('[highlight] [tooltip] width="image" 需要配合 img= 使用，没有图就没有宽度可跟');
+    }
+
+    return {
+      tooltip: text,
+      tooltipImage: attrs.img,
+      tooltipMaxWidth: cssLength(attrs.maxw, 'tooltip', 'maxw'),
+      tooltipMaxHeight: cssLength(attrs.maxh, 'tooltip', 'maxh'),
+      tooltipFitImage: fitImage,
+    };
   },
 
   /** [settings]SETUP[/settings] —— 悬浮时在底栏 SETUP 按钮上方冒一个箭头指着它。

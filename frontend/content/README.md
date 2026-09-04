@@ -94,6 +94,31 @@ English body…
 `img` 是站点根目录起算的路径，图片放在 `public/image/` 下。图会按 tooltip
 的宽度等比缩放，只写 `img` 不写 `content` 也可以。
 
+图片是**用到才加载**的：tooltip 整个节点只在激活时才挂上去，所以图不会占用
+首屏，但第一次悬浮时会看到框先出来、图随后撑开。
+
+### tooltip 的尺寸参数
+
+```
+[tooltip content="…" maxw="480"]某个词[/tooltip]              最宽 480px（默认 320px）
+[tooltip content="…" img="/image/x.jpg" maxh="200"]…[/tooltip]  图最高 200px
+[tooltip img="/image/x.jpg" width="image"]…[/tooltip]         宽度跟着图片原始宽度走
+```
+
+| 参数 | 作用 |
+| --- | --- |
+| `maxw` | tooltip 的最大宽度。不写是 320px |
+| `maxh` | **图片**的最大高度。不是整个框的——框上加高度限制会把下面的文字裁掉，而 tooltip 不吃鼠标事件，裁掉就没法再看到 |
+| `width="image"` | 宽度改为跟随图片原始宽度，用来展示不该被 320px 压缩的图。需要配合 `img` |
+
+`maxw` 和 `maxh` 写纯数字按 px 算（`maxw="480"`），也接受带单位的 CSS 长度
+（`maxw="30em"`）。写了认不出的值会被忽略并在控制台 `console.warn`——
+CSS 会把非法的自定义属性当没写，页面看着一切正常，只是那条限制没生效。
+
+**不管写多大，都超不过视口。** tooltip 越界会给页面撑出横向滚动，而背景是
+`position: fixed` 的，页面能横着滑它却不动，正文就整体错开一截。所以上限
+永远是 `maxw` 和"视口减掉边距"里更小的那个。
+
 要加新的交互类型，只往 `actions.js` 里加一条就行，不用动组件。
 
 注意：标记内部不要再嵌 Markdown 语法（比如 `[spoiler]**粗体**[/spoiler]`），
