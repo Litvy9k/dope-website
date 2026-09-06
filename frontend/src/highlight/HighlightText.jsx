@@ -14,7 +14,7 @@ import './highlight.css';
  * @param tooltipImage     信息框里的图片地址，默认排在文字上方
  * @param tooltipMaxWidth  信息框最大宽度（CSS 长度）。再大也超不过视口
  * @param tooltipMaxHeight 信息框里图片的最大高度（CSS 长度）
- * @param tooltipFitImage  宽度跟着图片原始宽度走，而不是默认的 320px 上限
+ * @param tooltipWidthMode  'image' 框跟着图片原始宽度走；'text' 图缩放到文字的宽度
  * @param onActivate       激活时触发（悬浮进入 / 点击 / 获得焦点）
  * @param onDeactivate     取消激活时触发
  * @param onSelect         明确的点击或回车，和悬浮无关
@@ -25,7 +25,7 @@ function HighlightText({
   tooltipImage,
   tooltipMaxWidth,
   tooltipMaxHeight,
-  tooltipFitImage,
+  tooltipWidthMode,
   spoiler,
   onActivate,
   onDeactivate,
@@ -100,10 +100,20 @@ function HighlightText({
       // 下面的 else if 才成立：两边同时越界的情况被这一条排除掉了
       el.style.setProperty('--tip-room', `${room - margin * 2}px`);
 
-      // width="image"：等图量出原始宽度后，把上限换成它
-      if (tooltipFitImage) {
+      // width="image"：等图量出原始宽度后，把上限换成它。
+      // 要把框自己的内边距和边框加回去 —— 框是 border-box，直接写
+      // naturalWidth 的话这 26px 是从图身上扣的，600 的图只画到 576
+      if (tooltipWidthMode === 'image') {
         const img = el.querySelector('img');
-        if (img?.naturalWidth) el.style.setProperty('--tip-max-w', `${img.naturalWidth}px`);
+        if (img?.naturalWidth) {
+          const cs = getComputedStyle(el);
+          const chrome =
+            parseFloat(cs.paddingLeft) +
+            parseFloat(cs.paddingRight) +
+            parseFloat(cs.borderLeftWidth) +
+            parseFloat(cs.borderRightWidth);
+          el.style.setProperty('--tip-max-w', `${img.naturalWidth + chrome}px`);
+        }
       }
 
       const rect = el.getBoundingClientRect();
@@ -134,7 +144,7 @@ function HighlightText({
         img.removeEventListener('error', place);
       });
     };
-  }, [active, hasTooltip, tooltip, tooltipImage, tooltipFitImage]);
+  }, [active, hasTooltip, tooltip, tooltipImage, tooltipWidthMode]);
 
   const interactive = Boolean(hasTooltip || spoiler || onActivate || onSelect);
 
@@ -182,7 +192,7 @@ function HighlightText({
 
       {hasTooltip && active && (
         <span
-          className="highlight-tooltip"
+          className={`highlight-tooltip ${tooltipWidthMode === 'text' ? 'fit-text' : ''}`}
           id={tooltipId}
           role="tooltip"
           ref={tipRef}

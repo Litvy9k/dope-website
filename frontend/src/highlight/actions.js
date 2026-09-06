@@ -15,7 +15,7 @@
  *   tooltipImage     信息框里的图片地址
  *   tooltipMaxWidth  信息框最大宽度
  *   tooltipMaxHeight 信息框里图片的最大高度
- *   tooltipFitImage  宽度跟着图片原始宽度走
+ *   tooltipWidthMode 'image' 框跟着图走 / 'text' 图跟着文字走
  *   onActivate       悬浮进入 / 触屏点击 / 键盘聚焦时触发
  *   onDeactivate     移开 / 点别处 / 失焦时触发
  *   onSelect         明确的点击或回车，和悬浮无关
@@ -40,6 +40,9 @@ function cssLength(raw, action, key) {
   return undefined;
 }
 
+/** width= 认的两个值，其余一律警告后当没写 */
+const WIDTH_MODES = ['image', 'text'];
+
 export const actions = {
   /**
    * [tooltip=1996 年，王家卫]重庆森林[/tooltip]
@@ -61,15 +64,27 @@ export const actions = {
       );
     }
 
-    const fitImage = attrs.width === 'image';
-    if (attrs.width != null && !fitImage) {
+    /*
+     * width= 是"谁决定谁的宽度"，两个方向：
+     *   image  框跟着图走 —— 图按原始宽度铺开，框跟上去（受视口约束）
+     *   text   图跟着文字走 —— 框由文字撑开，图缩放到正好这么宽
+     */
+    let mode = WIDTH_MODES.includes(attrs.width) ? attrs.width : undefined;
+    if (attrs.width != null && !mode) {
       console.warn(
-        `[highlight] [tooltip] width="${attrs.width}" 只认 "image"（宽度跟着图片走）。` +
-          '想指定具体宽度用 maxw="420"'
+        `[highlight] [tooltip] width="${attrs.width}" 只认 "image"（框跟着图走）` +
+          '或 "text"（图跟着文字走）。想指定具体宽度用 maxw="420"'
       );
     }
-    if (fitImage && !attrs.img) {
-      console.warn('[highlight] [tooltip] width="image" 需要配合 img= 使用，没有图就没有宽度可跟');
+    if (mode && !attrs.img) {
+      console.warn(`[highlight] [tooltip] width="${mode}" 是给图用的，需要配合 img=`);
+    }
+    // 没有文字就没有宽度可跟，而 width="text" 会让图完全不参与撑开框 ——
+    // 两个一起等于把框缩成 0（实测框 27px、图 3x2px）。降级回默认行为，
+    // 光警告不够：作者看到的仍是一个渲染坏掉的页面
+    if (mode === 'text' && !text) {
+      console.warn('[highlight] [tooltip] width="text" 需要有文字，只有图时已按默认宽度处理');
+      mode = undefined;
     }
 
     return {
@@ -77,7 +92,7 @@ export const actions = {
       tooltipImage: attrs.img,
       tooltipMaxWidth: cssLength(attrs.maxw, 'tooltip', 'maxw'),
       tooltipMaxHeight: cssLength(attrs.maxh, 'tooltip', 'maxh'),
-      tooltipFitImage: fitImage,
+      tooltipWidthMode: mode,
     };
   },
 

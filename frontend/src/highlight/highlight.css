@@ -133,6 +133,25 @@
   border: 1px solid rgba(0, 255, 204, 0.35);
 }
 
+/*
+ * width="text"：让图跟着文字的宽度走，而不是反过来。
+ *
+ * 直接写 width:100% 不行。框是 width:max-content，算这个尺寸时百分比没有
+ * 确定的参照、会被当成 auto，图仍然按原始宽度参与撑开——框还是被图决定的，
+ * 什么都没变。
+ *
+ * width:0 是确定值，图对 max-content 的贡献就是 0，框于是完全由文字撑开；
+ * 等宽度定下来之后 min-width:100% 再把图拉回内容盒的宽度。两步分别作用在
+ * "算内在尺寸"和"实际布局"两个阶段，这是它能成立的原因。
+ *
+ * 图比文字窄时会被放大，像素图放大会糊——真要清晰得配 image-rendering，
+ * 那是全站口味问题，没在这里定。
+ */
+.highlight-tooltip.fit-text .highlight-tooltip-img {
+  width: 0;
+  min-width: 100%;
+}
+
 /* 只有图没有字的时候，下边距就是多余的 */
 .highlight-tooltip-img:last-child {
   margin-bottom: 0;

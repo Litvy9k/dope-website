@@ -102,14 +102,23 @@ English body…
 ```
 [tooltip content="…" maxw="480"]某个词[/tooltip]              最宽 480px（默认 320px）
 [tooltip content="…" img="/image/x.jpg" maxh="200"]…[/tooltip]  图最高 200px
-[tooltip img="/image/x.jpg" width="image"]…[/tooltip]         宽度跟着图片原始宽度走
+[tooltip content="…" img="/image/x.jpg" width="image"]…[/tooltip]  框跟着图走
+[tooltip content="…" img="/image/x.jpg" width="text"]…[/tooltip]   图跟着文字走
 ```
 
 | 参数 | 作用 |
 | --- | --- |
 | `maxw` | tooltip 的最大宽度。不写是 320px |
 | `maxh` | **图片**的最大高度。不是整个框的——框上加高度限制会把下面的文字裁掉，而 tooltip 不吃鼠标事件，裁掉就没法再看到 |
-| `width="image"` | 宽度改为跟随图片原始宽度，用来展示不该被 320px 压缩的图。需要配合 `img` |
+| `width="image"` | **框跟着图走**：图按原始宽度铺开，框跟上去。用来展示不该被 320px 压缩的图 |
+| `width="text"` | **图跟着文字走**：框由文字撑开，图缩放到正好这么宽。用来让图和文字左右对齐，不管图原本多大 |
+
+`width` 的两个值是相反的方向，都需要配合 `img`：
+
+- 不写 `width`：图按原始宽度显示，超过框宽才缩小。图比文字窄时右边会空一块
+- `width="image"`：图说了算，框跟着变宽（仍受 `maxw` 和视口约束）
+- `width="text"`：文字说了算，图被拉伸或压缩到文字的宽度。**图比文字窄时会被放大**，
+  像素图放大会糊
 
 `maxw` 和 `maxh` 写纯数字按 px 算（`maxw="480"`），也接受带单位的 CSS 长度
 （`maxw="30em"`）。写了认不出的值会被忽略并在控制台 `console.warn`——
