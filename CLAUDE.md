@@ -43,7 +43,9 @@ deploy/nginx.conf            reference copy of the vhost; CI does NOT deploy it
 deploy/bootstrap.sh          rebuild a fresh server to the point CI can take over
 ```
 
-Article format and available markup: `frontend/content/README.md`.
+Article format and available markup: `docs/post-template.md` — the complete
+syntax list and the skeleton to copy. `frontend/content/README.md` is the
+shorter in-place version.
 
 ## Settled rules
 
@@ -55,11 +57,27 @@ appears only in the display layer.
 **One markup system.** `highlight/parse.js` already supports
 `[name key="value"]…[/name]` with named parameters — do not add XML-style
 syntax. A new interaction is one entry in `highlight/actions.js`; components
-stay untouched. **Parameter names must match `content/README.md`.** When they
-do not, the highlight still gets its styling but is not interactive, and the
-page looks identical — `tooltip` read `attrs.text` while every article and the
-docs wrote `content=`, so every tooltip on the site was dead. Missing content
-now `console.warn`s; new actions should do the same.
+stay untouched. **Parameter names must match `docs/post-template.md`.** When
+they do not, the highlight still gets its styling but is not interactive, and
+the page looks identical — `tooltip` read `attrs.text` while every article and
+the docs wrote `content=`, so every tooltip on the site was dead. Missing
+content now `console.warn`s; new actions should do the same.
+
+**`docs/post-template.md` is the syntax contract — update it in the same
+change.** It holds every frontmatter field, every markup tag and every
+parameter, plus the skeleton to copy when writing an article. Adding or
+changing a tag, a parameter or a frontmatter field without touching that file
+leaves the only description of the syntax wrong, and a wrong parameter name is
+the one kind of mistake this repo cannot see: the page renders normally and
+the feature is simply dead. `frontend/content/README.md` covers the same
+ground more briefly and moves with it.
+
+It lives in `docs/`, not in `content/`, and must stay there. `posts.js` globs
+`/content/**/*.md` into the bundle whether or not a file is routed, the route
+exclusion is a hardcoded check for `content/README.md` alone — so any other
+`.md` directly under `content/` becomes a reachable page with an empty title —
+and `scripts/subset-font.mjs` scans `content/`, which would pull the template's
+example text into all four font subsets.
 
 **Markdown goes through tokens, not an HTML string.** `[markup]` inside prose
 becomes a React component with event handlers, which cannot be injected into an
