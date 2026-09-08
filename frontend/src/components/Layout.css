@@ -155,23 +155,47 @@ html, body {
   z-index: 10000;
   background: #000;
   opacity: 0;
+
+  /* 幅度倍率。1 是手机上的取值，别动 —— 那个观感是调好的 */
+  --flicker-gain: 1;
+
   animation: crt-flicker-dim 0.8s infinite;
 }
 
-/* 每一帧的 alpha = 1 − 包原来那帧的 opacity，逐帧对齐，
-   所以深色模式下看到的观感跟修之前完全一样 */
+/*
+ * 桌面要加大幅度，手机不能变。
+ *
+ * 这层是按比例压暗的，而页面很暗（背景图亮度中位数只有 52），暗处根本没有
+ * 多少可压的余量：峰值 alpha 0.05 只让中位像素动 2.6/255，约 1%，在桌面
+ * 显示器上低于可见阈值；只有霓虹和正文字色那种 200 以上的地方动了约 10/255。
+ * 手机屏幕小、多是 OLED、亮度也开得高，同样的差值就看得见。
+ *
+ * 用 hover/pointer 而不是宽度断点：要区分的是"桌面显示器"还是"手机屏"，
+ * 不是视口有多宽。桌面把窗口拉窄仍然是桌面，而手机永远匹配不到
+ * hover: hover —— 实测模拟手机两项都是 false，桌面两项都是 true。
+ */
+@media (hover: hover) and (pointer: fine) {
+  .crt-flicker {
+    --flicker-gain: 2.6;
+  }
+}
+
+/*
+ * 每一帧的 alpha = 1 − 包原来那帧的 opacity，逐帧对齐，所以手机上的观感
+ * 跟改之前完全一样。乘上 --flicker-gain 之后桌面才放大。
+ */
 @keyframes crt-flicker-dim {
-  0%   { opacity: 0; }
-  10%  { opacity: 0.04; }
-  20%  { opacity: 0.01; }
-  30%  { opacity: 0.03; }
-  40%  { opacity: 0.02; }
-  50%  { opacity: 0.03; }
-  60%  { opacity: 0; }
-  70%  { opacity: 0.05; }
-  80%  { opacity: 0.02; }
-  90%  { opacity: 0; }
-  100% { opacity: 0.01; }
+  0%   { opacity: calc(0 * var(--flicker-gain)); }
+  10%  { opacity: calc(0.04 * var(--flicker-gain)); }
+  20%  { opacity: calc(0.01 * var(--flicker-gain)); }
+  30%  { opacity: calc(0.03 * var(--flicker-gain)); }
+  40%  { opacity: calc(0.02 * var(--flicker-gain)); }
+  50%  { opacity: calc(0.03 * var(--flicker-gain)); }
+  60%  { opacity: calc(0 * var(--flicker-gain)); }
+  70%  { opacity: calc(0.05 * var(--flicker-gain)); }
+  80%  { opacity: calc(0.02 * var(--flicker-gain)); }
+  90%  { opacity: calc(0 * var(--flicker-gain)); }
+  100% { opacity: calc(0.01 * var(--flicker-gain)); }
 }
 
 /* 0.8s 不停的全屏亮度动画对光敏感的人有风险。系统说了要减少动效就别闪 */
