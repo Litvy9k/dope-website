@@ -83,6 +83,9 @@ English body…
 `tags: [meta]` 就是两种语言共用 —— 像 `1990s` 这种两边本来就一样的词
 不用写两遍。两份都写的时候，两边的条数不必相同。
 
+单页还能在 frontmatter 里写 `contact`，渲染成一段命令输出样子的联系方式
+（`$ contact --list` + 两列对齐）。字段和注意事项见 `docs/post-template.md`。
+
 ## 置顶那篇怎么定
 
 栏目页顶上那张横跨整行的大卡：

@@ -1,0 +1,79 @@
+/*
+ * 配色直接取底栏提示符那一套（ShellNav.css）：$ 用暗一档的绿、命令名用近白、
+ * 标签用主绿、值用链接绿。两处看起来是同一个终端，不是两种风格。
+ */
+.contact {
+  margin: 2.2em 0 0;
+  /* 上面一条线把它和正文隔开。用 double 和 hr / blockquote 保持一致 */
+  padding-top: 1.2em;
+  border-top: 4px double rgba(0, 255, 204, 0.45);
+  font-family: var(--font-pixel-slim);
+  /* 和正文同一个字号公式（见 Markdown.css 的 .md）。不写的话它停在 17px
+     的基准值上，而带 fontScale 的页面正文能到 25.5px，差一半 */
+  font-size: calc(1.12em * var(--md-scale, 1));
+}
+
+.contact-cmd {
+  margin-bottom: 0.7em;
+  font-size: 1.05em;
+}
+
+.contact-sign {
+  margin-right: 0.5em;
+  color: rgba(125, 255, 176, 0.6);
+}
+
+.contact-name {
+  color: #eaffee;
+}
+
+/*
+ * 两列靠 grid 对齐，不是空格 —— 站点字体不是等宽的（实测 "iiiiiiiiii"
+ * 47.84px 对 "MMMMMMMMMM" 127.56px），空格对齐必然参差。
+ *
+ * max-content 让左列宽度取最长的那个标签，右列吃掉剩下的。dt 和 dd 交替
+ * 自动填格，所以不需要包一层再用 subgrid —— 少一个兼容性风险。
+ */
+.contact-list {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: 1.6em;
+  row-gap: 0.35em;
+  margin: 0;
+}
+
+.contact-label {
+  color: #7dffb0;
+  /* 标签是给人扫的，别和值抢注意力 */
+  opacity: 0.75;
+}
+
+.contact-value {
+  margin: 0;
+  /* 长地址在窄屏上要能断开，否则会把页面撑出横向滚动 */
+  overflow-wrap: anywhere;
+}
+
+.contact-value a {
+  color: #7dffb0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.contact-value a:hover,
+.contact-value a:focus-visible {
+  color: #eaffee;
+  text-shadow: 0 0 10px rgba(0, 255, 128, 0.7);
+}
+
+/* 窄屏上标签和值各占一行：并排的话左列一宽，右边的地址就没剩多少了 */
+@media (max-width: 480px) {
+  .contact-list {
+    grid-template-columns: 1fr;
+    row-gap: 0;
+  }
+  /* 值和下一个标签之间要有间隔，否则堆成一片 */
+  .contact-value {
+    margin-bottom: 0.6em;
+  }
+}

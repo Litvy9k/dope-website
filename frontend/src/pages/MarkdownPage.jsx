@@ -1,4 +1,6 @@
 import Markdown from '../content/Markdown';
+import { scaleOf } from '../content/fontScale';
+import Contact from '../components/Contact';
 import { pick } from '../content/posts';
 import { useUI } from '../components/UIContext';
 
@@ -18,14 +20,22 @@ export default function MarkdownPage({ doc }) {
   if (!doc) return null;
 
   const body = doc.body[lang] ?? doc.body.en ?? doc.body.zh;
+  const scale = scaleOf(doc.fontScale);
 
   return (
     /* 外面这层不是摆设：宽度限制挂在它身上。之前这里是个 Fragment，
        单页就没有任何 max-width，2200px 宽的屏上正文铺满 2130px、
        一行 187 个字符，而同屏的文章是 890px / 78 字符 */
-    <article className="page">
+    /* --md-scale 提到这一层，Contact 才看得见 —— 它是 .md 的兄弟节点，
+       而 Markdown 组件把这个变量内联设在 .md 自己身上。不提上来的话联系
+       方式那块拿不到这篇的字号倍率，实测正文 25.5px 而它只有 17px，
+       看着像另一个站的页脚 */
+    <article className="page" style={scale ? { '--md-scale': scale } : undefined}>
       <h1>{pick(doc.title, lang)}</h1>
       <Markdown fontScale={doc.fontScale}>{body}</Markdown>
+      {/* 接在正文之后：读者扫完这一页正要找"怎么联系"的时候，它就在那儿。
+          想挪到正文前面就是把这一行往上移 */}
+      <Contact items={doc.contact} lang={lang} />
     </article>
   );
 }
