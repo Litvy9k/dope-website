@@ -1,3 +1,6 @@
+/* 这三张贴图由 Layout.jsx 在空闲时预热（面板是条件渲染的，不预热的话
+   第一次打开会空一下才画出来）。改文件名要同步改那边的 warmImages 列表，
+   否则预热失效 —— 面板照常能用，只是又开始卡一下，很难看出来。 */
 .switch {
   position: relative;
   display: flex;
