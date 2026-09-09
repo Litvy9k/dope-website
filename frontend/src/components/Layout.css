@@ -176,7 +176,19 @@ html, body {
  */
 @media (hover: hover) and (pointer: fine) {
   .crt-flicker {
-    --flicker-gain: 2.6;
+    --flicker-gain: 3.2;
+
+    /*
+     * 桌面上真正起作用的是这一条，不是幅度。
+     *
+     * 默认的 ease 让亮度在 80ms 里平滑地滑过去，而人眼对大面积的缓慢渐变
+     * 很不敏感 —— 2.6 倍幅度（峰值 0.13、背景中位动 2.7%）在显示器上仍然
+     * 看不出来。steps(1, end) 把每段变成保持到下一帧再瞬间跳过去，制造的是
+     * 时间上的边缘，同样幅度下明显得多，也更像真的 CRT 在抖。
+     *
+     * 手机不加这条：那边观感已经调好，跳变会改变它的性质而不只是强弱。
+     */
+    animation-timing-function: steps(1, end);
   }
 }
 
