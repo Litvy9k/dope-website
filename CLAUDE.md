@@ -21,6 +21,13 @@ animations (0 rAF frames), cannot grow a mobile URL bar, and cannot reproduce
 a real device's touch behaviour. Those need the user's own machine — say so
 rather than implying coverage.
 
+It also does not repaint reliably after scrolling: a screenshot taken once the
+page is scrolled shows a blank band, or an entirely blank viewport, while
+`elementFromPoint` still returns the element that should be painted there and
+forcing a repaint changes nothing. It reproduces on pages no change touched,
+so read it as the preview, not the site — and measure geometry instead of
+trusting the picture.
+
 ## Architecture
 
 ```
@@ -29,6 +36,12 @@ frontend/content/            markdown; directory layout = URL
   blog-post/<slug>.md          → /blog-post/<slug>
   <slug>.md                    → /<slug>   standalone page, never in listings
                                  (home.md is the homepage; README.md excluded)
+  abt-me.md + abt-me/*.md      → a standalone page that also has sub-pages:
+                                 Resolve puts `page` ahead of `Section`, so
+                                 /abt-me stays that md and never becomes a
+                                 listing. The children are reached through the
+                                 bottom nav's submenu only — not repeated on
+                                 the page, same call as Section.jsx makes
 frontend/src/
   content/posts.js           import.meta.glob at build time, parses frontmatter
   content/Markdown.jsx       marked tokens → React (not an HTML string)

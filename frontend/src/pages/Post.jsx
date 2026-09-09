@@ -14,12 +14,17 @@ export default function Post({ post }) {
     <article className="post">
       <h1>{pick(post.title, lang)}</h1>
 
-      <div className="post-meta">
-        {post.original && <span className="post-original">{post.original}</span>}
-        {post.year && <span>{post.year}</span>}
-        {post.date && <span>{post.date}</span>}
-        {post.rating != null && <Rating value={post.rating} />}
-      </div>
+      {/* 四个字段一个都没有时整行不渲染。无条件渲染的话，没有 meta 的文档
+          （abt-me 下面那几个子页就是）标题底下会多出一条 10px 的空隙 ——
+          盒子高度是 0，但下外边距照样算 */}
+      {(post.original || post.year || post.date || post.rating != null) && (
+        <div className="post-meta">
+          {post.original && <span className="post-original">{post.original}</span>}
+          {post.year && <span>{post.year}</span>}
+          {post.date && <span>{post.date}</span>}
+          {post.rating != null && <Rating value={post.rating} />}
+        </div>
+      )}
 
       {tags.length > 0 && (
         <div className="post-tags">

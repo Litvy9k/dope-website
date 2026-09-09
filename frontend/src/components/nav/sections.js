@@ -10,8 +10,19 @@
  */
 export const sections = [
   {
+    /*
+     * 这一栏是"单页 + 子页"：/abt-me 本身是 content/abt-me.md 撑起的 TL;DR
+     * （Resolve 里 page 优先级高于 Section，所以它不会变成列表页），
+     * 子页的入口列表由 MarkdownPage 接在正文下面渲染。
+     * 顺序就按这里的顺序，不跟日期走 —— 这三页没有先后可言，只有阅读顺序。
+     */
     slug: 'abt-me',
     label: { en: 'abt-me', zh: '关于我' },
+    children: [
+      { slug: 'experience', label: { en: 'experience', zh: '专业经验' } },
+      { slug: 'hobbies', label: { en: 'hobbies', zh: '个人爱好' } },
+      { slug: 'this-site', label: { en: 'this-site', zh: '关于本站' } },
+    ],
   },
   {
     slug: 'review',

@@ -28,6 +28,10 @@ content/abt-me.md  →  /abt-me    关于我
 标签那些。格式和文章完全一样，标记、中英分栏、`fontScale` 都能用。
 加一个新的单页就是加一个 md 加一条 `sections.js` 的栏目，不用动组件。
 
+单页还能再带子页，`abt-me` 就是这样：`content/abt-me.md` 是 `/abt-me` 的
+TL;DR，`content/abt-me/*.md` 是子页，入口在底栏的二级菜单里（页面上不重复列）。
+加子页要同时建 md 和加 `children` 两处，只做一半的后果见 `docs/post-template.md`。
+
 （`README.md` 是这份说明本身，不算内容，解析时排除掉了。）
 
 ## 格式

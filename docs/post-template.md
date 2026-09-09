@@ -89,6 +89,34 @@ content/home.md                             →  /            主页
 - 文件名就是 URL，**永远用 ASCII slug**。中文只出现在显示层（`sections.js`
   的 `label`、frontmatter 的 `title`）
 
+### 单页 + 子页
+
+一个单页可以再带几个子页，`abt-me` 就是这么组织的：
+
+```
+content/abt-me.md                →  /abt-me              TL;DR，进来先看到的
+content/abt-me/experience.md     →  /abt-me/experience   子页
+content/abt-me/hobbies.md        →  /abt-me/hobbies
+content/abt-me/this-site.md      →  /abt-me/this-site
+```
+
+`/abt-me` **不会变成列表页**：`Resolve.jsx` 里 `page` 的优先级高于 `Section`，
+所以那一页永远是 `abt-me.md`。
+
+**子页的入口只在底栏的二级菜单里，页面上不重复列一遍** —— 和栏目页是同一个
+取舍（见 `Section.jsx` 里"子栏目在底栏导航里，这里不重复"那句）。
+
+要加一个子页得动两处，缺一不可：
+
+1. `content/abt-me/<slug>.md` 建文件
+2. `src/components/nav/sections.js` 的 `abt-me.children` 里加一条
+
+只建 md 不加 `children`：页面能直接访问，但不进底栏菜单，没有任何地方链接到它。
+只加 `children` 不建 md：底栏菜单里会留一个点进去 404 的链接。
+
+子页走的是文章那套组件，所以 frontmatter 的 `date` / `rating` / `tags` 都能用；
+不写就整行不渲染。
+
 ---
 
 ## frontmatter 字段

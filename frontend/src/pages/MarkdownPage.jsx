@@ -8,6 +8,9 @@ import { useUI } from '../components/UIContext';
  *
  * 标题留在这里而不是写进 md 的正文：md 里的 # 会被 Markdown 组件降成 h2
  * （见 content/Markdown.jsx），字号对不上文章页的 h1。
+ *
+ * 有子页的栏目（abt-me 就是）这里也不列它们 —— 子页在底栏的二级菜单里，
+ * 页面上不重复。和栏目页的做法一致，见 Section.jsx 里同样的取舍。
  */
 export default function MarkdownPage({ doc }) {
   const { lang } = useUI();
