@@ -17,9 +17,12 @@ export default function MarkdownPage({ doc }) {
   const body = doc.body[lang] ?? doc.body.en ?? doc.body.zh;
 
   return (
-    <>
+    /* 外面这层不是摆设：宽度限制挂在它身上。之前这里是个 Fragment，
+       单页就没有任何 max-width，2200px 宽的屏上正文铺满 2130px、
+       一行 187 个字符，而同屏的文章是 890px / 78 字符 */
+    <article className="page">
       <h1>{pick(doc.title, lang)}</h1>
       <Markdown fontScale={doc.fontScale}>{body}</Markdown>
-    </>
+    </article>
   );
 }

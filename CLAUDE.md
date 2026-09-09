@@ -96,9 +96,12 @@ they appear in JSX rather than in scanned text. `✦` and `❙` do not exist in
 Source Han Serif or Oswald at all, so they fall back to a system face; the
 lasting fix would be drawing them, as `Rating.jsx` already does for `▮▯`.
 
-**Article and listing share one measure.** `--content-measure` (100ch) is used
-by both `.post` and `.entry-list`, so the left and right edges do not jump when
-you click from a list into an article. Two independent literals would drift.
+**Article, standalone page and listing share one measure.** `--content-measure`
+(100ch) is used by `.post`, `.page` and `.entry-list`, so the left and right
+edges do not jump as you move between them. Two independent literals would
+drift. `.page` was missing for a while and standalone pages had no cap at all:
+on a 2200px screen home and abt-me ran the full 2130px, about 187 characters a
+line, against 890px and 78 for an article on the same screen.
 
 **Body size is fluid.** `--content-font-size` clamps 17px → 24px by viewport.
 Do not set an absolute px font size anywhere downstream: it opts that element
