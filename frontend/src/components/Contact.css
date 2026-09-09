@@ -7,7 +7,16 @@
   /* 上面一条线把它和正文隔开。用 double 和 hr / blockquote 保持一致 */
   padding-top: 1.2em;
   border-top: 4px double rgba(0, 255, 204, 0.45);
-  font-family: var(--font-pixel-slim);
+  /*
+   * 不要在这里写 font-family。
+   *
+   * 设置面板里"点阵字体"那个开关是在 .main-content 上设
+   * font-family: ... !important，靠继承传下来的。后代自己声明了 font-family
+   * 就会赢过继承 —— 写上去的结果是这一块锁死在点阵字体上，开关对它无效。
+   *
+   * 底栏（ShellNav.css）确实写死了点阵字体，但那是外壳，本来就不该跟着切；
+   * 这里是正文内容，得跟着用户的设置走。
+   */
   /* 和正文同一个字号公式（见 Markdown.css 的 .md）。不写的话它停在 17px
      的基准值上，而带 fontScale 的页面正文能到 25.5px，差一半 */
   font-size: calc(1.12em * var(--md-scale, 1));
