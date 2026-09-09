@@ -39,6 +39,8 @@ verdict:                       # 可选，一句话总评，只出现在列表�
 cover: /image/xxx.jpg          # 可选，列表卡片上的封面图
 featured: true                 # 可选，置顶到栏目页顶部
 fontScale: 1.0                 # 可选，正文字号倍率，0.8–1.6
+contact:                       # 可选，只有单页会渲染。见下面「联系方式」
+  - { label: email, value: you@example.com, href: "mailto:you@example.com" }
 tags:
   en: [Tag A, Tag B]
   zh: [标签甲, 标签乙]
@@ -133,6 +135,7 @@ content/abt-me/this-site.md      →  /abt-me/this-site
 | `featured` | `true` | 置顶到栏目页顶部那张大卡 |
 | `fontScale` | 数字 0.8–1.6 | 正文字号**倍率** |
 | `tags` | 数组或 `{en, zh}` | 标签。两边可以条数不同 |
+| `contact` | 数组 | 联系方式，渲染成命令输出的样子。**只有单页（MarkdownPage）会渲染**，文章页忽略 |
 
 全部可选，只有 `title` 实际上不能省（省了页面标题是空的）。
 
@@ -157,6 +160,43 @@ tags:
 
 超出 0.8–1.6 会 `console.warn` 并按边界处理；写了非数字同样 `console.warn`
 并忽略。
+
+### 联系方式
+
+```yaml
+contact:
+  - { label: linkedin, value: /in/your-handle, href: "https://www.linkedin.com/in/your-handle" }
+  - { label: github,   value: "@your-handle",  href: "https://github.com/your-handle" }
+  - { label: email,    value: you@example.com, href: "mailto:you@example.com" }
+  - { label: location, value: "Auckland, New Zealand" }
+```
+
+渲染成：
+
+```
+$ contact --list
+linkedin   /in/your-handle
+github     @your-handle
+email      you@example.com
+location   Auckland, New Zealand
+```
+
+| 键 | 说明 |
+| --- | --- |
+| `label` | 左列。字符串或 `{ en, zh }` |
+| `value` | 右列显示的字。不写就退回显示 `href` |
+| `href` | 可选。写了就是链接（新窗口打开），不写就是纯文字，适合地点这类 |
+
+三个键一个都没有的项会被跳过并 `console.warn` —— 静默跳过的话页面上只是少一行，
+看不出来。
+
+**值里有逗号必须加引号**（`"Auckland, New Zealand"`）：YAML 的流式映射用逗号
+分隔键值对，不加引号会把后半截当成新的键，解析直接出错。
+
+两列是 CSS grid 对齐的，**不要试图用空格对齐** —— 站点字体不是等宽的
+（实测 `iiiiiiiiii` 47.84px 对 `MMMMMMMMMM` 127.56px）。
+
+字号跟着这一页的 `fontScale` 走，和正文一致。
 
 ### 置顶怎么定
 

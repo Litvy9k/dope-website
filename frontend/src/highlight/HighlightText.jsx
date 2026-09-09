@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { warmImages } from '../warmImages';
 import './highlight.css';
 
 /**
@@ -55,36 +56,12 @@ function HighlightText({
   }, [onDeactivate]);
 
   /*
-   * 预热 tooltip 里的图。
+   * 预热 tooltip 里的图：整个节点只在激活时才挂进 DOM，图也跟着那一刻才
+   * 开始下载，第一次悬浮就会看到框先出来、图随后把它撑开。
    *
-   * tooltip 整个节点只在激活时才挂进 DOM，图也跟着那一刻才开始下载 ——
-   * 第一次悬浮就会看到框先出来、图随后把它撑开，明显卡一下。
-   *
-   * 这里只是让浏览器提前把图放进缓存，不渲染任何东西：等真正挂 <img> 的
-   * 时候直接命中缓存，框一次成型。
-   *
-   * 范围天然就是"当前这一页"——只有挂载着的高亮才会预热，翻页走的是别的
-   * 实例。趁空闲做，别跟首屏的字体和背景图抢带宽；requestIdleCallback 给了
-   * timeout，否则页面一直不空闲（或标签页在后台）时它可能永远不触发。
+   * 范围天然就是"当前这一页"——只有挂载着的高亮才预热，翻页走的是别的实例。
    */
-  useEffect(() => {
-    if (!tooltipImage) return;
-
-    let cancelled = false;
-    const warm = () => {
-      if (cancelled) return;
-      const img = new Image();
-      img.src = tooltipImage;
-    };
-
-    const ric = window.requestIdleCallback;
-    const id = ric ? ric(warm, { timeout: 2000 }) : setTimeout(warm, 1200);
-    return () => {
-      cancelled = true;
-      if (ric) window.cancelIdleCallback?.(id);
-      else clearTimeout(id);
-    };
-  }, [tooltipImage]);
+  useEffect(() => warmImages([tooltipImage]), [tooltipImage]);
 
   // 触屏没有"移开"这回事，点到别处才算收起。
   // 桌面端 pointerleave 会先一步收起，这个监听只是兜底。

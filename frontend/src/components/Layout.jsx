@@ -6,6 +6,7 @@ import CRTEffect from 'vault66-crt-effect';
 import "vault66-crt-effect/dist/vault66-crt-effect.css";
 import SetupPanel from './SetupPanel';
 import { UIContext } from './UIContext';
+import { warmImages } from '../warmImages';
 
 function Layout({ children }) {
   const [showSetup, setShowSetup] = useState(false);
@@ -27,6 +28,26 @@ function Layout({ children }) {
   const [setupHint, setSetupHint] = useState(false);
   const showSetupHint = useCallback(() => setSetupHint(true), []);
   const hideSetupHint = useCallback(() => setSetupHint(false), []);
+
+  /*
+   * 设置面板里那三个开关的贴图，提前拉进缓存。
+   *
+   * 面板是条件渲染的（下面的 showSetup），CSS 背景图要等用它的元素真的
+   * 存在才会被请求 —— 实测开面板前 0 个请求，点开的瞬间三张一起下载，
+   * 于是开关会空一下才画出来。三张加起来 6.7KB，预热的代价可以忽略。
+   *
+   * 路径写在这里而不是从样式表里读：真要同步就是两处一起改。
+   * pixelated_switch.css 那边留了反向指路的注释。
+   */
+  useEffect(
+    () =>
+      warmImages([
+        '/image/switch_bg_off.png',
+        '/image/switch_bg_on.png',
+        '/image/switch_slider.png',
+      ]),
+    []
+  );
 
   // F10 开关面板，和底栏上写的 [F10] 对得上。Esc 由面板自己处理，
   // 因为它还要负责把焦点送回按钮

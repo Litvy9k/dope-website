@@ -3,6 +3,12 @@ title:
   en: abt-me
   zh: 关于我
 fontScale: 1.34
+# 占位值，换成你真实的。label 可以写成 { en, zh } 双语
+contact:
+  - { label: linkedin, value: /in/your-handle,   href: "https://www.linkedin.com/in/your-handle" }
+  - { label: github,   value: "@Litvy9k",        href: "https://github.com/Litvy9k" }
+  - { label: email,    value: you@example.com,   href: "mailto:you@example.com" }
+  - { label: location, value: "Auckland, New Zealand" }   # 值里有逗号必须加引号
 ---
 
 <!-- en -->
