@@ -16,6 +16,24 @@ import { scaleOf } from './fontScale';
  */
 const PLAIN = new Set(['text', 'escape', 'html']);
 
+/**
+ * marked 的 GFM 会把正文里的裸 URL 自动变成 link token，而 [link=https://…]
+ * 的地址正好就是一个裸 URL —— 它被切走之后，'[link=' 和 '] …[/link]' 落在
+ * 两个不同的 token 里，下面的合并再也拼不出一条完整的标记，整条原样显示成
+ * 文字。加引号写成 [link href="https://…"] 也救不了：URL 照样被抓走，而且
+ * 抓走的 raw 里连那个 ] 一起吞了，剩下的文字仍然能匹配成一条标记，只是
+ * href 变成空字符串 —— 这种更糟，页面上看不出任何异常。
+ *
+ * 所以自动链接产生的 link token 按纯文本处理，原样塞回 buffer。raw 是逐字
+ * 的，拼回去和原文一模一样。markdown 的 [文字](地址) 和尖括号 <https://…>
+ * 不受影响，它们的 raw 以 [ 或 < 开头。
+ *
+ * 代价：正文里单独写一个裸 URL 不再自动变成链接。要链接就写 [link=地址] 或
+ * markdown 的 [文字](地址)，两条路都是显式的。
+ */
+const isAutolink = (token) =>
+  token.type === 'link' && !token.raw.startsWith('[') && !token.raw.startsWith('<');
+
 function Inline({ tokens }) {
   if (!tokens) return null;
 
@@ -31,7 +49,7 @@ function Inline({ tokens }) {
   };
 
   tokens.forEach((token) => {
-    if (PLAIN.has(token.type)) {
+    if (PLAIN.has(token.type) || isAutolink(token)) {
       buffer += token.raw;
       return;
     }

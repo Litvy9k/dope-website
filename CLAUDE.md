@@ -107,7 +107,11 @@ which Vite copies verbatim into `dist`. The output is gitignored.
 A few HUD symbols (`✦ ◆ ❙ ×`) are appended to the subset's baseline because
 they appear in JSX rather than in scanned text. `✦` and `❙` do not exist in
 Source Han Serif or Oswald at all, so they fall back to a system face; the
-lasting fix would be drawing them, as `Rating.jsx` already does for `▮▯`.
+lasting fix would be drawing them, as `Rating.jsx` already does for `▮▯` and
+`highlight/icons.jsx` does for the chain that marks a `[link]`. Drawing is why
+that icon looks the same under all four fonts and both languages — a glyph
+would have to be added to the subset baseline and would still fall back
+wherever the face lacks it.
 
 **Article, standalone page and listing share one measure.** `--content-measure`
 (100ch) is used by `.post`, `.page` and `.entry-list`, so the left and right
@@ -116,11 +120,134 @@ drift. `.page` was missing for a while and standalone pages had no cap at all:
 on a 2200px screen home and abt-me ran the full 2130px, about 187 characters a
 line, against 890px and 78 for an article on the same screen.
 
-**Body size is fluid.** `--content-font-size` clamps 17px → 24px by viewport.
-Do not set an absolute px font size anywhere downstream: it opts that element
-out of the scaling and recreates "too small on a 4K screen". Per-article
-overrides use `fontScale` in frontmatter, a multiplier that composes with the
-base (clamped 0.8–1.6).
+**Body size is fluid.** `--content-font-size` clamps 17px → 24px by viewport,
+and prose is `--md-font-ratio` (1.5) times that — 25.5px → 36px. Do not set an
+absolute px font size anywhere downstream: it opts that element out of the
+scaling and recreates "too small on a 4K screen". Per-article overrides use
+`fontScale` in frontmatter, a multiplier that composes with the base (clamped
+0.8–1.6).
+
+The ratio was 1.12, with `home.md` and `abt-me.md` each carrying
+`fontScale: 1.34` to look right — so the comfortable ratio was really
+1.12 × 1.34 ≈ 1.5 all along, and only those two pages had it. It is now the
+default and those two dropped their `fontScale`; leaving it in would have
+multiplied 1.34 a second time. **The ratio lives in one place** — `.md` and
+`Contact.css` both read `--md-font-ratio`, because two literals drift, same
+reason as `--content-measure`.
+
+**It has to stay in `em`.** `.main-content.use-normal-font` multiplies the
+base by 0.9 (Source Han Serif reads a size larger than the pixel font at the
+same px), and `em` inherits that for free. Rebuilding it as a `calc()` on
+`--content-font-size` silently drops that compensation.
+
+The cost is on narrow screens: the clamp floors at 17px below a ~1280 viewport,
+so a 375px phone gets the same 25.5px as a 1024px laptop — **31 characters a
+line** against 41 before. Lowering it there means making `--md-font-ratio`
+itself viewport-dependent, not touching the clamp.
+
+**A hovered `[link]` answers in the chrome, not in a tooltip.** The cursor
+becomes a pixel chain and the bottom bar's command line echoes the target,
+restoring the command on leave. A tooltip means "there is a note here"; a link
+means "this is clickable, and here is where it goes" — one box cannot say both,
+and with neither, a link without a `tip` was indistinguishable from a tooltip
+that had not loaded. Both run through `actions.js` alone: `cursor: 'chain'`
+adds an `.is-chain` class, and `onActivate` calls `ui.showLinkHint(href)` —
+the same hook `[settings]` uses to raise its arrow over the SETUP button.
+
+**The chain's geometry lives once, in `highlight/chain.js`.** It is needed as
+a React component (the bottom bar) and as an SVG data URI (the CSS cursor);
+two copies of 40 rect coordinates would drift silently. `icons.jsx` may export
+only components — `react-refresh/only-export-components` — so the data and the
+data-URI builder cannot live there. CSS cannot import JS either, so `Layout`
+sets `--chain-cursor` on the root element, the way `SiteNav` sets
+`--nav-height`. That cursor always needs its `, pointer` fallback and its
+`xmlns` + `width`/`height`: a data-URI SVG missing any of them is dropped
+silently, leaving no cursor change at all.
+
+The echo is `display: none` under 640px. `.sh-line` is `nowrap`, so a long URL
+would push `[F10] SETUP` off screen; `min-width: 0` plus `overflow: hidden` is
+what lets it ellipsize instead of bursting the line on wider screens.
+
+**Headings are a neon tube, not an LED strip.** Three things separate the two,
+and `Markdown.css` does all three: the core is near-white with the saturation
+living in the glow (a colored core reads as LED); it is one continuously bent
+tube, done as `border-left` + `border-bottom` + `border-bottom-left-radius` on
+a single box rather than two stacked blocks; and it has a dark electrode cap at
+the lit end. Bending it into the heading's underline makes it a section divider
+as well as a level marker. The glow is `drop-shadow`, never `box-shadow` — the
+box is empty in the middle, and `box-shadow` would light its whole rectangle,
+inventing a top and right tube that do not exist.
+
+**The bend is a crispEdges SVG, not `border-radius`.** A CSS rounded corner is
+a real arc and is always anti-aliased, which puts one soft curve in a page
+where the rating bars, the setup arrow, the chain and the tube itself are all
+hard pixel edges; a square corner is worse. So the tube is three background
+layers on one pseudo-element — vertical run, horizontal run, and a fixed-size
+SVG elbow chamfered at 45° into pixel steps. Fixed size is the point: a
+stretched SVG would distort the steps.
+
+**One design cell is 2 CSS px, not 1** — the elbow's viewBox is half its
+rendered size. At 1px a step is invisible at reading distance and the bevel is
+indistinguishable from the anti-aliased arc it replaced, so the whole exercise
+buys nothing. The cost is that the tube width has to be even (6px and 4px, not
+5px and 3px), because the runs and the elbow's arms must land on the same
+2px grid. **The three layers must stay in sync** —
+the runs are sized `calc(100% - <elbow>)` and the elbow's arms sit at specific
+rows of its own grid, so changing the tube width or the elbow size means
+changing all three, and a mismatch leaves a gap at the seam.
+
+**Headings do not get their own colour.** The text inherits `.main-content`'s
+cyan, so a change to body colour carries the headings with it; hierarchy comes
+from size, the tube and the dark plate. Fluorescent yellow was tried and pulled:
+yellow letters, yellow bloom, white tube core, magenta tube light and magenta
+wall wash put five colours in one heading, which scans as busy rather than
+bright. The text's bloom is magenta because the tube is the only light source
+in the picture.
+
+**Light comes from the upper left, headings included.** Body text, `h1` and the
+md headings all cast the same black shadow down-right; a heading's magenta bloom
+is offset up-left so the two describe one light source. An even `0 0` glow reads
+as foreign precisely because it has no direction while everything around it does.
+`text-shadow` cannot be appended to, so a heading that adds a bloom has to
+restate the black layers — they come from `--text-shadow-base` on `:root`
+(`Layout.css`) rather than a second copy. It is on `:root`, not `.main-content`,
+because referencing an undefined custom property invalidates the whole
+declaration at computed-value time — the `--u` trap again.
+
+**Glowing text needs something dark behind it.** The headings sit on a busy
+neon photograph; yellow letters with a yellow glow have no separation from it,
+which reads as "the shadow isn't working" rather than as low contrast. Two
+fixes, both needed: a dark plate under the heading fading out to the right, and
+a dark layer **last** in `text-shadow` — last, because shadows paint
+front-to-back, and putting the dark layer first draws it on top of the glow as
+a black outline.
+
+**The stutter animates the pseudo-element, never the heading.** An `opacity`
+animation on `h2` would give the heading a stacking context, and a `[tooltip]`
+written inside a heading (z-index 1200) could then no longer clear the bottom
+bar (z-index 1000) — the same trap as `.bg` not being allowed `position` or
+`isolation`. Animating `::before` has no such effect. It is gated on
+`.crt-flicker-on`, which `Layout` puts on `.main-content` from the same SETUP
+switch as the full-screen flicker, so one toggle covers both, and it is off
+under `prefers-reduced-motion`.
+
+**"The flicker works on my phone but not on my PC" is not a bug.** Windows
+Settings → Accessibility → Visual effects → Animation effects, when off, makes
+every browser on that machine report `prefers-reduced-motion: reduce`, and the
+guard then does its job. Check it from here rather than guessing: PowerShell
+`SystemParametersInfo(SPI_GETCLIENTAREAANIMATION = 0x1042)` returns the real
+setting. This machine has it off, which is also why the preview browser reports
+`reduce` — that was never an artifact of automation.
+
+**The preview browser cannot verify any of this in motion** — it reports
+`prefers-reduced-motion: reduce` (so the guard correctly disables the
+animation) and its document timeline is frozen, so `currentTime` does not
+advance. What does work: override the media query, then scrub
+`getAnimations()[0].currentTime` and read the computed `opacity` at each
+keyframe moment. That proves the curve without a single frame being painted.
+Sample the MIDPOINT of each keyframe interval, not the boundaries — with
+`steps(1, end)` a sample landing exactly on a boundary reads the neighbouring
+interval and silently skips a step, which looked like a missing keyframe.
 
 **Headline entries only on leaf sections.** `/review` aggregates several media
 and cannot pick one "most recommended", so it stars each sub-section's pick and
@@ -305,18 +432,22 @@ means the site is unreachable, not degraded.
 
 ## Pending
 
-- A FastAPI bookkeeping app is planned at `l9k.dev/ef`, reverse-proxied from
-  nginx. Needs: a `location ^~ /ef/` that beats the SPA fallback, `root_path`
-  set on the app or every generated URL points at the site root, its own
-  `add_header` for HSTS (see the trap above), a systemd unit bound to
-  127.0.0.1, and code outside `/var/www/dope-website` so `rsync --delete`
-  cannot reach it
 - Root still logs in with a password; `PasswordAuthentication no` once key auth
-  is confirmed from a second terminal
+  is confirmed from a second terminal. CI proves key auth works, so the
+  precondition is already met — this is one line on the server, not a project
+  task
 - Deploys run as root; a dedicated deploy user would be better
-- The Wong Kar-wai reviews, Outer Wilds and both blog posts are **sample
-  content** written in the first person — replace or delete before launch
-- `home.md` and `abt-me.md` are still placeholder text
+- The four reviews (three Wong Kar-wai films, Outer Wilds) are **sample
+  content** written in the first person — replace or delete before launch.
+  `home.md`, `abt-me.md` and the blog post are real writing, not placeholders
+- `abt-me/hobbies.md` and `abt-me/this-site.md` are empty shells, and
+  `abt-me/experience.md` has no Chinese body. They are linked from the bottom
+  nav, so each is a reachable page with a title and nothing under it
+- **An empty language section does not fall back.** `splitLanguages` yields
+  `''`, not `undefined`, and every reader uses `??` —
+  `doc.body[lang] ?? doc.body.en` keeps the empty string, `Markdown` sees a
+  falsy `children` and renders `null`. So a half-translated page goes blank in
+  the missing language instead of showing the language that exists. Fix is in
+  `posts.js` (drop empty parts) or at the three `??` chains, not in the md
 - Section names (`review` / `blog-post` / `abt-me` / `game`) are not settled
 - `anime` and `books` have no content
-- `origin/dev` is fully merged and can be deleted

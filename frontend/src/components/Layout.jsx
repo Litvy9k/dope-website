@@ -7,6 +7,7 @@ import "vault66-crt-effect/dist/vault66-crt-effect.css";
 import SetupPanel from './SetupPanel';
 import { UIContext } from './UIContext';
 import { warmImages } from '../warmImages';
+import { chainCursor } from '../highlight/chain';
 
 function Layout({ children }) {
   const [showSetup, setShowSetup] = useState(false);
@@ -28,6 +29,29 @@ function Layout({ children }) {
   const [setupHint, setSetupHint] = useState(false);
   const showSetupHint = useCallback(() => setSetupHint(true), []);
   const hideSetupHint = useCallback(() => setSetupHint(false), []);
+
+  /*
+   * 悬浮 [link] 时，底栏那条命令行回显目标地址 —— 浏览器左下角就是这么做的，
+   * 而这个站本来就长得像终端，回显比在正文上方弹个框自然得多。
+   *
+   * 走的是和 setupHint 完全一样的管道：正文那边只在 actions.js 里调一下，
+   * 组件不用知道有这回事。存地址而不是布尔，底栏要把它印出来。
+   */
+  const [linkHint, setLinkHint] = useState(null);
+  const showLinkHint = useCallback((href) => setLinkHint(href ?? null), []);
+  const hideLinkHint = useCallback(() => setLinkHint(null), []);
+
+  /*
+   * 锁链光标。图形在 highlight/chain.js，这里把生成好的 cursor 值挂到根元素
+   * 的自定义属性上，样式表读 var(--chain-cursor) —— CSS 没法 import JS，而
+   * 把那串 data URI 在 highlight.css 里再写一遍就等于两份坐标，迟早漂。
+   *
+   * 挂根元素上的先例是 nav/SiteNav.jsx 的 --nav-height，同样是"值只有 JS
+   * 算得出来、用它的却是 CSS"。只跑一次：图形是静态的。
+   */
+  useEffect(() => {
+    document.documentElement.style.setProperty('--chain-cursor', chainCursor());
+  }, []);
 
   /*
    * 设置面板里那三个开关的贴图，提前拉进缓存。
@@ -71,11 +95,15 @@ function Layout({ children }) {
       setupHint,
       showSetupHint,
       hideSetupHint,
+      linkHint,
+      showLinkHint,
+      hideLinkHint,
       lang: chinese ? 'zh' : 'en',
     }),
     [
       showSetup, openSetup, closeSetup, toggleSetup,
-      setupHint, showSetupHint, hideSetupHint, chinese,
+      setupHint, showSetupHint, hideSetupHint,
+      linkHint, showLinkHint, hideLinkHint, chinese,
     ]
   );
 
@@ -127,7 +155,15 @@ function Layout({ children }) {
       {/* 只把图交给 CSS，其余全在 Layout.css 里 ——
           真正画背景的是 .bg::before 那层固定层，不是这个元素本身 */}
       <div className="bg" style={{ '--bg-image': `url(${bgImage})` }}>
-        <main className={`main-content ${useFont ? 'use-pixel-font' : 'use-normal-font'}`}>
+        {/* crt-flicker-on：正文里跟着"屏幕闪烁"开关走的效果挂在它下面，
+            目前是标题霓虹灯管的明灭（content/Markdown.css）。上面那层
+            .crt-flicker 是整屏的闪，这个类是给正文内部用的 —— 同一个开关，
+            两处表现，嫌闪的人只需要关一次 */}
+        <main
+          className={`main-content ${useFont ? 'use-pixel-font' : 'use-normal-font'} ${
+            flicker ? 'crt-flicker-on' : ''
+          }`}
+        >
           {children}
         </main>
       </div>

@@ -75,6 +75,43 @@
   animation: sh-blink 1.1s steps(1, end) infinite;
 }
 
+/*
+ * 悬浮 [link] 时命令行里的地址回显，占的是命令回显那个位置。
+ *
+ * min-width: 0 + overflow: hidden 是关键：.sh-line 是 flex 且整行 nowrap，
+ * flex 子项默认 min-width:auto 会按内容撑开 —— 一条长 URL 会把 [F10] SETUP
+ * 顶出屏幕，还给页面撑出横向滚动（CLAUDE.md 里 100vw 那个坑的同类）。
+ * 给了这两条它才会收缩，长了就省略号。
+ */
+.sh-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  margin-left: 8px;
+  overflow: hidden;
+  color: #eaffee;
+}
+
+/*
+ * 图标高度对齐命令行的字号（17px），宽度 auto 跟着 viewBox 的方形比例。
+ * flex-shrink: 0 —— 地址长的时候该被压扁的是文字，不是图标。
+ */
+.sh-link-icon {
+  flex: 0 0 auto;
+  width: auto;
+  height: 17px;
+  color: #7dffb0;
+  filter: drop-shadow(0 0 6px rgba(0, 255, 128, 0.7));
+}
+
+.sh-link-url {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow: 0 0 8px rgba(234, 255, 238, 0.35);
+}
+
 @keyframes sh-blink {
   0%, 50% { opacity: 1; }
   51%, 100% { opacity: 0; }
@@ -229,6 +266,9 @@
   /* 提示符整行是 nowrap 的，路径一长就会把屏幕撑破。
      回显的命令在这里是冗余的 —— 路径本来就写在提示符里了 */
   .sh-cmd { display: none; }
+  /* 地址回显同样藏掉。窄屏上提示符本身就快占满一行，再挤进一条 URL 只剩
+     几个字符加省略号，看不出是什么；而它本来就是给悬浮用的，触屏没有悬浮 */
+  .sh-link { display: none; }
   /* 手机上没有 F10 键，写出来既占地方又误导，只留 SETUP */
   .sh-fkey-key { display: none; }
   .sh-fkey { font-size: 16px; margin-right: 0; }

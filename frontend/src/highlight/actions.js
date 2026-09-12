@@ -16,6 +16,7 @@
  *   tooltipMaxWidth  信息框最大宽度
  *   tooltipMaxHeight 信息框里图片的最大高度
  *   tooltipWidthMode 'image' 框跟着图走 / 'text' 图跟着文字走
+ *   cursor           指针样式名，现在只有 'chain'（锁链光标，见 highlight/chain.js）
  *   onActivate       悬浮进入 / 触屏点击 / 键盘聚焦时触发
  *   onDeactivate     移开 / 点别处 / 失焦时触发
  *   onSelect         明确的点击或回车，和悬浮无关
@@ -107,14 +108,31 @@ export const actions = {
   spoiler: () => ({ spoiler: true }),
 
   /** [link=https://example.com]某处[/link] 或 [link href="..." tip="说明"]某处[/link] */
-  link: ({ value, attrs }) => {
+  link: ({ value, attrs, ui }) => {
     const href = value ?? attrs.href;
     // 同上：没有地址就别装成能点，否则点下去只会开一个 about:blank
     if (!href) {
       console.warn('[highlight] [link] 没有地址，写成 [link=地址] 或 [link href="地址"]');
     }
+    /*
+     * 链接和 tooltip 都是高亮，得让人在点之前就分得出来，两条线一起做：
+     *
+     *   光标  变成锁链（cursor: 'chain'），碰上去的一瞬间就知道
+     *   底栏  回显目标地址，和浏览器左下角一个意思，只是这个站的"左下角"
+     *         正好是一条命令行
+     *
+     * 都不走 tooltip 那个浮框：浮框的语义是"这里有段说明"，而链接要说的是
+     * "这东西能点、点了去哪儿"，塞进同一个框里两件事就混了。tooltip 留给
+     * 作者自己写的 tip，没写就不弹 —— 和别的标记一致。
+     *
+     * 没有地址就一样都不给：光标、回显、跳转全部不接。装成能点却什么都
+     * 不会发生，比看着不能点更糟。
+     */
     return {
       tooltip: attrs.tip,
+      cursor: 'chain',
+      onActivate: href ? () => ui.showLinkHint(href) : undefined,
+      onDeactivate: href ? ui.hideLinkHint : undefined,
       onSelect: href ? () => window.open(href, '_blank', 'noopener,noreferrer') : undefined,
     };
   },

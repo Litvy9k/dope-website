@@ -7,8 +7,44 @@
 .highlight-text {
   position: relative;
   color: var(--hl-yellow);
-  cursor: pointer;
   transition: color 0.15s ease, text-shadow 0.15s ease;
+
+  /*
+   * 兜底是普通光标，不是手型。类由 HighlightText 按语义给（见那边的注释）：
+   *
+   *   is-clickable  点了会发生事  —— [link] 跳转、[spoiler] 揭开
+   *   is-hint       悬浮出说明    —— [tooltip]、[settings]
+   *   都没有        写坏了的标记  —— 比如 [tooltip] 既没 content 也没 img，
+   *                 那时组件连 tabIndex 都不给，光标也不该装成能交互
+   *
+   * 这里原来是无条件 cursor: pointer，等于对每一段高亮都说"点我"，
+   * 纯 tooltip 也不例外 —— 而它其实只要悬浮。
+   */
+  cursor: default;
+}
+
+.highlight-text.is-clickable {
+  cursor: pointer;
+}
+
+.highlight-text.is-hint {
+  cursor: help;
+}
+
+/*
+ * [link] 的光标就是那条锁链本身（图形和 data URI 都在 highlight/chain.js）。
+ * 值由 Layout 挂到根元素的 --chain-cursor 上 —— CSS 没法 import JS，而把那串
+ * data URI 在这里再写一遍就等于两份坐标，和组件那份迟早漂开。
+ *
+ * 回退写 pointer 有两层意思：--chain-cursor 还没挂上的那一帧（Layout 的
+ * effect 在首次渲染之后才跑），以及浏览器嫌光标图太大直接丢掉整条声明的
+ * 情况 —— 两种情形下至少还是个手型，不会退回普通箭头。
+ *
+ * [spoiler] 不走这条，它仍然是 .is-clickable 的手型：两者都"点了会发生事"，
+ * 但一个跳出去、一个原地揭开，不该长一个样。
+ */
+.highlight-text.is-chain {
+  cursor: var(--chain-cursor, pointer);
 }
 
 .highlight-label {

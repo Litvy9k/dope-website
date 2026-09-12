@@ -51,6 +51,21 @@ html, body {
   pointer-events: none;
 }
 
+/*
+ * 正文的黑影：右下方向，也就是光从左上来 —— 站里的约定，h1 和 md 标题都跟着。
+ *
+ * 提成变量是因为 text-shadow 没法"追加"：标题要在黑影之外再加辉光，就得重写
+ * 整条声明，黑影那两层会被抄一遍。抄一遍就会漂 —— 调正文影子的人不会想到
+ * 标题里还有一份。用变量，两边引同一个值。
+ *
+ * 定义在 :root 而不是 .main-content 上，是因为引用一个未定义的自定义属性会让
+ * 整条声明在计算值时失效（CLAUDE.md 里游戏那个 --u 就栽在这上面）。挂 :root
+ * 就没有"用得到却取不到"的地方 —— 哪怕将来 .md 被搬到 .main-content 外面。
+ */
+:root {
+  --text-shadow-base: 1px 1px 2px black, 2px 2px 6px rgba(0, 0, 0, 0.6);
+}
+
 .main-content {
   font-family: var(--font-pixel-slim);  
   color: cyan;
@@ -72,7 +87,7 @@ html, body {
   /* 导航条固定在底部，正文得让位。高度由 nav/SiteNav.jsx 量出来写进这个变量 */
   padding-bottom: calc(var(--nav-height, 80px) + 2rem);
   background-color: transparent;
-  text-shadow: 1px 1px 2px black, 2px 2px 6px rgba(0, 0, 0, 0.6);
+  text-shadow: var(--text-shadow-base);
 }
 
 /*

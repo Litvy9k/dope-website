@@ -14,3 +14,5 @@ Before my Master's study, I spent two years as a [tooltip content="me_irl" img="
 
 <!-- zh -->
 
+我最近刚从奥克兰理工大学取得了计算机与信息科学的硕士学位([tooltip content="看了一眼名册差不多有八成人都是一等荣誉学位,不知道有啥好吹的"]一等荣誉[/tooltip]学位!),毕业论文是一个基于Apache Airflow的由大语言模型驱动的ETL开发/管理框架,设计上偏向于
+

@@ -1,6 +1,5 @@
 ---
 title: KIA ORA
-fontScale: 1.34
 ---
 
 <!-- en -->

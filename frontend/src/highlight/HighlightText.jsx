@@ -16,6 +16,8 @@ import './highlight.css';
  * @param tooltipMaxWidth  信息框最大宽度（CSS 长度）。再大也超不过视口
  * @param tooltipMaxHeight 信息框里图片的最大高度（CSS 长度）
  * @param tooltipWidthMode  'image' 框跟着图片原始宽度走；'text' 图缩放到文字的宽度
+ * @param cursor           指针样式的名字。现在只有 'chain'（[link] 用），
+ *                         对应 highlight.css 里的 .is-chain
  * @param onActivate       激活时触发（悬浮进入 / 点击 / 获得焦点）
  * @param onDeactivate     取消激活时触发
  * @param onSelect         明确的点击或回车，和悬浮无关
@@ -27,6 +29,7 @@ function HighlightText({
   tooltipMaxWidth,
   tooltipMaxHeight,
   tooltipWidthMode,
+  cursor,
   spoiler,
   onActivate,
   onDeactivate,
@@ -157,10 +160,34 @@ function HighlightText({
 
   const interactive = Boolean(hasTooltip || spoiler || onActivate || onSelect);
 
+  /*
+   * 光标按"点下去会发生什么"分，不另外加 prop —— onSelect 就是"明确的点击"，
+   * spoiler 点一下揭开，这两样已经把语义说清楚了。
+   *
+   * 之前 .highlight-text 无条件给 cursor: pointer，于是悬浮到一个纯 tooltip
+   * 上时手型光标在说"点我"，而它其实只是浮出说明 —— 反过来 [link] 不写 tip
+   * 时悬浮什么都不浮出来，两者看着一模一样，读者只能干等。
+   *
+   * 触屏没有光标也没有悬浮，点下去要么浮出说明要么跳转，本来就不会混。
+   */
+  const clickable = Boolean(onSelect || spoiler);
+
+  /*
+   * cursor='chain' 再细分一档：[link] 用锁链光标，[spoiler] 仍然是普通手型。
+   * 两者都"点了会发生事"，但发生的事不是一回事 —— 一个跳出去，一个原地揭开。
+   */
+  const cursorClass = cursor
+    ? `is-${cursor}`
+    : clickable
+      ? 'is-clickable'
+      : interactive
+        ? 'is-hint'
+        : '';
+
   return (
     <span
       ref={rootRef}
-      className={`highlight-text ${active ? 'is-active' : ''} ${
+      className={`highlight-text ${cursorClass} ${active ? 'is-active' : ''} ${
         spoiler ? `is-spoiler ${active ? 'is-revealed' : ''}` : ''
       }`}
       // 触屏的 pointerenter 时机不可靠，交给 click 处理

@@ -2,7 +2,6 @@
 title:
   en: abt-me
   zh: 关于我
-fontScale: 1.34
 contact:
   - { label: linkedin, value: /in/peter-hyliu,   href: "https://www.linkedin.com/in/peter-hyliu" }
   - { label: github,   value: "@Litvy9k",        href: "https://github.com/Litvy9k" }

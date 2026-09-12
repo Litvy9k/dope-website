@@ -4,8 +4,9 @@
   /* 宽度交给 .post 统一管（见 pages/Section.css）。这里再设一个自己的
      max-width 的话，正文又会比标题窄一截，就是之前那个毛病 */
   max-width: 100%;
-  /* --md-scale 来自 frontmatter 的 fontScale，没写就是 1 */
-  font-size: calc(1.12em * var(--md-scale, 1));
+  /* --md-font-ratio 是全站正文倍率（见 components/fonts.css），
+     --md-scale 来自 frontmatter 的 fontScale，没写就是 1 */
+  font-size: calc(var(--md-font-ratio, 1.5) * 1em * var(--md-scale, 1));
   line-height: 1.8;
 }
 
@@ -15,160 +16,309 @@
 
 /*
  * 标题不靠"同一个字体放大加粗"来区分 —— 那在点阵字体下只是变大，层级感很弱。
- * 三件事一起做：把作者写的井号本身显示出来当前缀、颜色收回站点色板、
- * 一级标题下面压一条线。
- */
-.md h2,
-.md h3,
-.md h4 {
-  margin: 1.8em 0 0.6em;
-  /* 原来是纯白 #fff，不在站点色板里。#eaffee 是底栏命令名用的那个近白，
-     配上青色辉光才是同一套东西 */
-  color: #eaffee;
-  letter-spacing: 1px;
-  text-shadow: 0 0 8px rgba(0, 255, 255, 0.6);
-}
-
-/*
- * 左边一根霓虹灯管。
+ * 靠的是一根霓虹灯管：管子本身、它照亮的墙、以及被照亮的字。
  *
- * 实心亮条本身只有几个像素，观感全在外面那几层 box-shadow 上：由内到外
- * 半径递增、透明度递减，模拟光在空气里散开。一层做不出这个效果 —— 单层
- * 阴影边缘是硬的，看着像描边不像发光。
+ * ── 为什么是这个画法 ──────────────────────────────
  *
- * 灯条撑满文字的行高（top/bottom 各留一点），所以标题换行时它会跟着变长，
- * 不用为多行标题另写规则。
+ * 真霓虹和 LED 灯带是两回事，差在三处，这里三处都照着做：
+ *
+ *   1. 管芯是近白的。饱和色全在外面的光晕里 —— 所有霓虹照片里管子本身
+ *      都过曝成白，颜色是从周围漫出来的。管芯给成彩色就变回 LED 了。
+ *   2. 是一根连续弯折的玻璃管，不是一段段。所以用 border-left +
+ *      border-bottom + border-bottom-left-radius：那是同一个盒子的边，
+ *      拐角天然是连着的圆角，拼两个方块做不出这个。
+ *   3. 两端有电极 —— 一小截暗金属头（::after）。少了它管子像凭空断掉。
+ *
+ * 灯管沿左边下来、在左下角拐弯变成底线，所以它同时是"层级标记"和
+ * "分隔线"：扫页面时一眼能看到分段在哪，不是左边一个光斑。
  */
 .md h2,
 .md h3,
 .md h4 {
   position: relative;
+  margin: 1.8em 0 0.6em;
   padding-left: 0.75em;
+  letter-spacing: 1px;
 }
 
+/*
+ * 被灯管照亮的字：白芯 + 逐层散开的洋红。
+ *
+ * 层数比一般的发光文字多（四层），因为霓虹的光是连续衰减的 —— 两三层
+ * 会看出一圈圈硬边，像描边不像发光。最外层 alpha 压到 .22，实测不会糊到
+ * 下一段正文上（标题下外边距 23px，那一层半径 64px，但太淡了看不出来）。
+ */
+.md h2 {
+  /*
+   * 不写 color，继承正文的颜色（.main-content 的 #00ffff）。
+   *
+   * 硬编码一个 #00ffff 也能得到同样的结果，但正文色将来改了标题不会跟着走，
+   * 就成了两个各自为政的字面量 —— 和 --content-measure、--md-font-ratio
+   * 要提出来是同一个理由。
+   *
+   * 这里试过荧光黄。单看不难看，但一个标题上同时有黄字、黄晕、白管芯、
+   * 洋红管光、洋红墙光，五样东西五个方向，扫过去是花不是亮。发光要显眼
+   * 靠的是对比集中，不是颜色数量。现在字归正文色、光统一成洋红，
+   * 整块就只剩"青字 + 一盏洋红的灯"两件事。
+   */
+  padding-bottom: 0.2em;
+  /*
+   * 最内那层白热核压到 0.45 / 3px。给到 0.95 / 4px 试过，点阵字体的笔画
+   * 只有两三像素宽，一层高不透明度的白直接盖满整个字 —— 颜色明明是
+   * #f5ff3d，看上去却是白的。白热核要有，但只能是描在边上的一圈。
+   */
+  /*
+   * 最后那层黑不是装饰，是让字从背景里拔出来的。
+   *
+   * text-shadow 的绘制顺序是"先写的在上面"，所以暗影必须写在最后一层 ——
+   * 写在第一层的话它会盖在黄晕之上，变成黄字描了一圈黑边。
+   *
+   * 只靠黄晕分不开：晕和字同色，叠在一起只是把笔画糊了一圈，不产生
+   * 明暗分离，而背景那张街景图本身很花。看着"像没加影子"就是这个原因。
+   */
+  /*
+   * 辉光偏左上，黑影偏右下 —— 和正文同一个光向（Layout.css 的
+   * --text-shadow-base，光从左上来），只是标题多一盏灯。
+   *
+   * 四面均匀的 0 0 辉光看着别扭，就是因为它没有方向：页面上别的字都在
+   * 往右下投影，只有标题四周匀匀地发光，像贴上去的另一套东西。给它一个
+   * 和影子相反的方向，两者就说的是同一个光源了。
+   *
+   * 黑影那两层不写死，引 --text-shadow-base —— 调正文影子时标题自动跟上。
+   * 辉光写在前面：text-shadow 先写的画在上面，辉光压在黑影之上，
+   * 左上那一侧才干净。
+   */
+  text-shadow:
+    -2px -2px 8px rgba(255, 0, 255, 0.75),
+    -5px -5px 20px rgba(255, 0, 255, 0.4),
+    var(--text-shadow-base);
+  /*
+   * 光打在"墙"上的一片。椭圆心钉在左下角（at 0 100%），也就是灯管拐角处 ——
+   * 光源在哪儿，最亮的地方就该在哪儿。画成背景而不是再加一个伪元素，是为了
+   * 不碰 z-index：负 z-index 的层要往上找最近的层叠上下文，找过头会钻到
+   * 背景图后面去（.bg 不能加 position/isolation 就是这个原因，见 Layout.css）。
+   */
+  /*
+   * 两层：上面是灯管打在墙上的洋红，下面垫一块往右淡出的暗色背板。
+   *
+   * 背板解决的是"招牌装在哪儿"。没有它，发光的字直接浮在一张很花的
+   * 街景照片上，亮处对亮处，字就糊进背景里了 —— 真招牌底下都有一块暗
+   * 背板，那不只是好看，就是为了让灯管有东西衬。
+   *
+   * 用 #06120c（站点底色）而不是纯黑：纯黑在这张偏青的图上会发闷。
+   */
+  background-image:
+    radial-gradient(
+      ellipse 110% 150% at 0 100%,
+      rgba(255, 0, 255, 0.17),
+      rgba(255, 0, 255, 0.06) 45%,
+      transparent 80%
+    ),
+    linear-gradient(
+      to right,
+      rgba(6, 18, 12, 0.78),
+      rgba(6, 18, 12, 0.45) 52%,
+      transparent 92%
+    );
+}
+
+/* 同一套配色，层层压一档 */
+.md h3 {
+  padding-bottom: 0.16em;
+  text-shadow:
+    -1px -1px 6px rgba(255, 0, 255, 0.6),
+    -4px -4px 16px rgba(255, 0, 255, 0.3),
+    var(--text-shadow-base);
+  background-image:
+    radial-gradient(
+      ellipse 80% 130% at 0 100%,
+      rgba(255, 0, 255, 0.1),
+      transparent 70%
+    ),
+    linear-gradient(
+      to right,
+      rgba(6, 18, 12, 0.62),
+      rgba(6, 18, 12, 0.32) 48%,
+      transparent 88%
+    );
+}
+
+/* h4 的字不发光也不换色 —— 再亮下去三级标题会比二级还显眼。
+   它靠左边那截没点亮的管子和字号区分，不靠颜色 */
+
+/*
+ * 灯管。一根，拐一个弯。
+ *
+ * 辉光用 drop-shadow 不用 box-shadow：box-shadow 描的是元素的矩形盒，
+ * 这个盒子只有左边和下边有 border、中间是空的，box-shadow 会在整个矩形
+ * 周围亮一圈，等于凭空多出上边和右边两根不存在的管子。
+ * drop-shadow 描的是实际画出来的形状，所以光只从那根 L 形的管子漫出来。
+ */
 .md h2::before,
 .md h3::before,
 .md h4::before {
   content: '';
   position: absolute;
   left: 0;
-  top: 0.16em;
-  bottom: 0.16em;
-  border-radius: 1px;
+  top: 0.15em;
+  bottom: 0;
 }
 
 /*
- * 辉光是从灯条向右铺开的半椭圆，不是四周均匀的光晕 —— box-shadow 做不出
- * 方向性，得用径向渐变：把椭圆的圆心钉在左边缘（at 0 50%），可见的就只有
- * 右半边，正好是要的形状，透明度沿半径递减就是逐渐减弱。
+ * 灯管不是用 border 画的，是三层 background 拼的：竖管、横管、弯头。
  *
- * 画成背景而不是再加一个伪元素，是为了不碰 z-index。背景天然画在自己的
- * 文字底下，而这个站的层叠很脆弱：负 z-index 的层要往上找最近的层叠
- * 上下文，找过头就会钻到背景图后面去（.bg 不能加 position/isolation 就是
- * 这个原因，见 Layout.css）。背景没有这个问题。
+ * border + border-bottom-left-radius 画出来的拐角是真圆弧，浏览器一定会
+ * 抗锯齿 —— 站里别的东西（评分条、设置箭头、锁链、这根管子本身）全是
+ * 硬像素边，只有那个拐角是糊的，一眼就出戏。直角硬拐又太生硬。
  *
- * 椭圆用 em 不用 px：跟着标题字号走，h2 和 h3 的比例才一致，
- * 窄屏上也不会一条光糊掉半个屏幕。
- */
-.md h2 {
-  background-image: radial-gradient(
-    ellipse 7em 78% at 0 50%,
-    /* 核心比外圈亮一档就够读出是光源了，不要推到发白 —— 白核会把标题
-       开头几个字的对比度压掉，而且看着像曝光过度不像霓虹 */
-    rgba(120, 255, 228, 0.42),
-    rgba(0, 255, 204, 0.22) 32%,
-    rgba(0, 255, 204, 0.07) 56%,
-    transparent 78%
-  );
-}
-
-.md h3 {
-  background-image: radial-gradient(
-    ellipse 5em 72% at 0 50%,
-    rgba(150, 255, 200, 0.3),
-    rgba(125, 255, 176, 0.15) 32%,
-    rgba(125, 255, 176, 0.045) 56%,
-    transparent 76%
-  );
-}
-
-/*
- * 灯条不是一根实心色块，是一列分段的 LED。
+ * 所以弯头单独画成一张 SVG，45° 斜切成像素台阶，
+ * shape-rendering="crispEdges"，和锁链图标一个路子。它是固定尺寸、不跟着
+ * 标题拉伸的，所以台阶不会被拉变形；竖管和横管是纯色渐变的矩形，轴对齐，
+ * 本来就不会有抗锯齿。
  *
- * 两层背景叠出来：
- *   上层 repeating-linear-gradient 切出段与段之间的间隔
- *   下层 linear-gradient 横向做管芯 —— 两侧暗、中间亮，
- *        像霓虹灯管的横截面，5px 宽也能看出体积
+ * **一个格子是 2 CSS px，不是 1。** viewBox 12×12 渲染成 24×24，所以每级
+ * 台阶两个像素高。一格 1px 的话，正常视距下根本看不出是台阶，跟抗锯齿的
+ * 斜边没区别 —— 那就白做了。代价是管宽必须是偶数（5px 除不尽 2），所以
+ * 这根管子是 6px 而不是 5px。
  *
- * 分段这个做法和站里别处是一路的：评分条那几格也是画出来的，
- * 不是拿字符凑的（点阵字体不一定有 ▮▯ 的字形，见 Rating.jsx）。
+ * 三层拼接处必须对得上：竖管高 calc(100% - 24px)，从顶一直到弯头上沿，
+ * 弯头里的竖臂（格子 x0..2 = 6px）接着往下走；弯头的横臂占它自己最下面
+ * 三格（= 6px）出到右边缘，横管高 6px 贴底、从 24px 处起，正好接上。
+ * **改管宽、弯头尺寸或那个 2px 单元，要三处一起改**，对不上会在接缝处
+ * 留一道缺口。
  *
- * 段高用 em：跟着标题字号走，h2 和 h3 的颗粒感才一致。
- *
- * 灯条自己只留一圈很紧的光 —— 扩散是上面那个半椭圆的活，
- * 这里再堆大半径阴影两者会打架，糊成一团。
+ * 辉光仍然是 drop-shadow：它作用在元素实际画出来的形状上，三层背景拼成的
+ * L 形连同台阶一起发光。box-shadow 描的是矩形盒，会把整块方形都点亮。
  */
 .md h2::before {
-  width: 6px;
-  /* 横向管芯：两侧暗、中间亮，6px 宽也能看出体积 */
-  background-image: linear-gradient(
-    to right,
-    rgba(0, 190, 160, 0.9) 0 1px,
-    #7cffe4 1px 4px,
-    rgba(0, 190, 160, 0.9) 4px 6px
-  );
-  /*
-   * 分段靠 mask 而不是再叠一层背景。两层背景配 blend 是做不出来的：
-   * 上层的 transparent 间隔会直接透出下层的管芯，断口根本不存在（试过）。
-   * mask 是真的把那几段挖掉。
-   */
-  -webkit-mask-image: repeating-linear-gradient(
-    to bottom,
-    #000 0 0.34em,
-    transparent 0.34em 0.46em
-  );
-  mask-image: repeating-linear-gradient(
-    to bottom,
-    #000 0 0.34em,
-    transparent 0.34em 0.46em
-  );
-  /*
-   * 用 drop-shadow 不用 box-shadow：mask 会把 box-shadow 一起裁掉（试过，
-   * 灯条剩下几段干巴巴的方块）。drop-shadow 作用在遮罩之后的轮廓上，
-   * 所以每一段 LED 各自发光，正好是要的效果。
-   */
+  right: 0;
+  background-image:
+    linear-gradient(#fff4ff, #fff4ff),
+    linear-gradient(#fff4ff, #fff4ff),
+    url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2012%2012%22%20shape-rendering%3D%22crispEdges%22%20fill%3D%22%23fff4ff%22%3E%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%223%22%20height%3D%221%22%2F%3E%3Crect%20x%3D%220%22%20y%3D%221%22%20width%3D%223%22%20height%3D%221%22%2F%3E%3Crect%20x%3D%220%22%20y%3D%222%22%20width%3D%223%22%20height%3D%221%22%2F%3E%3Crect%20x%3D%220%22%20y%3D%223%22%20width%3D%223%22%20height%3D%221%22%2F%3E%3Crect%20x%3D%220%22%20y%3D%224%22%20width%3D%223%22%20height%3D%221%22%2F%3E%3Crect%20x%3D%220%22%20y%3D%225%22%20width%3D%223%22%20height%3D%221%22%2F%3E%3Crect%20x%3D%220%22%20y%3D%226%22%20width%3D%224%22%20height%3D%221%22%2F%3E%3Crect%20x%3D%220%22%20y%3D%227%22%20width%3D%225%22%20height%3D%221%22%2F%3E%3Crect%20x%3D%221%22%20y%3D%228%22%20width%3D%225%22%20height%3D%221%22%2F%3E%3Crect%20x%3D%222%22%20y%3D%229%22%20width%3D%2210%22%20height%3D%221%22%2F%3E%3Crect%20x%3D%223%22%20y%3D%2210%22%20width%3D%229%22%20height%3D%221%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%2211%22%20width%3D%228%22%20height%3D%221%22%2F%3E%3C%2Fsvg%3E");
+  background-size: 6px calc(100% - 24px), calc(100% - 24px) 6px, 24px 24px;
+  background-position: left top, right bottom, left bottom;
+  background-repeat: no-repeat;
   filter:
-    drop-shadow(0 0 3px rgba(0, 255, 204, 0.95))
-    drop-shadow(0 0 7px rgba(0, 255, 204, 0.6));
+    drop-shadow(0 0 3px rgba(255, 255, 255, 0.95))
+    drop-shadow(0 0 9px rgba(255, 0, 255, 0.95))
+    drop-shadow(0 0 22px rgba(255, 0, 255, 0.5))
+    drop-shadow(0 0 48px rgba(255, 0, 255, 0.26));
 }
 
+/* 降一档：管细一点、弯头小一点、光弱一档。层级靠强度递减，不靠换颜色 */
 .md h3::before {
-  width: 4px;
-  background-image: linear-gradient(
-    to right,
-    rgba(80, 190, 130, 0.9) 0 1px,
-    #b6ffd4 1px 3px,
-    rgba(80, 190, 130, 0.9) 3px 4px
-  );
-  -webkit-mask-image: repeating-linear-gradient(
-    to bottom,
-    #000 0 0.3em,
-    transparent 0.3em 0.42em
-  );
-  mask-image: repeating-linear-gradient(
-    to bottom,
-    #000 0 0.3em,
-    transparent 0.3em 0.42em
-  );
+  right: 0;
+  background-image:
+    linear-gradient(#fff4ff, #fff4ff),
+    linear-gradient(#fff4ff, #fff4ff),
+    url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2010%2010%22%20shape-rendering%3D%22crispEdges%22%20fill%3D%22%23fff4ff%22%3E%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%222%22%20height%3D%221%22%2F%3E%3Crect%20x%3D%220%22%20y%3D%221%22%20width%3D%222%22%20height%3D%221%22%2F%3E%3Crect%20x%3D%220%22%20y%3D%222%22%20width%3D%222%22%20height%3D%221%22%2F%3E%3Crect%20x%3D%220%22%20y%3D%223%22%20width%3D%222%22%20height%3D%221%22%2F%3E%3Crect%20x%3D%220%22%20y%3D%224%22%20width%3D%222%22%20height%3D%221%22%2F%3E%3Crect%20x%3D%220%22%20y%3D%225%22%20width%3D%222%22%20height%3D%221%22%2F%3E%3Crect%20x%3D%220%22%20y%3D%226%22%20width%3D%223%22%20height%3D%221%22%2F%3E%3Crect%20x%3D%221%22%20y%3D%227%22%20width%3D%223%22%20height%3D%221%22%2F%3E%3Crect%20x%3D%222%22%20y%3D%228%22%20width%3D%228%22%20height%3D%221%22%2F%3E%3Crect%20x%3D%223%22%20y%3D%229%22%20width%3D%227%22%20height%3D%221%22%2F%3E%3C%2Fsvg%3E");
+  background-size: 4px calc(100% - 20px), calc(100% - 20px) 4px, 20px 20px;
+  background-position: left top, right bottom, left bottom;
+  background-repeat: no-repeat;
   filter:
-    drop-shadow(0 0 2px rgba(125, 255, 176, 0.9))
-    drop-shadow(0 0 6px rgba(125, 255, 176, 0.5));
+    drop-shadow(0 0 2px rgba(255, 255, 255, 0.9))
+    drop-shadow(0 0 7px rgba(255, 0, 255, 0.75))
+    drop-shadow(0 0 18px rgba(255, 0, 255, 0.35));
 }
 
-/* h4 只留一根暗条，不发光 —— 再亮下去三级标题会比二级还显眼 */
+/* h4 是一截没点亮的管：只有玻璃，不发光，也不拐弯 */
 .md h4::before {
+  bottom: 0.16em;
   width: 2px;
-  background: rgba(125, 255, 176, 0.45);
+  border-radius: 1px;
+  background: rgba(255, 160, 255, 0.35);
+}
+
+/*
+ * 电极：管子上端那一小截暗金属头。
+ *
+ * 不发光是对的 —— 电极本来就是不亮的那一段，正是它让管子看起来"有始有终"，
+ * 而不是一条凭空断掉的亮线。只给会亮的两级加，h4 那截没点亮的管不需要。
+ */
+.md h2::after,
+.md h3::after {
+  content: '';
+  position: absolute;
+  border-radius: 2px;
+  background: rgba(150, 90, 150, 0.85);
+}
+
+.md h2::after {
+  left: -2px;
+  top: 0.02em;
+  width: 9px;
+  height: 6px;
+}
+
+.md h3::after {
+  left: -1px;
+  top: 0.03em;
+  width: 5px;
+  height: 5px;
+}
+
+/*
+ * ── 明灭 ────────────────────────────────────────
+ *
+ * 一根快坏掉的管子：绝大部分时间亮着，隔一阵抽一下，然后恢复。
+ * 不是均匀闪 —— 均匀闪是"指示灯"，不是"接触不良"。所以关键帧的百分比
+ * 是不规则的，三次抽搐之间的间隔也不相等。
+ *
+ * 3.4s 一个周期、周期里三次事件（约 0.6s / 1.8s / 2.8s 处）。
+ * 三次的轻重也不一样：第一次连抽四下最重，第二次单闪，第三次半灭一下。
+ * 每次都一样重的话，快起来就露馅了 —— 会听出节拍。
+ *
+ * steps(1, end)：每一帧硬切，不插值。霓虹的明灭是放电断续，本来就没有
+ * 渐变过程。底栏那个光标块用的也是这个（ShellNav.css 的 sh-blink）。
+ *
+ * **只动灯管，不动文字。** 给 h2 本身加 opacity 动画会在标题上建一个
+ * 层叠上下文，正文里 z-index:1200 的 tooltip 一旦写在标题里就钻不出
+ * z-index:1000 的底栏了 —— 和 .bg 不能加 position/isolation 是同一个坑。
+ * 伪元素没有这个问题。
+ *
+ * 多个标题不同步：负的 animation-delay 直接从周期中间开始，所以同一页上
+ * 几根管子各抽各的。一起闪会显得是整个页面在闪，不是某根管子坏了。
+ */
+@keyframes neon-stutter {
+  0%, 17% { opacity: 1; }
+  17.8% { opacity: 0.25; }
+  18.6% { opacity: 1; }
+  19.4% { opacity: 0.12; }
+  20.6% { opacity: 0.7; }
+  21.4% { opacity: 1; }
+  52% { opacity: 1; }
+  52.9% { opacity: 0.3; }
+  53.8% { opacity: 1; }
+  81% { opacity: 1; }
+  81.7% { opacity: 0.18; }
+  82.4% { opacity: 0.8; }
+  83.2% { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+/*
+ * 挂在 .crt-flicker-on 下面：底栏 SETUP 里的"屏幕闪烁"开关关掉时，
+ * 这里也一起停。嫌闪的人只需要关一个开关，不用分别去找。
+ */
+.crt-flicker-on .md h2::before,
+.crt-flicker-on .md h3::before {
+  animation: neon-stutter 3.4s steps(1, end) infinite;
+}
+
+/* h3 的周期取 4.1s：和 h2 的 3.4s 不成整数倍，所以两级永远不会走到同步 */
+.crt-flicker-on .md h3::before { animation-duration: 4.1s; }
+
+.crt-flicker-on .md h2:nth-of-type(2n)::before { animation-delay: -1.1s; }
+.crt-flicker-on .md h2:nth-of-type(3n)::before { animation-delay: -2.2s; }
+.crt-flicker-on .md h3:nth-of-type(2n)::before { animation-delay: -1.7s; }
+
+/* 闪烁对前庭敏感的人是实打实的问题，不是口味问题 —— 系统里说了不要动画就不动 */
+@media (prefers-reduced-motion: reduce) {
+  .crt-flicker-on .md h2::before,
+  .crt-flicker-on .md h3::before {
+    animation: none;
+  }
 }
 
 .md h2 { font-size: 1.5em; }

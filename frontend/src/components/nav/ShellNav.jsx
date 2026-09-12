@@ -3,11 +3,21 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useUI } from '../UIContext';
 import { t } from '../../i18n';
 import { sections, labelOf, trailOf, pathLabel } from './sections';
+import { ChainIcon } from '../../highlight/icons';
 import './ShellNav.css';
+
+/**
+ * 回显用的地址：协议和结尾的斜杠都去掉。
+ * 底栏一行就那么点地方，https:// 八个字符谁都知道，占着不划算。
+ */
+function shownHref(href) {
+  return href.replace(/^https?:\/\//, '').replace(/\/$/, '');
+}
 
 function ShellNav() {
   const { pathname } = useLocation();
-  const { lang, showSetup, toggleSetup, setupTriggerRef, setupHint } = useUI();
+  const { lang, showSetup, toggleSetup, setupTriggerRef, setupHint, linkHint, hideLinkHint } =
+    useUI();
 
   // 箭头要能播退场动画，所以一直挂着靠 class 切。
   // 空字符串是"还没出现过"，免得首次渲染就播一遍退场
@@ -30,7 +40,10 @@ function ShellNav() {
   // 二级菜单还赖着不走
   useEffect(() => {
     setHovered(null);
-  }, [pathname]);
+    // 同理：触屏点一下链接会触发激活却没有"移开"，换页时把回显一起清掉，
+    // 否则底栏会一直挂着上一页某个链接的地址
+    hideLinkHint();
+  }, [pathname, hideLinkHint]);
   const focused = hovered ?? activeTop ?? null;
   const children = focused?.children ?? [];
 
@@ -90,8 +103,21 @@ function ShellNav() {
           ))}
         </span>
         <span className="sh-punct">$</span>
-        <span className="sh-cmd">{typed}</span>
-        <span className="sh-cursor" aria-hidden="true" />
+
+        {/* 悬浮正文里的 [link] 时，这条命令行改成回显目标地址 ——
+            浏览器把它放在左下角，而这个站的左下角正好是一条命令行。
+            回显期间光标不闪：那是"等你输入"的意思，现在不是。 */}
+        {linkHint ? (
+          <span className="sh-link">
+            <ChainIcon className="sh-link-icon" />
+            <span className="sh-link-url">{shownHref(linkHint)}</span>
+          </span>
+        ) : (
+          <>
+            <span className="sh-cmd">{typed}</span>
+            <span className="sh-cursor" aria-hidden="true" />
+          </>
+        )}
 
         <span className="sh-spacer" />
 

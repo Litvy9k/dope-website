@@ -17,9 +17,9 @@
    * 底栏（ShellNav.css）确实写死了点阵字体，但那是外壳，本来就不该跟着切；
    * 这里是正文内容，得跟着用户的设置走。
    */
-  /* 和正文同一个字号公式（见 Markdown.css 的 .md）。不写的话它停在 17px
-     的基准值上，而带 fontScale 的页面正文能到 25.5px，差一半 */
-  font-size: calc(1.12em * var(--md-scale, 1));
+  /* 和正文同一个字号公式（见 Markdown.css 的 .md，倍率在 fonts.css）。
+     不写的话它停在 17px 的基准值上，而正文是 25.5px，差一半 */
+  font-size: calc(var(--md-font-ratio, 1.5) * 1em * var(--md-scale, 1));
 }
 
 .contact-cmd {
