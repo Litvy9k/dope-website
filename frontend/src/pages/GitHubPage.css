@@ -93,8 +93,12 @@
 /* ── 侧栏：资料 ─────────────────────────────────────── */
 
 /*
- * 头像按 48px 拉回来，在这里放大，pixelated 让每个像素保持方块 ——
- * 默认的平滑缩放会把 48px 糊成一团，而方块正是站里的点阵调子。
+ * 头像是原图（460px，GitHub 头像 CDN 的上限），正常平滑缩放。
+ *
+ * 之前是 48px 加 image-rendering: pixelated 放大成像素画，和站里的点阵调子一致，
+ * 但照片压成方块就认不出人了 —— 头像的用处是认人，这里让位给可辨认。
+ *
+ * object-fit: cover 是保险：GitHub 头像都是正方形，万一不是也不会被拉扁。
  * 双线框和 hr / 联系方式那条分隔线同款。
  */
 .gh-avatar {
@@ -104,7 +108,7 @@
   max-width: 100%;
   height: auto;
   aspect-ratio: 1;
-  image-rendering: pixelated;
+  object-fit: cover;
   border: 4px double rgba(0, 255, 204, 0.45);
 }
 
@@ -200,11 +204,26 @@
 .gh-org-avatar {
   width: 1.8em;
   height: 1.8em;
-  image-rendering: pixelated;
+  object-fit: cover;
   border: 1px solid rgba(0, 255, 204, 0.35);
 }
 
-.gh-open { font-size: 0.9em; }
+/*
+ * "在 github.com 上打开"用荧光黄 —— 和正文里可交互的高亮同一个颜色，所以直接
+ * 借 highlight.css 的 --hl-yellow：它就是个能点的东西，语义对得上。
+ *
+ * 选择器写成 .gh a.gh-open，才压得过上面 .gh a 那条绿色；悬浮同理。
+ */
+.gh a.gh-open {
+  font-size: 0.9em;
+  color: var(--hl-yellow, #f5ff3d);
+}
+
+.gh a.gh-open:hover,
+.gh a.gh-open:focus-visible {
+  color: var(--hl-yellow-bright, #ffff9e);
+  text-shadow: 0 0 10px rgba(245, 255, 61, 0.75);
+}
 
 /* ── 置顶仓库 ───────────────────────────────────────── */
 
@@ -222,9 +241,19 @@
 }
 
 /*
- * 卡片垫一层半透明暗底。背景是一张很花的霓虹街景，字直接压在上面糊 ——
+ * 半透明暗底 + 细边框的面板，仓库卡片和贡献日历共用。
+ *
+ * 背景是一张很花的霓虹街景，字和格子直接压在上面就糊了 —— 日历尤其吃亏：
+ * 空格子只是一层很淡的青，落在图的亮处几乎看不见，一整年的格子排不成形。
  * 和 md 标题底下那块暗背板是同一个原因（见 Markdown.css）。
+ *
+ * 两处共用一个类，不各写一遍：两份字面量迟早会被调得不一样。
  */
+.gh-panel {
+  border: 1px solid rgba(0, 255, 204, 0.35);
+  background: rgba(3, 14, 10, 0.55);
+}
+
 .gh-repo {
   position: relative;
   display: flex;
@@ -232,8 +261,6 @@
   gap: 0.45em;
   min-width: 0;
   padding: 0.8em 0.9em;
-  border: 1px solid rgba(0, 255, 204, 0.35);
-  background: rgba(3, 14, 10, 0.55);
 }
 
 /*
@@ -310,7 +337,8 @@
  */
 .gh-cal-scroll {
   overflow-x: auto;
-  padding-bottom: 0.3em;
+  /* 内边距和仓库卡片同一档；底边多留一点，给窄屏上出现的横向滚动条 */
+  padding: 0.8em 0.9em 0.6em;
 }
 
 .gh-cal {

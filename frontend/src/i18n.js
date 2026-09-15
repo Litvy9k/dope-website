@@ -32,6 +32,7 @@ const strings = {
     en: 'built without a token: no contribution calendar, pinned repos from a hand-kept list',
     zh: '构建时没有 token：没有贡献日历，置顶仓库按手写名单显示',
   },
+  ghSchedule: { en: 'refreshes daily at {time} NZ time', zh: '每天新西兰时间 {time} 自动更新' },
   ghOffline: {
     en: 'could not reach api.github.com when this site was built',
     zh: '构建这个站的时候连不上 api.github.com',

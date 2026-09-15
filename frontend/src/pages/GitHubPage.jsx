@@ -41,6 +41,28 @@ function words(n) {
 /** 日期是 YYYY-MM-DD，按 UTC 解析和格式化 —— 按本地时区解析的话，UTC 以西的访客会看到前一天 */
 const utc = (ymd) => new Date(`${ymd}T00:00:00Z`);
 
+/**
+ * 每日定时构建的时间，换算成新西兰当地时间。快照里存的是 UTC（fetch-github.mjs
+ * 从 deploy.yml 的 cron 读来的）。
+ *
+ * 在访客的浏览器里按"今天"换算，不在构建时写死：cron 是固定的 UTC，而新西兰
+ * 有夏令时 —— 18:17 UTC 在冬令时是 06:17，九月底进入夏令时后是 07:17。
+ * 写死一个 06:17，一年里有一半时间是错的。
+ */
+function refreshTime(refresh) {
+  if (!refresh) return null;
+  const now = new Date();
+  const at = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), refresh.utcHour, refresh.utcMinute),
+  );
+  return new Intl.DateTimeFormat('en-NZ', {
+    timeZone: 'Pacific/Auckland',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).format(at);
+}
+
 function ExternalLink({ href, className, children }) {
   // 外链一律新窗口，和正文里的 markdown 链接、[link] 标记、联系方式一致
   return (
@@ -98,7 +120,7 @@ function Profile({ data, lang }) {
           为什么不是 GitHub 那样的左侧栏，见 GitHubPage.css 的 .gh-layout */}
       <div className="gh-card">
         {/* alt 留空：名字就在紧旁边，读屏再念一遍"头像"是噪音 */}
-        {p.avatar && <img className="gh-avatar" src={p.avatar} alt="" width="48" height="48" />}
+        {p.avatar && <img className="gh-avatar" src={p.avatar} alt="" width="460" height="460" />}
 
         <div className="gh-id">
           <p className="gh-name">{p.name || data.login}</p>
@@ -128,7 +150,7 @@ function Profile({ data, lang }) {
                 {data.orgs.map((o) => (
                   <li key={o.login}>
                     <ExternalLink href={o.url} className="gh-org">
-                      {o.avatar && <img className="gh-org-avatar" src={o.avatar} alt="" width="48" height="48" />}
+                      {o.avatar && <img className="gh-org-avatar" src={o.avatar} alt="" width="96" height="96" />}
                       {o.name || o.login}
                     </ExternalLink>
                   </li>
@@ -163,7 +185,7 @@ function Repos({ data, lang }) {
 
       <ul className="gh-repos">
         {repos.items.map((r) => (
-          <li key={r.url} className="gh-repo">
+          <li key={r.url} className="gh-repo gh-panel">
             {/* 和帖子列表里置顶卡片同一颗星：置顶就是置顶，全站用同一个记号 */}
             <PixelStar className="gh-repo-star" />
             <div className="gh-repo-head">
@@ -222,7 +244,7 @@ function CalendarGrid({ calendar, lang }) {
   const label = fill(t('ghContribYear', lang), { n: calendar.total, ...words(calendar.total) });
 
   return (
-    <div className="gh-cal-scroll">
+    <div className="gh-cal-scroll gh-panel">
       <div className="gh-cal" style={{ '--weeks': weeks.length }} role="img" aria-label={label}>
         {months.map((m) => (
           <span key={m.col} className="gh-cal-month" style={{ gridColumn: m.col + 2 }} aria-hidden="true">
@@ -372,10 +394,16 @@ export default function GitHubPage() {
    * 页面顶上写明数据来源和快照日期。降级（REST）或离线时，读者和作者都能
    * 从这一行看出来 —— 不写的话"没有日历"和"日历坏了"在页面上长得一样。
    */
-  const sourceLine =
-    data.source === 'graphql'
-      ? `${t('ghSource', lang)}: api.github.com/graphql · ${t('ghSnapshot', lang)} ${data.fetchedAt}`
-      : `${t('ghSource', lang)}: api.github.com (REST) · ${t('ghSnapshot', lang)} ${data.fetchedAt} · ${t('ghRestNote', lang)}`;
+  const schedule = refreshTime(data.refresh);
+  const sourceLine = [
+    `${t('ghSource', lang)}: ${data.source === 'graphql' ? 'api.github.com/graphql' : 'api.github.com (REST)'}`,
+    `${t('ghSnapshot', lang)} ${data.fetchedAt}`,
+    // 快照日期后面紧跟"每天几点更新"：读的人看到日期，下一个问题就是它多久刷新一次
+    schedule && fill(t('ghSchedule', lang), { time: schedule }),
+    data.source !== 'graphql' && t('ghRestNote', lang),
+  ]
+    .filter(Boolean)
+    .join(' · ');
 
   return (
     <article className="page gh">

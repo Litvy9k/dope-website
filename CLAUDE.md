@@ -263,8 +263,17 @@ in `predev` / `prebuild`, queries with `GITHUB_TOKEN` (CI passes the
 `GH_PROFILE_TOKEN` secret, falling back to the Actions token), and writes a
 normalised JSON the page renders. Data refreshes on every deploy — including a
 daily scheduled run that exists only for this — and visitors never hit GitHub's 60-an-hour
-unauthenticated limit. The avatar is downloaded at 48px and scaled up with
-`image-rendering: pixelated`, so the page makes no third-party requests.
+unauthenticated limit. The avatar is downloaded too — the original, which
+GitHub's CDN caps at 460px — so the page makes no third-party requests. (For a
+while it was 48px scaled up with `pixelated`: on-theme, but a photo reduced to
+blocks stops identifying anyone.)
+
+The source line's "refreshes daily at …" is not typed into the page. The fetch
+script reads the cron out of `deploy.yml` into the snapshot, and the page
+converts it to Pacific/Auckland in the visitor's browser: the cron is fixed UTC
+and New Zealand has daylight saving, so 18:17 UTC is 06:17 in winter and 07:17
+from late September — a literal "06:17" would be wrong half the year. If the
+cron is not a plain once-a-day `M H * * *`, the sentence is omitted.
 
 It degrades in three tiers and **never exits non-zero** — a GitHub outage must
 not block a deploy: `graphql` (everything), `rest` (no token or GraphQL failed:

@@ -40,6 +40,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { load as parseYaml } from 'js-yaml';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -71,11 +72,19 @@ const TIMEOUT_MS = 15000;
 const API = 'https://api.github.com';
 
 /*
- * 头像拉 48px，页面上用 image-rendering: pixelated 放大 —— 48 个像素放到
- * 两百多像素宽，每个像素是四五像素的方块，正好是站里的点阵调子。拉大图再缩
- * 反而会被浏览器平滑掉。
+ * 个人头像拉原图，不带尺寸参数。GitHub 头像 CDN 的上限就是 460px —— 实测
+ * 不带参数、s=460、s=1000 返回的是同一个 460×460、13.7KB 的文件。页面上显示
+ * 10em，大屏高 DPI 下要四百多物理像素，原图正好够。
+ *
+ * 曾经拉 48px、用 image-rendering: pixelated 放大成像素画：调子和站里一致，
+ * 但照片压成方块就认不出人了，改回原图。
+ *
+ * 组织头像只显示 1.8em，拉 96px（两倍）够高 DPI 用，不必下原图。
  */
-const AVATAR_PX = 48;
+const ORG_AVATAR_PX = 96;
+
+/** 每日定时构建写在这个工作流里；页面上"每天几点自动更新"那句从这里读 */
+const WORKFLOW = path.join(root, '../.github/workflows/deploy.yml');
 
 const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || '';
 const inCI = Boolean(process.env.CI);
@@ -159,16 +168,41 @@ function currentMonth() {
   return { now, start, key: start.toISOString().slice(0, 7) };
 }
 
+/**
+ * 从 deploy.yml 读每日定时构建的时间（UTC），写进快照。
+ *
+ * 从工作流里读，不在页面上再写一遍 18:17：改了 cron 忘了改页面，页面就会一直
+ * 报一个错的时间，没有任何东西会发现。换算成新西兰时间是页面的事（要按访客
+ * 当天的日期算夏令时，见 GitHubPage.jsx 的 refreshTime）。
+ *
+ * 只认"分 时 * * *"这种每天一次的写法。读不到、或者不是这种写法，就不写 ——
+ * 页面上那句话也就不显示。宁可不说，不说错的。
+ */
+function dailyRefresh() {
+  try {
+    const cron = parseYaml(fs.readFileSync(WORKFLOW, 'utf8'))?.on?.schedule?.[0]?.cron;
+    const m = /^(\d{1,2}) (\d{1,2}) \* \* \*$/.exec(String(cron ?? '').trim());
+    if (!m) {
+      warn(`deploy.yml 里没有"每天一次"的 cron（读到 ${cron}），页面上不显示更新时间`);
+      return null;
+    }
+    return { utcHour: Number(m[2]), utcMinute: Number(m[1]) };
+  } catch (e) {
+    warn(`读不了 deploy.yml，页面上不显示更新时间：${e.message}`);
+    return null;
+  }
+}
+
 /* ── graphql ──────────────────────────────────────────── */
 
 const QUERY = `
 query ($login: String!, $monthStart: DateTime!, $now: DateTime!) {
   user(login: $login) {
     login name pronouns bio location url
-    avatarUrl(size: ${AVATAR_PX})
+    avatarUrl
     repositories(ownerAffiliations: OWNER, privacy: PUBLIC) { totalCount }
     socialAccounts(first: 10) { nodes { provider url } }
-    organizations(first: 10) { nodes { login name url avatarUrl(size: ${AVATAR_PX}) } }
+    organizations(first: 10) { nodes { login name url avatarUrl(size: ${ORG_AVATAR_PX}) } }
     pinnedItems(first: 6, types: REPOSITORY) {
       nodes {
         ... on Repository {
@@ -371,7 +405,7 @@ async function viaREST() {
       bio: u.bio || null,
       location: u.location || null,
       url: u.html_url,
-      avatar: await saveImage(`${u.avatar_url}&s=${AVATAR_PX}`, 'avatar'),
+      avatar: await saveImage(u.avatar_url, 'avatar'),
       publicRepos: u.public_repos,
     },
     social: socials.map((s) => social(s.provider, s.url)),
@@ -380,7 +414,7 @@ async function viaREST() {
         login: o.login,
         name: null,
         url: `https://github.com/${o.login}`,
-        avatar: await saveImage(`${o.avatar_url}&s=${AVATAR_PX}`, `org-${o.login}`),
+        avatar: await saveImage(`${o.avatar_url}&s=${ORG_AVATAR_PX}`, `org-${o.login}`),
       })),
     ),
     repos: {
@@ -451,6 +485,7 @@ async function main() {
     schema: SCHEMA,
     login: LOGIN,
     fetchedAt: new Date().toISOString().slice(0, 10),
+    refresh: dailyRefresh(),
     ...data,
   };
   if (existing && JSON.stringify(existing) === JSON.stringify(snapshot)) {
