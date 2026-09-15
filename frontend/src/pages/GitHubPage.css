@@ -1,0 +1,465 @@
+/*
+ * /abt-me/github。
+ *
+ * 配色全部取站里已有的几套，不新起：
+ *   $ 和命令名      Contact.css / ShellNav.css 的提示符（暗绿 + 近白）
+ *   标签 / 链接     Contact.css 的主绿 #7dffb0
+ *   数据格子 / 条   Rating.css 的评分条（#00ffcc + 同款外发光）
+ *   边框            .post-tag 的 rgba(0,255,204,.35)
+ *
+ * 不写 font-family：设置面板的"点阵字体"开关是在 .main-content 上
+ * !important 设的、靠继承传下来，这里一写就把整页锁死在某个字体上
+ * （Contact.css 里有同样的说明）。
+ *
+ * 字号全用 em，跟着 --content-font-size 缩放。这一页是信息密集的界面，
+ * 不是要一段段读的正文，所以基准就是 1em，不乘 --md-font-ratio。
+ */
+
+.gh {
+  /* 容器查询按这一页自己的宽度断，不按视口 —— 侧栏什么时候该收起来，取决于
+     这一页实际有多宽，而页面有 --content-measure 的上限，和视口不是一回事 */
+  container: gh / inline-size;
+}
+
+.gh-source,
+.gh-note {
+  margin: 0 0 1.4em;
+  font-size: 0.85em;
+  color: rgba(0, 255, 204, 0.55);
+  /* 快照日期、降级说明挤在一行，窄屏上要能断开，否则撑出横向滚动 */
+  overflow-wrap: anywhere;
+}
+
+.gh-note { margin: 0; }
+
+/* ── 布局：一列，资料在上 ─────────────────────────── */
+
+/*
+ * 不是 GitHub 那样的左侧栏 + 右主栏。
+ *
+ * 这一页挂在 .page 上，和别的 abt-me 子页共用 --content-measure（100ch），
+ * 从 /abt-me 点进来左右边界不跳 —— Section.css 里定下的规矩。而 100ch 在点阵
+ * 字体下只有约 44em（1600px 视口下量到 795px）：侧栏占掉 15em，主栏剩不到
+ * 27em，日历（最小 38em）只能横着滚，仓库卡片也被挤成一列，比一列更差。
+ *
+ * 最早写的就是两栏 + 44em 断点，结果页面宽度永远比断点小那几像素
+ * （795 对 799），任何屏幕上都触发断点 —— 两栏那套从来没生效过，
+ * 页面看着一切正常。所以直接一列：资料是横排的一张卡，下面依次仓库、日历、动态。
+ *
+ * minmax(0, 1fr) 不是 1fr：1fr 的下限是内容宽度，日历有最小宽度，会把整页
+ * 撑破，而不是在它自己的滚动容器里滚。
+ */
+.gh-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2.2em;
+}
+
+.gh-main {
+  min-width: 0;
+  container: gh-main / inline-size;
+  /* 和上面的资料卡隔开，和各块之间那条线同款 */
+  padding-top: 1.4em;
+  border-top: 1px solid rgba(0, 255, 204, 0.18);
+}
+
+/* ── 命令行 ─────────────────────────────────────────── */
+
+.gh-cmd {
+  margin-bottom: 0.7em;
+  overflow-wrap: anywhere;
+}
+
+.gh-sign {
+  margin-right: 0.5em;
+  color: rgba(125, 255, 176, 0.6);
+}
+
+.gh-cmd-name { color: #eaffee; }
+
+.gh-section + .gh-section {
+  margin-top: 2.2em;
+  padding-top: 1.4em;
+  border-top: 1px solid rgba(0, 255, 204, 0.18);
+}
+
+.gh-title {
+  margin: 0 0 0.8em;
+  font-size: 1.15em;
+  font-weight: normal;
+  color: #eaffee;
+}
+
+/* ── 侧栏：资料 ─────────────────────────────────────── */
+
+/*
+ * 头像按 48px 拉回来，在这里放大，pixelated 让每个像素保持方块 ——
+ * 默认的平滑缩放会把 48px 糊成一团，而方块正是站里的点阵调子。
+ * 双线框和 hr / 联系方式那条分隔线同款。
+ */
+.gh-avatar {
+  display: block;
+  flex: 0 0 auto;
+  width: 10em;
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  image-rendering: pixelated;
+  border: 4px double rgba(0, 255, 204, 0.45);
+}
+
+/*
+ * 资料卡：头像在左，名字和资料在右。窄到放不下（手机）就竖排。
+ * 断点按 .gh 自己的宽度（容器查询），不按视口 —— 理由同 .gh 上的注释。
+ */
+.gh-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.8em;
+}
+
+.gh-id {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+@container gh (max-width: 28em) {
+  .gh-card {
+    flex-direction: column;
+    gap: 0.9em;
+  }
+}
+
+.gh-name {
+  margin: 0;
+  font-size: 1.45em;
+  line-height: 1.2;
+  color: #eaffee;
+  overflow-wrap: anywhere;
+}
+
+.gh-login {
+  margin: 0.15em 0 1em;
+  color: rgba(0, 255, 204, 0.7);
+}
+
+.gh-pronouns { color: rgba(0, 255, 204, 0.5); }
+
+.gh-bio {
+  margin: 0 0 1em;
+  overflow-wrap: anywhere;
+}
+
+/* 两列对齐靠 grid 不靠空格：站点字体不是等宽的（见 Contact.css） */
+.gh-facts {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  column-gap: 1em;
+  row-gap: 0.3em;
+  margin: 0 0 1.2em;
+  font-size: 0.9em;
+}
+
+.gh-fact-label {
+  margin: 0;
+  color: #7dffb0;
+  opacity: 0.75;
+}
+
+.gh-fact-value {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.gh a {
+  color: #7dffb0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.gh a:hover,
+.gh a:focus-visible {
+  color: #eaffee;
+  text-shadow: 0 0 10px rgba(0, 255, 128, 0.7);
+}
+
+.gh-orgs { margin-bottom: 1.2em; font-size: 0.9em; }
+
+.gh-org-list {
+  list-style: none;
+  margin: 0.4em 0 0;
+  padding: 0;
+}
+
+.gh-org {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.gh-org-avatar {
+  width: 1.8em;
+  height: 1.8em;
+  image-rendering: pixelated;
+  border: 1px solid rgba(0, 255, 204, 0.35);
+}
+
+.gh-open { font-size: 0.9em; }
+
+/* ── 置顶仓库 ───────────────────────────────────────── */
+
+.gh-repos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9em;
+}
+
+@container gh-main (max-width: 30em) {
+  .gh-repos { grid-template-columns: minmax(0, 1fr); }
+}
+
+/*
+ * 卡片垫一层半透明暗底。背景是一张很花的霓虹街景，字直接压在上面糊 ——
+ * 和 md 标题底下那块暗背板是同一个原因（见 Markdown.css）。
+ */
+.gh-repo {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45em;
+  min-width: 0;
+  padding: 0.8em 0.9em;
+  border: 1px solid rgba(0, 255, 204, 0.35);
+  background: rgba(3, 14, 10, 0.55);
+}
+
+/*
+ * 右上角的星。星形、颜色、辉光在 PixelStar.css，这里只管位置和大小。
+ *
+ * 用 em 不照搬 PostCard 的 30px：帖子卡片的标题是 1.35em，这里仓库名是 1em，
+ * 同样 30px 的星在这张小卡上比名字大出一圈。按比例取 1.5em，大屏上字号
+ * 放大时星也跟着放大。
+ */
+.gh-repo-star {
+  position: absolute;
+  top: 0.65em;
+  right: 0.75em;
+  width: 1.5em;
+  pointer-events: none;
+}
+
+.gh-repo-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6em;
+  min-width: 0;
+  /* 给右上角的星让位，长仓库名换行时不会钻到星底下 */
+  padding-right: 2em;
+}
+
+.gh-repo-name { overflow-wrap: anywhere; }
+
+.gh-badge {
+  flex: 0 0 auto;
+  padding: 0 0.4em;
+  font-size: 0.72em;
+  border: 1px solid rgba(0, 255, 204, 0.35);
+  color: rgba(0, 255, 204, 0.7);
+}
+
+.gh-repo-desc {
+  margin: 0;
+  font-size: 0.85em;
+  line-height: 1.5;
+  opacity: 0.85;
+  overflow-wrap: anywhere;
+}
+
+.gh-repo-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em;
+  margin-top: auto;
+  padding-top: 0.2em;
+  font-size: 0.8em;
+  color: rgba(0, 255, 204, 0.7);
+}
+
+.gh-lang {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+}
+
+/* 方块不是圆点，理由见 GitHubPage.jsx 的 Language */
+.gh-lang-mark {
+  width: 0.7em;
+  height: 0.7em;
+  background: var(--lang);
+  box-shadow: 0 0 5px var(--lang);
+}
+
+/* ── 贡献日历 ───────────────────────────────────────── */
+
+/*
+ * 窄屏上格子不能无限缩小（五十三列挤进三百像素，一格才五像素），给日历一个
+ * 最小宽度，超出就在这个容器里横着滚 —— 滚的是它自己，不是整页。
+ */
+.gh-cal-scroll {
+  overflow-x: auto;
+  padding-bottom: 0.3em;
+}
+
+.gh-cal {
+  --cal-gap: max(2px, 0.16em);
+  display: grid;
+  grid-template-columns: auto repeat(var(--weeks), minmax(0, 1fr));
+  grid-template-rows: auto repeat(7, auto);
+  gap: var(--cal-gap);
+  min-width: 38em;
+  /* 大屏上别让格子长成豆腐块 */
+  max-width: 58em;
+}
+
+.gh-cal-month,
+.gh-cal-weekday {
+  font-size: 0.7em;
+  line-height: 1;
+  color: rgba(0, 255, 204, 0.65);
+  white-space: nowrap;
+}
+
+.gh-cal-month {
+  grid-row: 1;
+  /* 标签比一列宽，任它溢出到右边几列上，不去撑宽那一列 */
+  overflow: visible;
+}
+
+/*
+ * 星期标签高度归零、垂直居中溢出。不归零的话，标签的行高会参与这一行的
+ * 高度计算，而格子的高度是 aspect-ratio 算出来的 —— 标签一旦比格子高，
+ * 带标签的那几行就比别的行高一截，日历出现条纹状的缝。
+ */
+.gh-cal-weekday {
+  grid-column: 1;
+  align-self: center;
+  height: 0;
+  display: flex;
+  align-items: center;
+  padding-right: 0.6em;
+}
+
+/* 数据格子：和评分条同一套（Rating.css） —— 空格是暗框，满格是亮青加外发光 */
+.gh-day {
+  aspect-ratio: 1;
+  background-color: rgba(0, 255, 204, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(0, 255, 204, 0.14);
+}
+
+.gh-day[data-level='1'] { background-color: rgba(0, 255, 204, 0.3); box-shadow: none; }
+.gh-day[data-level='2'] { background-color: rgba(0, 255, 204, 0.52); box-shadow: none; }
+.gh-day[data-level='3'] { background-color: rgba(0, 255, 204, 0.76); box-shadow: none; }
+.gh-day[data-level='4'] {
+  background-color: #00ffcc;
+  box-shadow: 0 0 6px rgba(0, 255, 204, 0.75);
+}
+
+.gh-legend {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.3em;
+  max-width: 58em;
+  margin-top: 0.6em;
+  font-size: 0.7em;
+  color: rgba(0, 255, 204, 0.65);
+}
+
+/* 图例的格子不在 grid 里，没有列宽可跟，给个固定大小 */
+.gh-legend .gh-day {
+  width: 1.05em;
+  height: 1.05em;
+}
+
+/* ── 本月动态 ───────────────────────────────────────── */
+
+.gh-act-head {
+  margin: 0 0 0.6em;
+  color: #eaffee;
+}
+
+.gh-act + .gh-act-head { margin-top: 1.3em; }
+
+/*
+ * 三列：仓库名 / 次数 / 条。li 用 display: contents 把三个子元素直接交给
+ * 这个 grid —— 每一行各排各的话，名字长短不一，后面的条就对不齐。
+ */
+.gh-act {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  column-gap: 1.1em;
+  row-gap: 0.45em;
+  align-items: center;
+  font-size: 0.9em;
+}
+
+.gh-act-row { display: contents; }
+
+.gh-act-name { overflow-wrap: anywhere; }
+
+.gh-act-count {
+  color: rgba(0, 255, 204, 0.7);
+  white-space: nowrap;
+}
+
+.gh-bar {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.gh-seg {
+  width: 0.38em;
+  height: 0.9em;
+  background-color: rgba(0, 255, 204, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(0, 255, 204, 0.3);
+}
+
+.gh-seg.is-on {
+  background-color: #00ffcc;
+  box-shadow: 0 0 6px rgba(0, 255, 204, 0.7);
+}
+
+/* 主栏太窄时条子放不下，去掉它，次数已经把信息说完了 */
+@container gh-main (max-width: 26em) {
+  .gh-act { grid-template-columns: minmax(0, 1fr) auto; }
+  .gh-bar { display: none; }
+}
+
+.gh-created {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.9em;
+}
+
+.gh-created-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4em 1em;
+  padding: 0.3em 0;
+}
+
+.gh-created-row .gh-lang { font-size: 0.9em; color: rgba(0, 255, 204, 0.7); }
+
+.gh-created-date {
+  margin-left: auto;
+  font-size: 0.85em;
+  color: rgba(0, 255, 204, 0.55);
+}

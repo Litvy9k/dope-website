@@ -41,7 +41,9 @@ frontend/content/            markdown; directory layout = URL
                                  /abt-me stays that md and never becomes a
                                  listing. The children are reached through the
                                  bottom nav's submenu only — not repeated on
-                                 the page, same call as Section.jsx makes
+                                 the page, same call as Section.jsx makes.
+                                 One child, /abt-me/github, is a component
+                                 (`page: 'github'`), not an md
 frontend/src/
   content/posts.js           import.meta.glob at build time, parses frontmatter
   content/Markdown.jsx       marked tokens → React (not an HTML string)
@@ -51,6 +53,8 @@ frontend/src/
   i18n.js                    UI strings, { en, zh }
 frontend/font-source/        full font, subsetting input only, never deployed
 frontend/scripts/subset-font.mjs   emits public/font/*.subset.woff2
+frontend/scripts/fetch-github.mjs  build-time GitHub snapshot → src/github/snapshot.json
+                                   and public/image/github/ (both gitignored)
 frontend/vendor/temu-thea/   git submodule: the game, compiled from source
 deploy/nginx.conf            reference copy of the vhost; CI does NOT deploy it
 deploy/bootstrap.sh          rebuild a fresh server to the point CI can take over
@@ -108,7 +112,9 @@ A few HUD symbols (`✦ ◆ ❙ ×`) are appended to the subset's baseline becau
 they appear in JSX rather than in scanned text. `✦` and `❙` do not exist in
 Source Han Serif or Oswald at all, so they fall back to a system face; the
 lasting fix would be drawing them, as `Rating.jsx` already does for `▮▯` and
-`highlight/icons.jsx` does for the chain that marks a `[link]`. Drawing is why
+`highlight/icons.jsx` does for the chain that marks a `[link]` (and
+`components/PixelStar.jsx` for the star on featured posts and pinned repos —
+one component, positioned by each caller). Drawing is why
 that icon looks the same under all four fonts and both languages — a glyph
 would have to be added to the subset baseline and would still fall back
 wherever the face lacks it.
@@ -248,6 +254,68 @@ keyframe moment. That proves the curve without a single frame being painted.
 Sample the MIDPOINT of each keyframe interval, not the boundaries — with
 `steps(1, end)` a sample landing exactly on a boundary reads the neighbouring
 interval and silently skips a step, which looked like a missing keyframe.
+
+**/abt-me/github is a build-time snapshot, not a live call.** Its two most
+GitHub-looking parts — pinned repos and the contribution calendar — exist only
+in the GraphQL API, and GraphQL requires a token for every query. A token in a
+static site's client code is a public token. So `scripts/fetch-github.mjs` runs
+in `predev` / `prebuild`, queries with `GITHUB_TOKEN` (CI passes the
+`GH_PROFILE_TOKEN` secret, falling back to the Actions token), and writes a
+normalised JSON the page renders. Data refreshes on every deploy — including a
+daily scheduled run that exists only for this — and visitors never hit GitHub's 60-an-hour
+unauthenticated limit. The avatar is downloaded at 48px and scaled up with
+`image-rendering: pixelated`, so the page makes no third-party requests.
+
+It degrades in three tiers and **never exits non-zero** — a GitHub outage must
+not block a deploy: `graphql` (everything), `rest` (no token or GraphQL failed:
+profile, pins, this month's pushes; no calendar), `offline` (keeps the previous
+snapshot if one exists). REST has no concept of pinned repos, so that tier picks
+them from `PINNED_FALLBACK`, a hand-kept list in the script — **change it when
+the pins change on GitHub**, or tokenless builds keep showing the old ones. It
+used to fill the slot with recently pushed repos instead, which put a "Pinned"
+heading over a different set of repos. Degrading must not be
+silent either, so CI gets a `::warning::` and the page's first line states the
+source. REST cannot count commits: `PushEvent` lost its `size` field in 2025,
+so that tier says "pushes", never "commits". Organisations only appear when the
+membership is public — neither API shows private memberships to anyone else.
+
+**It is one column, not GitHub's sidebar layout.** The page uses `.page`, so it
+shares `--content-measure` with the other abt-me pages and the edges do not
+jump when you navigate in. But 100ch in the pixel font is only about 44em —
+795px on a 1600px viewport. The first version had a sidebar with a container
+query collapsing it below 44em, and the page was always a few pixels under the
+breakpoint (795 against 799), so **the two-column layout never rendered on any
+screen** and nothing looked wrong. A sidebar in 795px would leave the main
+column under 27em anyway, forcing the calendar (38em minimum) to scroll and the
+repo cards into one column. The profile is instead a horizontal card on top.
+
+The calendar grid puts month labels, weekday labels and day cells in **one**
+grid: cells are `aspect-ratio: 1` so row height is computed, and a separate
+label container could not track it. Each day is placed with an explicit
+`grid-row` from its weekday, because the first week is almost never full and
+auto-placement shifts the whole year by a row. Weekday labels are `height: 0`
+so their line box cannot make the Mon/Wed/Fri rows taller than the rest. All
+three were verified against a GraphQL-shaped fixture: 369 cells, one size,
+evenly spaced, labels 0–0.1px off the row centre.
+
+**The snapshot is only rewritten when its content changes.** It sits in `src/`
+so `subset-font.mjs` scans it (repo descriptions may contain Chinese — `json`
+was added to `SCAN_EXT` for this), and that script decides freshness by mtime.
+Rewriting the file every run would re-subset all four fonts, the 23MB one
+included, on every `npm run dev`. For the same reason **`fetch-github` must run
+before `subset-font`** in both `pre*` scripts; reversed, the fonts are built
+from the previous snapshot. `fetchedAt` is a date, not a timestamp, so an
+unchanged profile rewrites at most once a day. Locally a 10-minute cache in
+`node_modules/.cache` stops repeated `npm run dev` from spending the REST quota.
+
+The token is sent to `api.github.com` only, never to the avatar CDN. Locally,
+full data needs `GITHUB_TOKEN` as a system environment variable (a fine-grained
+token with no permissions reads public data) — **never a file in this repo**,
+which is public.
+
+**Do not create `content/abt-me/github.md`.** `Resolve` checks for an article
+before it looks at `page`, so an md with that slug silently replaces the
+component page — no error, just a different page.
 
 **Headline entries only on leaf sections.** `/review` aggregates several media
 and cannot pick one "most recommended", so it stars each sub-section's pick and
@@ -393,7 +461,14 @@ screenshot: `document.documentElement.scrollWidth > clientWidth`.
   routes over https, the JS MIME type, and the http→https redirect). Because
   curl validates certificates and these calls have no `-k`, the smoke test
   doubles as certificate-expiry monitoring
-- Secrets: `SERVER_HOST` / `SERVER_USER` / `SERVER_SSH_KEY`
+- CI also runs **daily at 18:17 UTC** (`schedule`), so the GitHub snapshot does
+  not freeze at the last push. Every scheduled run is a real deploy. Scheduled
+  workflows run only on the default branch, and GitHub disables them after 60
+  days without repository activity — re-enable from the Actions tab
+- Secrets: `SERVER_HOST` / `SERVER_USER` / `SERVER_SSH_KEY` / `GH_PROFILE_TOKEN`
+  (fine-grained, no permissions, public data only; secret names may not start
+  with `GITHUB_`). When it expires the build falls back to REST with a
+  `::warning::` and still deploys — the page's first line says `REST`
 
 ## Rebuilding the server from scratch
 
@@ -451,3 +526,8 @@ means the site is unreachable, not degraded.
   `posts.js` (drop empty parts) or at the three `??` chains, not in the md
 - Section names (`review` / `blog-post` / `abt-me` / `game`) are not settled
 - `anime` and `books` have no content
+- **The GraphQL tier of /abt-me/github has never run.** Local development has
+  no token, so only the REST tier has been exercised and the query is untested
+  against the live schema. The first CI run with `GH_PROFILE_TOKEN` set will
+  show it: `source=graphql` in the Build log means it worked, a `::warning::`
+  means it fell back

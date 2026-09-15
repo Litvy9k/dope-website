@@ -4,6 +4,7 @@ import UpLink from '../components/UpLink';
 import { trailOf } from '../components/nav/sections';
 import { getPost, pages } from '../content/posts';
 import GamePage from './GamePage';
+import GitHubPage from './GitHubPage';
 import MarkdownPage from './MarkdownPage';
 import Post from './Post';
 import Section, { NotFound } from './Section';
@@ -13,7 +14,7 @@ import Section, { NotFound } from './Section';
  * 表放在这儿而不是 sections.js 里：那个文件是纯数据，不该 import 组件，
  * 否则栏目树就和 React 绑死了，node 里跑不了。
  */
-const PAGES = { game: GamePage };
+const PAGES = { game: GamePage, github: GitHubPage };
 
 /**
  * 一个地址可能是文章也可能是栏目，深度不固定

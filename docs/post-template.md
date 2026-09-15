@@ -116,6 +116,11 @@ content/abt-me/this-site.md      →  /abt-me/this-site
 只建 md 不加 `children`：页面能直接访问，但不进底栏菜单，没有任何地方链接到它。
 只加 `children` 不建 md：底栏菜单里会留一个点进去 404 的链接。
 
+**例外：`/abt-me/github` 不是 md，是组件**（`pages/GitHubPage.jsx`，数据是构建前
+拉的快照）。它在 `sections.js` 里写了 `page: 'github'`。**不要建
+`content/abt-me/github.md`** —— `Resolve.jsx` 先查文章再查 `page` 字段，同名 md
+会直接赢，GitHub 页被悄悄替换，没有任何报错。
+
 子页走的是文章那套组件，所以 frontmatter 的 `date` / `rating` / `tags` 都能用；
 不写就整行不渲染。
 

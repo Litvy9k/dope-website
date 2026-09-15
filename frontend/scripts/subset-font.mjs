@@ -46,7 +46,13 @@ const SCAN_FILES = [
   // 只扫这一个文件而不是整个 game/：其余全是注释，白白多带一百多个字形
   'vendor/temu-thea/src/game/i18n.js',
 ];
-const SCAN_EXT = /\.(md|jsx?|tsx?|css|html)$/;
+/*
+ * json 是给 src/github/snapshot.json 加的：GitHub 页的仓库描述、简介都在里面，
+ * 有中文的话不扫就会逐字掉回系统字体。它由 scripts/fetch-github.mjs 生成，
+ * 所以 predev / prebuild 里那个脚本必须排在本脚本前面 —— 反过来的话，
+ * 这次子集化扫到的是上一次的快照。
+ */
+const SCAN_EXT = /\.(md|jsx?|tsx?|css|html|json)$/;
 
 /**
  * 保底字符：就算仓库里一个都没出现也带上。

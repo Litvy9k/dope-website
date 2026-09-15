@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import Rating from './Rating';
+import PixelStar from './PixelStar';
 import { pick } from '../content/posts';
 import './PostCard.css';
 
@@ -33,22 +34,8 @@ export default function PostCard({ post, lang, featured = false, starred = false
     >
       <Cover src={post.cover} alt={title} />
 
-      {(featured || starred) && (
-        <span className="card-star" aria-hidden="true">
-          {/* 逐格拼出来的五角星，不用 ★ 字符 —— 点阵字体不一定有那个字形 */}
-          <svg viewBox="0 0 9 8" shapeRendering="crispEdges">
-            <rect x="4" y="0" width="1" height="2" />
-            <rect x="3" y="2" width="3" height="1" />
-            <rect x="0" y="3" width="9" height="1" />
-            <rect x="1" y="4" width="7" height="1" />
-            <rect x="2" y="5" width="5" height="1" />
-            <rect x="2" y="6" width="2" height="1" />
-            <rect x="5" y="6" width="2" height="1" />
-            <rect x="1" y="7" width="2" height="1" />
-            <rect x="6" y="7" width="2" height="1" />
-          </svg>
-        </span>
-      )}
+      {/* 星星本身在 PixelStar 里（GitHub 页的置顶仓库卡片用的是同一颗），这里只管摆在哪 */}
+      {(featured || starred) && <PixelStar className="card-star" />}
 
       <div className="card-body">
         {/* 原名和年份跟在标题后面同一行，各自保持原来的字号 */}

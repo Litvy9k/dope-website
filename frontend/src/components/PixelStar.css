@@ -1,0 +1,21 @@
+/*
+ * 星星本身的样子：和正文高亮同一个荧光黄（highlight.css 的 --hl-yellow），
+ * 外面一圈同色辉光。
+ *
+ * 辉光用 drop-shadow 不用 box-shadow：box-shadow 描的是外层 span 的方盒子，
+ * 会在星星周围亮出一个正方形；drop-shadow 描的是星形本身。
+ *
+ * 定位、宽度不写在这里 —— 由调用方传进来的 className 决定（见 PixelStar.jsx）。
+ * 悬浮时加强辉光也是调用方的事：只有调用方知道"悬浮"指的是悬浮在哪张卡上。
+ */
+.pixel-star {
+  display: block;
+  filter: drop-shadow(0 0 8px rgba(245, 255, 61, 0.85));
+}
+
+.pixel-star svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  fill: var(--hl-yellow, #f5ff3d);
+}

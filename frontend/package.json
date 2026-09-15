@@ -4,10 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "predev": "node scripts/subset-font.mjs",
+    "predev": "node scripts/fetch-github.mjs && node scripts/subset-font.mjs",
     "dev": "vite",
+    "fetch-github": "node scripts/fetch-github.mjs",
     "subset-font": "node scripts/subset-font.mjs",
-    "prebuild": "node scripts/subset-font.mjs",
+    "prebuild": "node scripts/fetch-github.mjs && node scripts/subset-font.mjs",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"

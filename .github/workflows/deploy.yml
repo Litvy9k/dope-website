@@ -5,6 +5,17 @@ on:
   push:
     branches: [master, main]
   workflow_dispatch:
+  # 每天重新构建一次，让 /abt-me/github 的快照（贡献日历、置顶、本月动态）跟上
+  # GitHub —— 快照是构建时拉的，不重新构建就一直停在上次推送那天。
+  #
+  # cron 是 UTC：18:17 UTC = 新西兰 06:17（夏令时 07:17）。故意不取整点：
+  # GitHub 的定时任务在整点扎堆，整点那一批最容易被推迟甚至跳过。
+  #
+  # 注意两件事：定时任务只在默认分支（master）上跑；公开仓库 60 天没有任何
+  # 活动的话，GitHub 会自动停用它，要去 Actions 页面手动重新启用。
+  # 顺带的好处：冒烟测试每天跑一次，证书快过期时也每天都有机会报出来。
+  schedule:
+    - cron: '17 18 * * *'
 
 # 连着推两次时，让后一次直接取代前一次，避免两个部署互相踩
 concurrency:
@@ -37,6 +48,16 @@ jobs:
 
       - name: Build
         working-directory: frontend
+        env:
+          # prebuild 里的 scripts/fetch-github.mjs 用它调 GraphQL —— /abt-me/github
+          # 的置顶仓库和贡献日历只有 GraphQL 有，而 GraphQL 必须认证。
+          #
+          # GH_PROFILE_TOKEN 是手动加的 fine-grained token（不勾任何权限，只读
+          # 公开数据）。名字不能以 GITHUB_ 开头 —— GitHub 不允许 secret 用这个前缀。
+          # 没配它时退回 Actions 自带的 token；那个是应用安装令牌，能不能读用户的
+          # 贡献日历没有确认过。两个都不行时脚本退回 REST 并打 ::warning::，
+          # 部署照常成功 —— token 过期也是同样的表现，去 Build 这一步的日志里看。
+          GITHUB_TOKEN: ${{ secrets.GH_PROFILE_TOKEN || secrets.GITHUB_TOKEN }}
         # 产物在 frontend/dist（不是 build）
         run: npm run build
 

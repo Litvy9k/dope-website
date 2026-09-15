@@ -71,21 +71,13 @@
   box-shadow: 0 0 20px rgba(0, 255, 204, 0.9);
 }
 
-/* 右上角框内的五角星，用和正文高亮同一个荧光黄 */
+/* 右上角框内的五角星。星形、荧光黄、辉光在 PixelStar.css，这里只管位置和大小 */
 .card-star {
   position: absolute;
   top: 12px;
   right: 14px;
   width: 30px;
   pointer-events: none;
-  filter: drop-shadow(0 0 8px rgba(245, 255, 61, 0.85));
-}
-
-.card-star svg {
-  display: block;
-  width: 100%;
-  height: auto;
-  fill: var(--hl-yellow, #f5ff3d);
 }
 
 .post-card.is-featured:hover .card-star {
