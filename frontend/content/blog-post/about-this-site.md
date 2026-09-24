@@ -23,9 +23,13 @@ To be honest, my ideal choice would be something like the UI design of Heroes of
 
 (This used to be a quote from GPT-6 Astra but Claude Opus 5 was just simply better)
 
-But since this would pretty much require a PhD in Art and I can't rely everything on LLM, pixelated Cyberpunk theme (inspired by [link=https://store.steampowered.com/app/447530/VA11_HallA_Cyberpunk_Bartender_Action/]Va-11 Hall-A![/link]) was my second best choice. This decision had the same reason behind the low-poly design of my undergraduate thesis (a Unreal Engine 4 3D survival game): Low performance cost and [tooltip content="Kinda weird gramatically, but what I mean is you can unify art assets from different sources by simply adjusting the granule size of the pixel"]easily unified style[/tooltip], an absolute safe option for indie developers. I also happened to came across a [link=https://github.com/mdombrov-33/vault66-crt-effect]CRT effect pack[/link], gave it a try and worked well (I did everything including the prototype by myself until this point lmao), so I kept designing the site with it.
+But since this would pretty much require a PhD in Art and I can't rely everything on LLM, pixelated Cyberpunk theme (inspired by [link=https://store.steampowered.com/app/447530/VA11_HallA_Cyberpunk_Bartender_Action/]Va-11 Hall-A![/link]) was my second best choice. This decision had the same reason behind the low-poly design of my undergraduate thesis (a Unreal Engine 4 3D survival game): Low performance cost and [tooltip content="Kinda weird gramatically, but what I mean is you can unify art assets from different sources by simply adjusting the granule size of the pixel"]easily unified style[/tooltip], an absolute safe option for indie developers. I also happened to came across a [link=https://github.com/mdombrov-33/vault66-crt-effect]CRT effect pack[/link], gave it a try and worked well (I did everything including the prototype by myself until this point lmao), so I kept designing the site with it. I might make changes in the future if I find interesting UI packs tho.
 
 # What content is there gonna be
+
+Sh*tposts, duh.
+
+Other than that, shower thoughts, daily complains, game reviews, that sort of things. Pretty much anything (legal).
 
 <!-- zh -->
 # 为什么会有这个网站
@@ -42,4 +46,7 @@ But since this would pretty much require a PhD in Art and I can't rely everythin
 
 (我原来问的是GPT-6 Astra,但是Claude Opus 5的回答秒了)
 
-但是可以预见的是这种风格非专业人士是很难做到的,这种事LLM也不可靠,所以我想了想用了我很喜欢的[link=https://store.steampowered.com/app/447530/VA11_HallA_Cyberpunk_Bartender_Action/]Va-11 Hall-A[/link]那种像素赛博朋克风格.这个决定和我本科毕设做UE4游戏的时候选的低多边形美术风格是基本上一样的理由:低性能消耗,风格容易统一,对于独立开发者来说基本不会错.刚好我在网上看到了一个[link=https://github.com/mdombrov-33/vault66-crt-effect]CRT显示器的前端效果包[/link],拿来试了一下发现效果真不错(到这里为止还是我自己写的哈哈),就基于这种风格往下做了.
+但是可以预见的是这种风格非专业人士是很难做到的,这种事LLM也不可靠,所以我想了想用了我很喜欢的[link=https://store.steampowered.com/app/447530/VA11_HallA_Cyberpunk_Bartender_Action/]Va-11 Hall-A[/link]那种像素赛博朋克风格.这个决定和我本科毕设做UE4游戏的时候选的低多边形美术风格是基本上一样的理由:低性能消耗,风格容易统一,对于独立开发者来说基本不会错.刚好我在网上看到了一个[link=https://github.com/mdombrov-33/vault66-crt-effect]CRT显示器的前端效果包[/link],拿来试了一下发现效果真不错(到这里为止还是我自己写的哈哈),就基于这种风格往下做了.将来如果找到有意思的UI包了可能还会改着玩.
+
+# 这里会放什么内容
+
